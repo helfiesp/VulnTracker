@@ -1,3 +1,4 @@
+#!/var/web/py311/bin/python
 """
 WSGI config for vulnerabilities project.
 
