@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/filters.css' %}">
+    <aside class="sidebar">
+        <h1 class="logo">{{ cve.id }}</h1>
+        <nav class="nav">
+            <ul>
+                <li><a href="{% url 'keywords' %}">Keywords</a></li>
+                <li><a href="#critical">Critical Impact</a></li>
+                <li><a href="#patches">Available Patches</a></li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <main class="main-content">
+    <div class="filter-section">
+        <div class="filter-header">
+            <h2>Maskiner med sårbarhet: {{ cve.id }}</h2>
+            <p style="text-align: center;">Antall resultater: {{ machines|length}} </p>
+            
+        </div>
+        <div class="filter-controls">
+            <!-- OS Platform Filter Dropdown -->
+            <div class="sort-filter">
+              <select id="os-platform-select">
+                  <option value="">Select OS Platform</option>
+                  {% for os_platform in os_platforms %}
+                      <option value="{{ os_platform }}" {% if os_platform == selected_os_platform %}selected{% endif %}>{{ os_platform }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+
+            <!-- RBAC Group Name Filter Dropdown -->
+            <div class="sort-filter">
+                <select id="rbac-group-name-select">
+                    <option value="">Select RBAC Group Name</option>
+                    {% for rbac_group_name in rbac_group_names %}
+                        <option value="{{ rbac_group_name }}" {% if rbac_group_name == selected_rbac_group_name %}selected{% endif %}>{{ rbac_group_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- BSS Filter Dropdown -->
+            <div class="sort-filter">
+                <select id="bss-select">
+                    <option value="">Select Business Sub-Service</option>
+                    {% for bss in bss_values %}
+                        <option value="{{ bss }}" {% if bss == selected_bss %}selected{% endif %}>{{ bss }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+                <div class="search-filter">
+                    <input type="search" id="search-input" placeholder="Search vulnerabilities...">
+                </div>
+
+              <div class="sort-filter">
+                <select id="machine-type-select">
+                    <option value="">Select Type</option>
+                    <option value="server" {% if selected_machine_type == 'server' %}selected{% endif %}>Servers</option>
+                    <option value="client" {% if selected_machine_type == 'client' %}selected{% endif %}>Clients</option>
+                </select>
+            </div>
+
+            <div class="sort-filter">
+       
+            <select id="sort-select">
+                <option value="cvss_score_desc" {% if current_sort == 'cvss_score_desc' %}selected{% endif %}>Highest CVSS Score</option>
+                <option value="cvss_score_asc" {% if current_sort == 'cvss_score_asc' %}selected{% endif %}>Lowest CVSS Score</option>
+                <option value="date_desc" {% if current_sort == 'date_desc' %}selected{% endif %}>Newest First</option>
+                <option value="date_asc" {% if current_sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
+            </select>
+            </div>
+            </div>
+        </div>
+
+        {% if is_fetching_from_api %}
+  <div id="loading-message">
+    Fetching data from the API, please wait...
+  </div>
+  <script>
+    // Refresh the page after 10 seconds to check if the data has been fetched
+    setTimeout(function() {
+      window.location.reload();
+    }, 10000);  // 10000 milliseconds = 10 seconds
+  </script>
+{% else %}
+
+
+  {% if machines %}
+  <table>
+    <thead>
+      <tr>
+        <th>Computer DNS Name</th>
+        <th>OS Platform</th>
+        <th>Business sub-service</th>
+        <th>RBAC Group Name</th>
+        <th>RBAC Group ID</th>
+        <th>Comments</th>
+        <!-- Add more headers if needed -->
+      </tr>
+    </thead>
+    <tbody>
+      {% for machine in machines %}
+        <tr>
+          {% if machine.computer_dns_name %}
+            <td>
+              <a href="{% url 'cve-list-for-machine' computer_dns_name=machine.computer_dns_name %}">{{ machine.computer_dns_name }}</a>
+            </td>
+          {% else %}
+            <td>None</td>
+          {% endif %}
+          <td>{{ machine.os_platform }}</td>
+          <td>{{ machine.bss }}</td>
+          <td>{{ machine.rbac_group_name }}</td>
+          <td>{{ machine.rbac_group_id }}</td>
+        <td>
+            <div class="comment-form">
+                <form action="{% url 'add_comment' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="result_id" value="{{ cve.id }}__{{ machine.machine_id }}">
+                    <input type="hidden" name="comment_type" value="cve-machine">
+
+                    <div class="comment-form-controls">
+                        <textarea name="comment_content">{{ machine.comment_content }}</textarea>
+                        <button type="submit">Post Comment</button>
+                    </div>
+                </form>
+            </div>
+        </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No machines found for this CVE.</p>
+{% endif %}
+{% endif %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to update the query parameters
+    function updateQueryParams(param, value) {
+        let currentUrl = new URL(window.location);
+        let searchParams = currentUrl.searchParams;
+
+        // Update or delete the parameter
+        if (value) {
+            searchParams.set(param, value);
+        } else {
+            searchParams.delete(param);
+        }
+
+        // Return the updated URL
+        return currentUrl.toString();
+    }
+
+    // Listener for the OS Platform filter
+    const osPlatformSelect = document.getElementById('os-platform-select');
+    osPlatformSelect.addEventListener('change', function() {
+        const selectedValue = this.options[this.selectedIndex].value;
+        window.location.href = updateQueryParams('os_platform', selectedValue);
+    });
+
+    // Listener for the RBAC Group Name filter
+    const rbacGroupNameSelect = document.getElementById('rbac-group-name-select');
+    rbacGroupNameSelect.addEventListener('change', function() {
+        const selectedValue = this.options[this.selectedIndex].value;
+        window.location.href = updateQueryParams('rbac_group_name', selectedValue);
+    });
+
+    const machineTypeSelect = document.getElementById('machine-type-select');
+    machineTypeSelect.addEventListener('change', function() {
+        window.location.href = updateQueryParams('machine_type', this.value);
+    });
+
+    // Listener for the BSS filter
+    const bssSelect = document.getElementById('bss-select');
+    bssSelect.addEventListener('change', function() {
+        window.location.href = updateQueryParams('bss', this.value);
+    });
+
+});
+</script>
+
+
+{% endblock %}
+
+
+
+

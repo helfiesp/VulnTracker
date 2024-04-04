@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/filters.css' %}">
+<link rel="stylesheet" href="{% static 'css/cve_table.css' %}">
+
+<aside class="sidebar">
+    <h1 class="logo">Defender Dashboard</h1>
+    <nav class="nav">
+        <ul>
+            <li><a href="{% url 'keywords' %}">Keywords</a></li>
+            <li><a href="#critical">Critical Impact</a></li>
+            <li><a href="#patches">Available Patches</a></li>
+        </ul>
+    </nav>
+</aside>
+
+<main class="main-content">
+    <div class="content-header">
+        <h2>Machine: {{ computer_dns_name }}</h2>
+        <button id="toggleViewBtn">Switch View</button>
+    </div>
+
+    <!-- Software List Section -->
+    <section class="vulnerabilities-list" id="softwareList" style="display: none;">
+        {% for software in software_list %}
+             <article class="cve" >
+                <div class="cve-header">
+                    <h3 class="cve-title">{{ software.name }}</h3>
+                        <div class="cve-tags">
+                            {% if software.publicExploit %}
+                                <div class="cve-tag known-exploited">Known Exploited</div>
+                            {% endif %}
+
+                        </div>
+
+                <p>Vendor: {{ software.vendor }}</p>
+
+            </article>
+        {% empty %}
+            <p>No software found.</p>
+        {% endfor %}
+    </section>
+
+    <section class="vulnerabilities-list" id="latest">
+        {% for cve in vulnerability_list %}
+            <article class="cve" data-cvss="{{ cve.cvssV3 }}" data-exposed-machines="{{ cve.exposedMachines }}">
+                 <div class="cve-header">
+                    <h3 class="cve-title">{{ cve.name }}</h3>
+                        <div class="cve-tags">
+                            {% if cve.publicExploit %}
+                                <div class="cve-tag known-exploited">Known Exploited</div>
+                            {% endif %}
+
+                            <div class="cve-tag cve-criticality {{ cve.severity }}">
+                                {{ cve.severity }} {{ cve.cvssV3 }}
+                            </div>
+                            <div class="cve-tag cve-criticality Informational">
+                                <a class="exposed_machines_link" href="{% url 'machine-list' cve_id=cve.id %}">Exposed devices: {{ cve.exposedMachines }}</a>
+                            </div>
+                            
+                        </div>
+                </div>
+                <!-- Check the length of the description and truncate if necessary -->
+                <p class="cve-description">
+                    {{ cve.description|slice:":500" }}
+                    {% if cve.description|length > 500 %}
+                        <span class="ellipsis">...</span>
+                        <span class="more-text">{{ cve.description|slice:"500:" }}</span>
+                        <button class="view-more-btn" onclick="toggleDescription(this)">View More</button>
+                    {% endif %}
+                </p>
+                <div class="cve-details">
+                    <span>Published: {{ cve.publishedOn |date:"M d, Y" }}</span>
+                </div>
+                {% if cve.exploitTypes %}
+                    <div class="cve-keywords">
+                        {{ cve.keywords }}
+                    </div>
+                {% endif %}
+            </article>
+        {% empty %}
+            <p>No vulnerabilities found.</p>
+        {% endfor %}
+    </section>
+
+
+</main>
+
+<script>
+document.getElementById('toggleViewBtn').addEventListener('click', function() {
+    let softwareList = document.getElementById('softwareList');
+    let vulnerabilitiesList = document.getElementById('vulnerabilitiesList');
+    
+    // Toggle display
+    softwareList.style.display = softwareList.style.display === 'none' ? '' : 'none';
+    vulnerabilitiesList.style.display = vulnerabilitiesList.style.display === 'none' ? '' : 'none';
+
+    // Update button text based on visible section
+    this.textContent = softwareList.style.display === 'none' ? 'Show Software' : 'Show Vulnerabilities';
+});
+</script>
+
+{% endblock %}

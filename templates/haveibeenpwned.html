@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/filters.css' %}">
+<link rel="stylesheet" href="{% static 'css/cve_table.css' %}">
+
+    <aside class="sidebar">
+        <h1 class="logo">HaveIBeenPwned</h1>
+        <nav class="nav">
+            <ul>
+                <li><a href="{% url 'keywords' %}">Keywords</a></li>
+                <li><a href="#critical">Critical Impact</a></li>
+                <li><a href="#patches">Available Patches</a></li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <main class="main-content">
+    <div class="filter-section">
+        <div class="filter-header">
+            {% if breached_user %}
+                <h2>Breaches for user: {{ breached_user }}</h2>
+            {% else %}
+                <h2>HaveIBeenPwned</h2>
+            {% endif %}
+            
+        </div>
+        <div class="filter-controls">
+            <div class="date-filter">
+                <select id="year-filter-select">
+                    <option value="">All Years</option>
+                    {% for year in years %}
+                    <option value="{{ year }}" {% if year|stringformat:"s" == current_filter_year %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+                <div class="search-filter">
+                    <input type="search" id="search-input" placeholder="Search vulnerabilities...">
+                </div>
+
+            <div class="sort-filter">
+       
+        <select id="sort-select">
+            <option value="pwn_count_desc" {% if current_sort == 'pwn_count_desc' %}selected{% endif %}>Highest Breached User Count</option>
+            <option value="pwn_count_asc" {% if current_sort == 'pwn_count_asc' %}selected{% endif %}>Lowest Breached User Count</option>
+            <option value="breached_users_desc" {% if current_sort == 'breached_users_desc' %}selected{% endif %}>Most Breached OK Users</option>
+            <option value="breached_users_asc" {% if current_sort == 'breached_users_asc' %}selected{% endif %}>Fewest Breached OK Users</option>
+        </select>
+            </div>
+            </div>
+        </div>
+
+    <section class="vulnerabilities-list" id="latest">
+    {% for breach in breaches %}
+        <article class="cve" data-domain="{{ breach.domain }}" data-pwn-count="{{ breach.pwn_count }}">
+            <div class="cve-header">
+                <h3 class="cve-title">{{ breach.name }}</h3>
+                <div class="cve-tags">
+                    <div class="cve-tag cve-criticality Informational">
+                        Breached users: {{ breach.pwn_count }}
+                    </div>
+                    {% if breach.breached_users %}
+                    <div class="cve-tag cve-criticality Critical">
+                        <a style="text-decoration: none; color: white" href="{% url 'breached_users_list' breach.name %}">Breached OK users: {{ breach.breached_users|length }}</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <p class="cve-description">
+                {{ breach.description|safe|slice:":500" }}
+                {% if breach.description|length > 500 %}
+                    <span class="ellipsis">...</span>
+                    <span class="more-text">{{ breach.description|safe|slice:"500:" }}</span>
+                    <button class="view-more-btn" onclick="toggleDescription(this)">View More</button>
+                {% endif %}
+            </p>
+            <div class="cve-details">
+                <span>Breach Date: {{ breach.breach_date|date:"M d, Y" }}</span><span> Added Date: {{ breach.added_date|date:"M d, Y" }}</span>
+            </div>
+        </article>
+    {% empty %}
+        <p>No vulnerabilities found.</p>
+    {% endfor %}
+</section>
+
+
+<script>
+// JAVASCRIPT FOR SORT BY BREACH COUNT FUNCTION
+document.addEventListener('DOMContentLoaded', function () {
+    var sortSelect = document.getElementById('sort-select');
+    sortSelect.addEventListener('change', function () {
+        var selectedOption = this.value;
+        // Build the new URL with the selected sort option
+        var currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('sort', selectedOption);
+        // Redirect to the new URL
+        window.location = currentUrl.href;
+    });
+});
+// JAVASCRIPT FOR SORT BY YEAR
+document.addEventListener('DOMContentLoaded', function () {
+    var sortSelect = document.getElementById('sort-select');
+    var yearFilterSelect = document.getElementById('year-filter-select');  // Get the year filter select
+
+    sortSelect.addEventListener('change', function () {
+        updateFilters();
+    });
+
+    yearFilterSelect.addEventListener('change', function () {  // Add event listener for the year filter
+        updateFilters();
+    });
+
+    function updateFilters() {
+        var selectedSort = sortSelect.value;
+        var selectedYear = yearFilterSelect.value;
+        var currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('sort', selectedSort);
+        if (selectedYear) {
+            currentUrl.searchParams.set('filter_year', selectedYear);
+        } else {
+            currentUrl.searchParams.delete('filter_year');
+        }
+        window.location = currentUrl.href;
+    }
+});
+</script>
+
+
+{% endblock %}
+
+
+

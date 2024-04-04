@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+<style>
+.charts-container {
+    background: #fff;
+    display: flex;
+    justify-content: space-around; /* This centers the charts and provides equal spacing around them */
+    align-items: flex-start; /* Aligns items at the start of the container */
+    flex-wrap: wrap; /* Allows items to wrap if the screen is too small */
+    border-radius: 10px;
+    margin-bottom: 40px;
+}
+
+.chart-container {
+    flex-basis: 50%; /* Each chart container takes up 50% of the width */
+    max-width: 50%; /* Prevents the container from exceeding 50% of the parent's width */
+    box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+    padding: 10px; /* Adds some spacing inside each chart container */
+}
+
+canvas {
+    max-height: 400px; /* Sets the maximum height for the canvas */
+    width: 100% !important; /* Ensures the canvas fills the container width */
+    height: auto !important; /* Maintains the aspect ratio of the canvas */
+}
+</style>
+<link rel="stylesheet" href="{% static 'css/filters.css' %}">
+<link rel="stylesheet" href="{% static 'css/cve_table.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>s
+    <aside class="sidebar">
+        <h1 class="logo">Defender Vulnerabilities</h1>
+        <nav class="nav">
+            <ul>
+                <li><a href="{% url 'keywords' %}">Keywords</a></li>
+                <li><a href="#critical">Critical Impact</a></li>
+                <li><a href="#patches">Available Patches</a></li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <main class="main-content">
+    <div class="filter-section">
+        <div class="filter-header">
+            <h2>Defender Vulnerabilities</h2>
+            
+        </div>
+        <div class="filter-controls">
+            <div class="date-filter">
+                <select id="date-filter-select">
+                    <option value="past_day" {% if current_date_filter == 'past_day' %}selected{% endif %}>Past Day</option>
+                    <option value="past_week" {% if current_date_filter == 'past_week' %}selected{% endif %}>Past Week</option>
+                    <option value="past_weekend" {% if current_date_filter == 'past_weekend' %}selected{% endif %}>Past Weekend</option>
+                    <option value="this_month" {% if current_date_filter == 'this_month' %}selected{% endif %}>This Month</option>
+                </select>
+            </div>
+
+                <div class="keyword-filter" style="margin-top:8px">
+
+                <input type="checkbox" id="filter-keywords" class="sr-only" {% if request.GET.publicExploit == 'true' %}checked{% endif %}>
+                <label for="filter-keywords" class="keyword-button">CISA Known exploited</label>
+                </div>
+
+                <div class="search-filter">
+                    <input type="search" id="search-input" placeholder="Search vulnerabilities...">
+                </div>
+
+            <div class="sort-filter">
+       
+            <select id="sort-select" onchange="filterAndSortVulnerabilities()">
+                <option value="cvss_score_desc">Highest CVSS Score</option>
+                <option value="cvss_score_asc">Lowest CVSS Score</option>
+                <option value="exposed_desc">Most Exposed Machines</option>
+                <option value="exposed_asc">Least Exposed Machines</option>
+                <!-- Keep other options as is -->
+            </select>
+            </div>
+            </div>
+        </div>
+
+
+<div class="charts-container">
+    <div class="chart-container">
+        <h2>Unique vulnerabilities by criticality</h2>
+        <canvas id="vulnerabilityChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h2>All vulnerabilities by criticality</h2>
+        <canvas id="exposedMachinesChart"></canvas>
+    </div>
+</div>
+
+
+    <section class="vulnerabilities-list" id="latest">
+        {% for cve in vulnerabilities %}
+            <article class="cve" data-cvss="{{ cve.cvssV3 }}" data-exposed-machines="{{ cve.exposedMachines }}">
+                 <div class="cve-header">
+                    <h3 class="cve-title">{{ cve.name }}</h3>
+                        <div class="cve-tags">
+                            {% if cve.publicExploit %}
+                                <div class="cve-tag known-exploited">Known Exploited</div>
+                            {% endif %}
+
+                            <div class="cve-tag cve-criticality {{ cve.severity }}">
+                                {{ cve.severity }} {{ cve.cvssV3 }}
+                            </div>
+
+                            <div class="cve-tag cve-criticality Informational">
+                                <a style="text-decoration: none; color: white;" href="{% url 'machine-list' cve_id=cve.id %}">Exposed devices: {{ cve.exposedMachines }}</a>
+                            </div>
+                        </div>
+                </div>
+                <!-- Check the length of the description and truncate if necessary -->
+                <p class="cve-description">
+                    {{ cve.description|slice:":500" }}
+                    {% if cve.description|length > 500 %}
+                        <span class="ellipsis">...</span>
+                        <span class="more-text">{{ cve.description|slice:"500:" }}</span>
+                        <button class="view-more-btn" onclick="toggleDescription(this)">View More</button>
+                    {% endif %}
+                </p>
+                <div class="cve-details">
+                    <span>Published: {{ cve.publishedOn |date:"M d, Y" }}</span>
+                </div>
+                {% if cve.exploitTypes %}
+                    <div class="cve-keywords">
+                        {{ cve.keywords }}
+                    </div>
+                {% endif %}
+            </article>
+        {% empty %}
+            <p>No vulnerabilities found.</p>
+        {% endfor %}
+    </section>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const sortSelect = document.getElementById('sort-select');
+    sortSelect.addEventListener('change', filterAndSortVulnerabilities);
+
+    function filterAndSortVulnerabilities() {
+        const option = sortSelect.value;
+        const cveList = document.querySelectorAll('.cve');
+        const sortedAndFiltered = Array.from(cveList).sort(function(a, b) {
+            switch(option) {
+                case 'cvss_score_desc':
+                    return b.dataset.cvss - a.dataset.cvss;
+                case 'cvss_score_asc':
+                    return a.dataset.cvss - b.dataset.cvss;
+                case 'exposed_desc':
+                    return b.dataset.exposedMachines - a.dataset.exposedMachines;
+                case 'exposed_asc':
+                    return a.dataset.exposedMachines - b.dataset.exposedMachines;
+                default:
+                    return 0;
+            }
+        });
+
+        const vulnerabilitiesList = document.querySelector('.vulnerabilities-list');
+        vulnerabilitiesList.innerHTML = '';
+        sortedAndFiltered.forEach(function(cve) {
+            vulnerabilitiesList.appendChild(cve);
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('input', filterCVEs);
+
+    function filterCVEs() {
+        const query = searchInput.value.toLowerCase();
+        const cveList = document.querySelectorAll('.cve');
+
+        cveList.forEach(function(cve) {
+            const title = cve.querySelector('.cve-title').textContent.toLowerCase();
+            const description = cve.querySelector('.cve-description').textContent.toLowerCase();
+            if (title.includes(query) || description.includes(query)) {
+                cve.style.display = '';
+            } else {
+                cve.style.display = 'none';
+            }
+        });
+    }
+});
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    var filterKeywordsCheckbox = document.getElementById('filter-keywords');
+    filterKeywordsCheckbox.addEventListener('change', function(e) {
+        var queryParams = new URLSearchParams(window.location.search);
+        
+        if (this.checked) {
+            queryParams.set('publicExploit', 'true');
+        } else {
+            queryParams.delete('publicExploit');
+        }
+
+        e.preventDefault();
+        window.location.search = queryParams.toString();
+    });
+});
+
+const severityColors = {
+    'Critical': 'rgba(200, 0, 0, 1)', // Dark red for Critical
+    'High': 'rgba(255, 99, 132, 1)', // Red for High
+    'Medium': 'rgba(255, 206, 86, 1)', // Yellow for Medium
+    'Low': 'rgba(75, 192, 192, 1)', // Green for Low
+    'Known_Exploited': 'rgba(139, 0, 0, 1)' // Dark red for Known Exploited
+};
+
+// Assuming you have your stats data in JavaScript objects
+const vulnerabilityData = {
+    labels: Object.keys({{ stats.vulnerabilities|safe }}),
+    datasets: [{
+        label: 'Vulnerabilities by Severity',
+        data: Object.values({{ stats.vulnerabilities|safe }}),
+        // Initial placeholder for backgroundColor, to be replaced.
+        backgroundColor: [],
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+    }]
+};
+
+const exposedMachinesData = {
+    labels: Object.keys({{ stats.exposed_machines|safe }}),
+    datasets: [{
+        label: 'Exposed Machines by Severity',
+        data: Object.values({{ stats.exposed_machines|safe }}),
+        // Initial placeholder for backgroundColor, to be replaced.
+        backgroundColor: [],
+        borderColor: 'rgba(255, 99, 132, 1)',
+        borderWidth: 1
+    }]
+};
+
+// Apply colors based on severity level
+vulnerabilityData.datasets[0].backgroundColor = vulnerabilityData.labels.map(label => severityColors[label] || 'rgba(54, 162, 235, 0.2)');
+exposedMachinesData.datasets[0].backgroundColor = exposedMachinesData.labels.map(label => severityColors[label.replace(' ', '_')] || 'rgba(255, 99, 132, 0.2)');
+
+const vulnerabilityChart = new Chart(document.getElementById('vulnerabilityChart'), {
+    type: 'bar',
+    data: vulnerabilityData,
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+const exposedMachinesChart = new Chart(document.getElementById('exposedMachinesChart'), {
+    type: 'bar',
+    data: exposedMachinesData,
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
+{% endblock %}
+
+
+
+

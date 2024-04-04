@@ -1,0 +1,212 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dashboard-container {
+    display: flex;
+    height: 100%;
+}
+
+.sidebar {
+    width: 300px; /* Set the width of the sidebar to 400px */
+    min-width: 300px; /* Ensure it never goes below 400px */
+    background: #263238;
+    padding: 20px;
+    color: #fff;
+}
+
+.logo {
+    margin-bottom: 20px;
+    text-align: center;
+}
+.logo a {
+    text-decoration: none;
+    color: white;
+}
+
+.nav ul {
+    list-style-type: none;
+}
+
+.nav ul li a {
+    color: #CFD8DC;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    transition: background-color 0.3s;
+}
+
+.nav ul li a:hover {
+    background-color: #37474F;
+}
+
+.main-content {
+    flex-grow: 1;
+    background: #ECEFF1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.main-header input[type="search"] {
+    padding: 10px;
+    width: 100%;
+    max-width: 400px;
+    border: none;
+    border-radius: 5px;
+}
+
+.vulnerabilities-list {
+    margin-bottom: 20px;
+}
+
+/* Add more styling for vulnerability cards, responsive design, etc. */
+
+.main-footer {
+    background: #263238;
+    color: #CFD8DC;
+    text-align: center;
+    padding: 10px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+
+
+/* Top Navigation Styles */
+.top-nav {
+    background-color: #263238; /* Dark color from the side panel */
+    color: #CFD8DC;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: start; /* Aligns items to the left */
+    align-items: center;
+}
+
+.top-nav-brand {
+    color: #CFD8DC;
+    font-size: 1.8em; /* Increased size for the brand */
+    text-decoration: none;
+    padding: 5px 0; /* Optional: Adjust for vertical alignment */
+    margin-right: 40px; /* Add space after the brand */
+}
+
+.top-nav-menu ul {
+    list-style-type: none;
+    display: flex;
+    gap: 30px; /* Increased space between menu items */
+    margin: 0;
+    padding: 0;
+}
+
+.top-nav-menu li {
+    padding: 5px 10px; /* Optional: Adjust for larger hit area */
+}
+
+.top-nav-menu a {
+    color: #CFD8DC;
+    text-decoration: none;
+    font-size: 1.2em; /* Larger font size for menu items */
+    transition: color 0.3s ease;
+}
+
+.top-nav-menu a:hover,
+.top-nav-menu a:focus {
+    color: #FFF; /* Brighter color on hover/focus */
+}
+
+/* Add a border bottom to the active page */
+.top-nav-menu .active {
+    border-bottom: 2px solid #CFD8DC;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .top-nav-menu ul {
+        gap: 20px; /* Reduce space between menu items on smaller screens */
+    }
+    
+    .top-nav-brand {
+        font-size: 1.5em; /* Adjust brand size on smaller screens */
+    }
+}
+
+
+
+.scan-status-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around; /* Adjust based on your layout needs */
+}
+
+.scan-status {
+    padding: 15px;
+    margin: 10px;
+    border-radius: 15px;
+    background-color: #fff;
+    width: calc(20% - 20px); /* Adjust based on the number of items per row and container width */
+    box-sizing: border-box;
+    position: relative; /* Needed for absolute positioning of the time-ago element */
+}
+
+.scan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.time-ago {
+    font-size: 14px; /* Adjust size as needed */
+    color: #666;
+    margin: 0;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+
+.status-icon {
+    height: 10px;
+    width: 10px;
+    display: inline-block;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.status-title {
+    margin: 0 0 10px 0; /* Adjust top margin to align title properly */
+    font-size: 16px; /* Adjust size as needed */
+    color: #333;
+}
+
+.status-info {
+    margin: 5px 0 0;
+    font-size: 14px; /* Adjust size as needed */
+}
+
+.exposed_machines_link {
+    text-decoration: none;
+    color: white;
+}
+.cvss-score-td {
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1rem;
+    color: white;
+    padding: 0px;
+    width: 80px;
+}

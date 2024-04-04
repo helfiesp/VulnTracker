@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/filters.css' %}">
+    <aside class="sidebar">
+        <h1 class="logo">{{ cve.id }}</h1>
+        <nav class="nav">
+            <ul>
+                <li><a href="{% url 'keywords' %}">Keywords</a></li>
+                <li><a href="#critical">Critical Impact</a></li>
+                <li><a href="#patches">Available Patches</a></li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <main class="main-content">
+    <div class="filter-section">
+        <div class="filter-header">
+              <h2>Maskiner med: {{ software.name }}</h2>
+              <p style="text-align: center;">Antall resultater: {{ machines|length}} </p>  
+        </div>
+        <div class="filter-controls">
+            <!-- OS Platform Filter Dropdown -->
+            <div class="sort-filter">
+              <select id="os-platform-select">
+                  <option value="">Select OS Platform</option>
+                  {% for os_platform in os_platforms %}
+                      <option value="{{ os_platform }}" {% if os_platform == selected_os_platform %}selected{% endif %}>{{ os_platform }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+
+            <!-- RBAC Group Name Filter Dropdown -->
+            <div class="sort-filter">
+                <select id="rbac-group-name-select">
+                    <option value="">Select RBAC Group Name</option>
+                    {% for rbac_group_name in rbac_group_names %}
+                        <option value="{{ rbac_group_name }}" {% if rbac_group_name == selected_rbac_group_name %}selected{% endif %}>{{ rbac_group_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+                <div class="search-filter">
+                    <input type="search" id="search-input" placeholder="Search vulnerabilities...">
+                </div>
+
+            <div class="sort-filter">
+       
+            <select id="sort-select">
+                <option value="cvss_score_desc" {% if current_sort == 'cvss_score_desc' %}selected{% endif %}>Highest CVSS Score</option>
+                <option value="cvss_score_asc" {% if current_sort == 'cvss_score_asc' %}selected{% endif %}>Lowest CVSS Score</option>
+                <option value="date_desc" {% if current_sort == 'date_desc' %}selected{% endif %}>Newest First</option>
+                <option value="date_asc" {% if current_sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
+            </select>
+            </div>
+            </div>
+        </div>
+
+  {% if software %}
+    <table>
+        <thead>
+            <tr>
+                <th>Computer DNS Name</th>
+                <th>OS Platform</th>
+                <th>RBAC Group Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for machine in machines %}
+            <tr>
+                <td>{{ machine.computer_dns_name }}</td>
+                <td>{{ machine.os_platform }}</td>
+                <td>{{ machine.rbac_group_name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+  <p>No machines found for this CVE.</p>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to update the query parameters
+    function updateQueryParams(param, value) {
+        let currentUrl = new URL(window.location);
+        let searchParams = currentUrl.searchParams;
+
+        // Update or delete the parameter
+        if (value) {
+            searchParams.set(param, value);
+        } else {
+            searchParams.delete(param);
+        }
+
+        // Return the updated URL
+        return currentUrl.toString();
+    }
+
+    // Listener for the OS Platform filter
+    const osPlatformSelect = document.getElementById('os-platform-select');
+    osPlatformSelect.addEventListener('change', function() {
+        const selectedValue = this.options[this.selectedIndex].value;
+        window.location.href = updateQueryParams('os_platform', selectedValue);
+    });
+
+    // Listener for the RBAC Group Name filter
+    const rbacGroupNameSelect = document.getElementById('rbac-group-name-select');
+    rbacGroupNameSelect.addEventListener('change', function() {
+        const selectedValue = this.options[this.selectedIndex].value;
+        window.location.href = updateQueryParams('rbac_group_name', selectedValue);
+    });
+});
+</script>
+
+{% endblock %}
+
+
+
+

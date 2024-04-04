@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+<style>
+.infobox-container {
+    display: flex;
+    justify-content: space-around; /* Evenly spaces the infoboxes with space around them */
+    flex-wrap: wrap; /* Allows items to wrap as needed */
+}
+
+.infobox {
+    background-color: #f9f9f9; /* Light grey background */
+    border: 1px solid #ddd; /* Light grey border */
+    padding: 15px;
+    margin: 10px; /* Adjusted for spacing around each box */
+    border-radius: 5px; /* Rounded corners */
+    flex-basis: 25%; /* Each box will try to take up roughly half the container width */
+}
+
+.infobox-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.infobox-content {
+    font-size: 14px;
+}
+
+</style>
+
+<link rel="stylesheet" href="{% static 'css/filters.css' %}">
+    <aside class="sidebar">
+        <h1 class="logo">Nessus</h1>
+        <nav class="nav">
+            <ul>
+                <li><a href="{% url 'keywords' %}">Keywords</a></li>
+                <li><a href="#critical">Critical Impact</a></li>
+                <li><a href="#patches">Available Patches</a></li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <main class="main-content">
+    <div class="filter-section">
+        <div class="filter-header">
+            <h2>Vulnerabilities for host: {{ hostname }}</h2>
+                <div class="infobox-container">
+                {% if nessus_syn_info %}
+                <div class="infobox">
+                    <div class="infobox-header">Open Ports Information</div>
+                    <div class="infobox-content">
+                        {% for entry in nessus_syn_info %}
+                        <p>Open ports: {{ entry.Port }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if nessus_http_info %}
+                <div class="infobox">
+                    <div class="infobox-header">HTTP Information</div>
+                    <div class="infobox-content">
+                        {% for entry in nessus_http_info %}
+                        <p>HTTP info: {{ entry.Plugin_Output }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+
+            </div>
+
+
+        </div>
+        <div class="filter-controls">
+            <div class="date-filter">
+                <select id="date-filter-select">
+                    <option value="past_day" {% if current_date_filter == 'past_day' %}selected{% endif %}>Past Day</option>
+                    <option value="past_week" {% if current_date_filter == 'past_week' %}selected{% endif %}>Past Week</option>
+                    <option value="past_weekend" {% if current_date_filter == 'past_weekend' %}selected{% endif %}>Past Weekend</option>
+                    <option value="this_month" {% if current_date_filter == 'this_month' %}selected{% endif %}>This Month</option>
+                </select>
+            </div>
+
+                <div class="keyword-filter" style="margin-top:8px">
+
+                    <input type="checkbox" id="filter-keywords" class="sr-only" {% if request.GET.keywords == 'true' %}checked{% endif %}>
+                    <label for="filter-keywords" class="keyword-button">CVEs with Keywords</label>
+                </div>
+
+                <div class="search-filter">
+                    <input type="search" id="search-input" placeholder="Search vulnerabilities...">
+                </div>
+
+            <div class="sort-filter">
+       
+            <select id="sort-select">
+                <option value="cvss_score_desc" {% if current_sort == 'cvss_score_desc' %}selected{% endif %}>Highest CVSS Score</option>
+                <option value="cvss_score_asc" {% if current_sort == 'cvss_score_asc' %}selected{% endif %}>Lowest CVSS Score</option>
+                <option value="date_desc" {% if current_sort == 'date_desc' %}selected{% endif %}>Newest First</option>
+                <option value="date_asc" {% if current_sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
+            </select>
+            </div>
+            </div>
+        </div>
+
+
+    {% if nessus_data %}
+        <table>
+            <tr>
+                <th>Plugin ID</th>
+                <th>CVE</th>       
+                <th>Risk</th>
+                <th>Host</th>
+                <th>Protocol</th>
+                <th>Port</th>
+                <th>Name</th>
+                <th>Synopsis</th>
+                <th>Description</th>
+                <th>Solution</th>
+                <th>Plugin Output</th>
+            </tr>
+            {% for item in nessus_data %}
+                <tr>
+                    <td>{{ item.Plugin_ID }}</td>
+                    {% if item.CVE %}
+                        <td>{{ item.CVE }}</td>
+                    {% else %}
+                        <td>N/A</td>
+                    {% endif %}
+                    <td>{{ item.Risk }}</td>
+                    <td><a href="{% url 'nessus_host_details' item.Host %}">{{ item.Host }}</a></td>
+                    <td>{{ item.Protocol }}</td>
+                    <td>{{ item.Port }}</td>
+                    <td>{{ item.Name }}</td>
+                    <!-- Synopsis -->
+                    <td>
+                        {{ item.Synopsis|slice:":250" }}
+                        {% if item.Synopsis|length > 250 %}
+                            <span class="ellipsis">...</span>
+                            <span class="more-text" style="display:none;">{{ item.Synopsis|slice:"250:" }}</span>
+                            <button class="view-more-btn" onclick="toggleDescription(this)">View More</button>
+                        {% endif %}
+                    </td>
+                    <!-- Description -->
+                    <td>
+                        {{ item.Description|slice:":250" }}
+                        {% if item.Description|length > 250 %}
+                            <span class="ellipsis">...</span>
+                            <span class="more-text" style="display:none;">{{ item.Description|slice:"250:" }}</span>
+                            <button class="view-more-btn" onclick="toggleDescription(this)">View More</button>
+                        {% endif %}
+                    </td>
+                    <!-- Solution -->
+                    <td>
+                        {{ item.Solution|slice:":250" }}
+                        {% if item.Solution|length > 250 %}
+                            <span class="ellipsis">...</span>
+                            <span class="more-text" style="display:none;">{{ item.Solution|slice:"250:" }}</span>
+                            <button class="view-more-btn" onclick="toggleDescription(this)">View More</button>
+                        {% endif %}
+                    </td>
+                    <!-- Plugin Output -->
+                    <td>
+                        {{ item.Plugin_Output|slice:":250" }}
+                        {% if item.Plugin_Output|length > 250 %}
+                            <span class="ellipsis">...</span>
+                            <span class="more-text" style="display:none;">{{ item.Plugin_Output|slice:"250:" }}</span>
+                            <button class="view-more-btn" onclick="toggleDescription(this)">View More</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+
+
+        </table>
+    {% else %}
+        <p>No data found.</p>
+    {% endif %}
+
+
+{% endblock %}
+
+
+
+

@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/filters.css' %}">
+    <aside class="sidebar">
+        <h1 class="logo">{{ cve.id }}</h1>
+        <nav class="nav">
+            <ul>
+                <li><a href="{% url 'keywords' %}">Keywords</a></li>
+                <li><a href="#critical">Critical Impact</a></li>
+                <li><a href="#patches">Available Patches</a></li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <main class="main-content">
+    <div class="filter-section">
+        <div class="filter-header">
+            <h1>Liste over programvare</h1>
+            <p style="text-align: center;">Antall unike programvare: {{ software_list|length }}</p>
+            
+        </div>
+        <div class="filter-controls">
+            <div class="search-filter">
+                <input type="search" id="search-input" placeholder="Søk etter navn eller leverandør...">
+            </div>
+
+            <div class="keyword-filter" style="margin-top:8px">
+                <input type="checkbox" id="filter-keywords" class="sr-only" {% if public_exploit %}checked{% endif %}>
+                <label for="filter-keywords" class="keyword-button">CISA Known exploited</label>
+                </div>
+            <div class="sort-filter">
+              <select id="vendor-select" onchange="filterByVendor()">
+                  <option value="">Select Vendor</option>
+                  {% for vendor in vendors %}
+                      <option value="{{ vendor }}" {% if vendor == selected_vendor %}selected{% endif %}>{{ vendor }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+    <div class="sort-filter">
+      <select id="sort-select">
+          <option value="exposed_machines_desc" {% if current_sort == 'exposed_machines_desc' %}selected{% endif %}>Most Exposed Machines</option>
+          <option value="exposed_machines_asc" {% if current_sort == 'exposed_machines_asc' %}selected{% endif %}>Least Exposed Machines</option>
+      </select>
+    </div>
+
+
+
+        </div>
+        </div>
+
+{% if software_list %}
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Vendor</th>
+      <th>Weaknesses</th>
+      <th>Public Exploit</th>
+      <th>Exposed Machines</th>
+      <th>Impact Score</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for software in software_list %}
+    <tr>
+      <td><a href="{% url 'host_list_by_software' software_id=software.id %}">{{ software.name }}</a></td>
+      <td>{{ software.vendor }}</td>
+      <td>{{ software.weaknesses }}</td>
+      <td>{{ software.public_exploit }}</td>
+      <td>{{ software.exposed_machines }}</td>
+      <td>{{ software.impact_score }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No software found.</p>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('input', filterSoftware);
+    var filterKeywordsCheckbox = document.getElementById('filter-keywords');
+
+    function filterSoftware() {
+        const query = searchInput.value.toLowerCase();
+        const softwareRows = document.querySelectorAll('table tbody tr'); // Selects all rows in the table body
+
+        softwareRows.forEach(function(row) {
+            // Assuming the first two columns are 'Name' and 'Vendor', adjust as necessary
+            const name = row.cells[0].textContent.toLowerCase();
+            const vendor = row.cells[1].textContent.toLowerCase();
+            // Extend this to include other columns if needed for filtering
+
+            if (name.includes(query) || vendor.includes(query)) {
+                row.style.display = ''; // Shows the row
+            } else {
+                row.style.display = 'none'; // Hides the row
+            }
+        });
+    }
+
+    document.getElementById('sort-select').addEventListener('change', function() {
+        const url = new URL(window.location);
+        url.searchParams.set('sort', this.value);
+        window.location.href = url;
+    });
+
+    filterKeywordsCheckbox.addEventListener('change', function(e) {
+        var queryParams = new URLSearchParams(window.location.search);
+        
+        if (this.checked) {
+            queryParams.set('publicExploit', 'true');
+        } else {
+            queryParams.delete('publicExploit');
+        }
+
+        e.preventDefault();
+        window.location.search = queryParams.toString();
+    });
+
+});
+
+;
+
+function filterByVendor() {
+    const selectedVendor = document.getElementById('vendor-select').value;
+    // Construct the URL with the selected vendor as a query parameter
+    const url = new URL(window.location);
+    if (selectedVendor) {
+        url.searchParams.set('vendor', selectedVendor);
+    } else {
+        url.searchParams.delete('vendor');
+    }
+    window.location.href = url; // Redirect to the updated URL
+}
+
+
+</script>
+
+{% endblock %}
+
+
+
+

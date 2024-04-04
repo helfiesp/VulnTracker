@@ -1,0 +1,144 @@
+.filter-section {
+    background: #ffffff;
+    padding: 25px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.filter-header h2 {
+    font-size: 2rem; /* Larger and more prominent title */
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.filter-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Adapt number of columns based on space */
+    gap: 20px; /* Add space between filter elements */
+    justify-content: center;
+    align-items: center;
+}
+
+.date-filter,
+.keyword-filter,
+.search-filter,
+.sort-filter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.date-filter label,
+.keyword-filter label,
+.search-filter label,
+.sort-filter label {
+    font-size: 1.2rem; /* Larger label size for better readability */
+    margin-bottom: 8px;
+}
+
+.date-filter select,
+.keyword-filter input[type="checkbox"] + label,
+.search-filter input,
+.sort-filter select {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    font-size: 1.2rem; /* Larger font size for inputs/selects */
+}
+
+.keyword-filter {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.keyword-filter input[type="checkbox"] {
+    margin-right: 10px; /* Add more space between checkbox and label */
+}
+
+.search-filter input {
+    padding: 15px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+}
+
+.sort-filter select {
+    padding: 15px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .filter-controls {
+        grid-template-columns: 1fr; /* Stack filters on smaller screens */
+    }
+
+    .keyword-filter {
+        order: 3; /* Position keyword filter after date and sort filters on mobile */
+    }
+}
+
+/* Improve the aesthetics of the checkbox for keyword filter */
+.keyword-filter label {
+    padding-left: 5px; /* Space between checkbox and label text */
+}
+
+/* Larger and more pronounced submit buttons for filters */
+.filter-controls button {
+    padding: 15px;
+    font-size: 1.2rem;
+    color: white;
+    background-color: #5cb85c;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+}
+
+.filter-controls button:hover {
+    background-color: #4cae4c;
+}
+
+.sr-only {
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+.keyword-button {
+    display: inline-block;
+    padding: 10px 10px;
+    font-size: 1rem;
+    color: black;
+    background-color: #17a2b8;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+    min-width: 160px;
+}
+
+.keyword-button:hover,
+.keyword-button:focus {
+    background-color: #138496;
+}
+
+#filter-keywords:checked + .keyword-button {
+    background-color: #28a745;
+    box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.5);
+}
+
+#filter-keywords:not(:checked) + .keyword-button {
+    background-color: white;
+}

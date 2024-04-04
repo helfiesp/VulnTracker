@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vulnerability Dashboard</title>
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+<link rel="stylesheet" href="{% static 'css/tables.css' %}">
+
+
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="{% url 'home' %}" class="top-nav-brand">Sårbarhetsoversikten</a>
+    <nav class="top-nav-menu">
+        <ul>
+            <li><a href="{% url 'home' %}">CVE</a></li>
+            <li><a href="{% url 'defender_vulnerabilities' %}">Defender Vulnerabilities</a></li>
+            <li><a href="{% url 'software_list_server' %}">Software</a></li>
+            <li><a href="{% url 'haveibeenpwned' %}">HaveIBeenPwned</a></li>
+            <li><a href="{% url 'shodan' %}">Shodan</a></li>
+
+
+
+            <li><a href="{% url 'nessus' %}">Nessus</a></li>
+            <li><a href="{% url 'scan_status' %}">Scan status</a></li>
+        </ul>
+    </nav>
+</div>
+
+<div class="dashboard-container">
+    {% block content %}
+
+    {% endblock %}
+</div>
+<script src="{% static 'js/base.js' %}"></script>
+</body>
+</html>

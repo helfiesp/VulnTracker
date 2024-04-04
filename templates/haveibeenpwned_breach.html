@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/filters.css' %}">
+    <aside class="sidebar">
+        <h1 class="logo">{{ cve.id }}</h1>
+        <nav class="nav">
+            <ul>
+                <li><a href="{% url 'keywords' %}">Keywords</a></li>
+                <li><a href="#critical">Critical Impact</a></li>
+                <li><a href="#patches">Available Patches</a></li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <main class="main-content">
+    <div class="filter-section">
+        <div class="filter-header">
+              <h2>Breached Users for {{ breach.title }}</h2>
+            
+        </div>
+        <div class="filter-controls">
+            <div class="date-filter">
+            <div class="sort-filter" style="margin-top:8px">
+                <label for="section-select">Filter by Section:</label>
+                <select id="section-select" onchange="filterBySection(this)">
+                    <option value="">Select Section</option>
+                    {% for visual_name, full_domain in sections.items %}
+                        <option value="{{ full_domain }}">{{ visual_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            </div>
+                <div class="search-filter">
+                    <input type="search" id="search-input" placeholder="Search...">
+                </div>
+
+            </div>
+        </div>
+
+    {% if users %}
+    <table>
+        <thead>
+            <tr>
+                <th>Email Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr class="user-list-item" data-domain="{{ user }}">
+                <td><a href="{% url 'get_breaches_for_user' user %}">{{ user }}</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No users found for this breach.</p>
+    {% endif %}
+<script>
+function filterBySection(select) {
+    const selectedDomain = select.value;
+    const emailLinks = document.querySelectorAll('tbody tr td a'); // Select all email links within table body rows
+
+    emailLinks.forEach(link => {
+        const row = link.closest('tr'); // Find the closest row ancestor to the link
+        if (selectedDomain === '' || link.textContent.split('@')[1].includes(selectedDomain)) {
+            row.style.display = ''; // Show the row
+        } else {
+            row.style.display = 'none'; // Hide the row
+        }
+    });
+}
+</script>
+
+{% endblock %}
+
+
+
+

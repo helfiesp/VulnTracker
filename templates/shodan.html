@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/filters.css' %}">
+    <aside class="sidebar">
+        <h1 class="logo">Shodan</h1>
+        <nav class="nav">
+            <ul>
+                <li><a href="{% url 'keywords' %}">Keywords</a></li>
+                <li><a href="#critical">Critical Impact</a></li>
+                <li><a href="#patches">Available Patches</a></li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <main class="main-content">
+    <div class="filter-section">
+        <div class="filter-header">
+            <h2>Shodan</h2>
+            
+        </div>
+        <div class="filter-controls">
+            <div class="date-filter">
+                <select id="date-filter-select">
+                    <option value="past_day" {% if current_date_filter == 'past_day' %}selected{% endif %}>Past Day</option>
+                    <option value="past_week" {% if current_date_filter == 'past_week' %}selected{% endif %}>Past Week</option>
+                    <option value="past_weekend" {% if current_date_filter == 'past_weekend' %}selected{% endif %}>Past Weekend</option>
+                    <option value="this_month" {% if current_date_filter == 'this_month' %}selected{% endif %}>This Month</option>
+                </select>
+            </div>
+
+                <div class="keyword-filter" style="margin-top:8px">
+
+                    <input type="checkbox" id="filter-keywords" class="sr-only" {% if request.GET.keywords == 'true' %}checked{% endif %}>
+                    <label for="filter-keywords" class="keyword-button">CVEs with Keywords</label>
+                </div>
+
+                <div class="search-filter">
+                    <input type="search" id="search-input" placeholder="Search vulnerabilities...">
+                </div>
+
+            <div class="sort-filter">
+       
+            <select id="sort-select">
+                <option value="cvss_score_desc" {% if current_sort == 'cvss_score_desc' %}selected{% endif %}>Highest CVSS Score</option>
+                <option value="cvss_score_asc" {% if current_sort == 'cvss_score_asc' %}selected{% endif %}>Lowest CVSS Score</option>
+                <option value="date_desc" {% if current_sort == 'date_desc' %}selected{% endif %}>Newest First</option>
+                <option value="date_asc" {% if current_sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
+            </select>
+            </div>
+            </div>
+        </div>
+
+{% endblock %}
+
+
+
+

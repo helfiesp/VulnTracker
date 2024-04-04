@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+.keyword-section {
+    max-width: 800px;
+    width: 500px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.keyword-section h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.form-keyword-add,
+.form-keyword-upload {
+    margin-bottom: 30px;
+}
+
+.form-keyword-add input[type="text"],
+.form-keyword-upload input[type="file"] {
+    width: calc(100% - 22px); /* Adjust width to account for padding and border */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-keyword-add input[type="submit"],
+.form-keyword-upload input[type="submit"] {
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.form-keyword-add input[type="submit"]:hover,
+.form-keyword-upload input[type="submit"]:hover {
+    background-color: #4cae4c;
+}
+
+.keyword-section ul {
+    list-style: none;
+    padding-left: 0;
+    max-height: 600px; /* Set a max-height for the list */
+    overflow-y: auto; /* Enable scrolling */
+}
+
+.keyword-section ul li {
+    padding: 10px;
+    background: white;
+    border-bottom: 1px solid #eee;
+}
+
+.keyword-section ul li:last-child {
+    border-bottom: none;
+}
+
+.keyword-section ul li:hover {
+    background-color: #f0f0f0;
+}
+
+
+.keyword-search {
+    width: 100%; /* Full width */
+    padding: 10px 15px;
+    margin-bottom: 20px; /* Space before the list starts */
+    font-size: 16px; /* Adequate text size */
+    border: 1px solid #ddd; /* Subtle border */
+    border-radius: 25px; /* Rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
+    transition: all 0.3s ease; /* Smooth transition for interactions */
+}
+
+.keyword-search:focus {
+    outline: none;
+    border-color: #5cb85c; /* Highlight color when focused */
+    box-shadow: 0 0 8px rgba(92, 184, 92, 0.5); /* More pronounced shadow when focused */
+}
+
+/* Placeholder styling */
+.keyword-search::placeholder {
+    color: #999;
+}
+.delete-btn {
+    color: white; /* Set text color to white */
+    cursor: pointer;
+    margin-left: 10px;
+    float: right; /* Align to the right */
+    background-color: red; /* Red background */
+    border-radius: 50%; /* Make it a circle */
+    width: 20px; /* Set a fixed width */
+    height: 20px; /* Set a fixed height */
+    display: flex; /* Use flexbox for centering */
+    align-items: center; /* Vertical centering */
+    justify-content: center; /* Horizontal centering */
+    font-size: 14px; /* Adjust font size as needed */
+}
+</style>
+    <aside class="sidebar">
+        <h1 class="logo">CVE-oversikt</h1>
+        <nav class="nav">
+            <ul>
+                <li><a href="{% url 'keywords' %}">Keywords</a></li>
+                <li><a href="#critical">Critical Impact</a></li>
+                <li><a href="#patches">Available Patches</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+<div class="keyword-section">
+    <h2>Add a Keyword</h2>
+    <form method="post" class="form-keyword-add">
+        {% csrf_token %}
+        {{ keyword_form.as_p }}
+        <input type="submit" name="submit_keyword" value="Add Keyword">
+    </form>
+
+    <h2>Upload Keywords CSV</h2>
+    <form method="post" enctype="multipart/form-data" class="form-keyword-upload">
+        {% csrf_token %}
+        {{ upload_form.as_p }}
+        <input type="submit" name="upload_csv" value="Upload Keywords">
+    </form>
+
+    <h3>Existing Keywords:</h3>
+    <input type="text" id="keyword-search" placeholder="Search keywords..." class="keyword-search">
+    <ul id="keyword-list">
+        {% for keyword in keywords %}
+            <li>
+                {{ keyword.word }}
+                <span class="delete-btn" data-model="keyword" data-id="{{ keyword.id }}">X</span>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var searchInput = document.getElementById('keyword-search');
+    var keywordList = document.getElementById('keyword-list').getElementsByTagName('li');
+
+    searchInput.addEventListener('keyup', function(e) {
+        var searchTerm = e.target.value.toLowerCase();
+        Array.from(keywordList).forEach(function(keyword) {
+            if (keyword.textContent.toLowerCase().indexOf(searchTerm) > -1) {
+                keyword.style.display = '';
+            } else {
+                keyword.style.display = 'none';
+            }
+        });
+    });
+});
+
+document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const wordId = this.getAttribute('data-id');
+        fetch(`/cve/delete/keyword/${wordId}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                this.parentNode.remove(); // Remove the word from the list
+            } else {
+                alert('There was an error. Please try again.');
+            }
+        });
+    });
+});
+// Function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+</script>
+{% endblock %}

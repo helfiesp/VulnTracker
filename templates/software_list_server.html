@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/filters.css' %}">
+    <aside class="sidebar">
+        <h1 class="logo">TEST</h1>
+        <nav class="nav">
+            <ul>
+                <li><a href="{% url 'keywords' %}">Keywords</a></li>
+                <li><a href="#critical">Critical Impact</a></li>
+                <li><a href="#patches">Available Patches</a></li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <main class="main-content">
+    <div class="filter-section">
+        <div class="filter-header">
+            <h1 style="text-align: center;">Liste over programvare for servere</h1>
+            <p style="text-align: center;">Antall unike programvare: {{ software_list|length }}</p>
+            
+        </div>
+        <div class="filter-controls">
+            <div class="search-filter">
+                <input type="search" id="search-input" placeholder="Søk etter navn eller leverandør...">
+            </div>
+            <div class="sort-filter">
+              <select id="vendor-select" onchange="filterByVendor()">
+                  <option value="">Select Vendor</option>
+                  {% for vendor in vendors %}
+                      <option value="{{ vendor }}" {% if vendor == selected_vendor %}selected{% endif %}>{{ vendor }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+            <div class="sort-filter">
+                <select id="sort-select" onchange="applySort()">
+                    <option value="host_count_desc" {% if current_sort == 'host_count_desc' %}selected{% endif %}>Most Hosts</option>
+                    <option value="host_count_asc" {% if current_sort == 'host_count_asc' %}selected{% endif %}>Least Hosts</option>
+                </select>
+            </div>
+
+        </div>
+        </div>
+
+{% if software_list %}
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Software Vendor</th>
+      <th>Exposed Machines</th>
+      <th>Comments</th>
+    </tr>
+  </thead>
+  <tbody>
+{% for software in software_list %}
+<tr>
+    <td>
+        {% if software.url %}
+            <a href="{{ software.url }}">{{ software.software__name }}</a>
+        {% else %}
+            {{ software.software__name }}
+        {% endif %}
+    </td>
+    <td>{{ software.software__vendor }}</td>
+    <td>{{ software.host_count }}</td>
+    <td>
+        <div class="comment-form">
+            <form action="{% url 'add_comment' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="result_id" value="{{ software.software__id }}">
+                <input type="hidden" name="comment_type" value="software">
+                <div class="comment-form-controls">
+                    <textarea name="comment_content">{{ software.comment }}</textarea>
+                    <button type="submit">Update</button>
+                </div>
+            </form>
+        </div>
+    </td>
+</tr>
+{% endfor %}
+
+  </tbody>
+</table>
+{% else %}
+<p>No software found.</p>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('input', filterSoftware);
+    var filterKeywordsCheckbox = document.getElementById('filter-keywords');
+
+    function filterSoftware() {
+        const query = searchInput.value.toLowerCase();
+        const softwareRows = document.querySelectorAll('table tbody tr'); // Selects all rows in the table body
+
+        softwareRows.forEach(function(row) {
+            // Assuming the first two columns are 'Name' and 'Vendor', adjust as necessary
+            const name = row.cells[0].textContent.toLowerCase();
+            const vendor = row.cells[1].textContent.toLowerCase();
+            // Extend this to include other columns if needed for filtering
+
+            if (name.includes(query) || vendor.includes(query)) {
+                row.style.display = ''; // Shows the row
+            } else {
+                row.style.display = 'none'; // Hides the row
+            }
+        });
+    }
+
+    document.getElementById('sort-select').addEventListener('change', function() {
+        const url = new URL(window.location);
+        url.searchParams.set('sort', this.value);
+        window.location.href = url;
+    });
+
+    filterKeywordsCheckbox.addEventListener('change', function(e) {
+        var queryParams = new URLSearchParams(window.location.search);
+        
+        if (this.checked) {
+            queryParams.set('publicExploit', 'true');
+        } else {
+            queryParams.delete('publicExploit');
+        }
+
+        e.preventDefault();
+        window.location.search = queryParams.toString();
+    });
+
+});
+
+;
+
+function filterByVendor() {
+    const selectedVendor = document.getElementById('vendor-select').value;
+    // Construct the URL with the selected vendor as a query parameter
+    const url = new URL(window.location);
+    if (selectedVendor) {
+        url.searchParams.set('vendor', selectedVendor);
+    } else {
+        url.searchParams.delete('vendor');
+    }
+    window.location.href = url; // Redirect to the updated URL
+}
+
+function applySort() {
+    const selectedSort = document.getElementById('sort-select').value;
+    const url = new URL(window.location);
+    url.searchParams.set('sort', selectedSort);
+    window.location.href = url;
+}
+
+
+</script>
+
+{% endblock %}
+
+
+
+
