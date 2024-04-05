@@ -57,7 +57,7 @@ ROOT_URLCONF = 'vulnerabilities.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['/home/csirt/shared_folder/CSIRT/vulnerabilities/templates','/home/helfie/personal/Personal/vulnerabilities/templates'],
+        'DIRS': ['/var/web/VulnTracker/templates', '/home/csirt/shared_folder/CSIRT/vulnerabilities/templates','/home/helfie/personal/Personal/vulnerabilities/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
