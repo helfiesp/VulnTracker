@@ -5,6 +5,8 @@ from django.conf import settings
 import os
 import json
 
+api_key = os.environ["HAVEIBEENPWNED_API_KEY"]
+
 class Command(BaseCommand):
     help = 'Fetches data from HaveIBeenPwned API and updates the database'
 
@@ -14,7 +16,6 @@ class Command(BaseCommand):
         self.fetch_breached_domains()
 
     def fetch_and_update_breaches(self):
-        api_key = os.environ["HAVEIBEENPWNED_API_KEY"]
         headers = {
             "hibp-api-key": api_key,
             "Content-Type": "application/json"
@@ -60,7 +61,7 @@ class Command(BaseCommand):
             domains = [line.strip() for line in file]
 
         headers = {
-            'hibp-api-key': api_key = os.environ["HAVEIBEENPWNED_API_KEY"],
+            'hibp-api-key': api_key,
             'Accept': 'application/json'
         }
 
