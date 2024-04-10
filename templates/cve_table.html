@@ -2,7 +2,7 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/filters.css' %}">
 <link rel="stylesheet" href="{% static 'css/cve_table.css' %}">
-<main class="main-content">
+<main class="main-content" style="width:100%">
     <div class="scan-status-container">
     {% if scan_status %}
         {% for latest_scan in scan_status %}
