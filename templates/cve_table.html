@@ -13,9 +13,9 @@
                 </div>
                 <p class="status-info">Status:
                     {% if latest_scan.status == "success" %}
-                        <span class="status-icon" style="color: green;">●</span> Completed without errors
+                        <span class="status-icon status-success"></span> Completed without errors
                     {% else %}
-                        <span class="status-icon" style="color: red;">●</span> Error
+                        <span class="status-icon status-error"></span> Error
                     {% endif %}
                 </p>
             </div>

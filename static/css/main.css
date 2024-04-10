@@ -162,46 +162,77 @@ body, html {
 
 /* Main container styling */
 .scan-status-container {
-    display: flex; /* Use flexbox to line up items in a row */
-    flex-wrap: wrap; /* Allow items to wrap to the next line if not enough space */
-    gap: 10px; /* Reduced space between each scan status box */
-    padding: 10px; /* Reduced padding around the container */
-    background-color: #f0f0f0; /* Light background color for the container */
-    align-items: center; /* Aligns items vertically in the center */
-    max-height: 200px; /* Maximum height for the container */
-    overflow-y: auto; /* Enables scrolling if content exceeds the height */
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto; /* Allows horizontal scrolling */
+    align-items: center;
+    background-color: #f9f9f9; /* Slightly off-white background for a softer look */
+    padding: 5px;
+    border-bottom: 1px solid #e1e1e1; /* Light border for subtle separation */
 }
 
 .scan-status {
-    flex: 0 1 auto; /* Allows the box to shrink if needed, but not grow */
-    height: 150px; /* Fixed height for each scan status box */
-    background-color: white; /* Background color for scan status boxes */
-    border: 1px solid #ccc; /* Border for each scan status box */
-    border-radius: 5px; /* Rounded corners for scan status boxes */
-    padding: 10px; /* Reduced padding inside each scan status box */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Soft shadow for depth */
-    display: flex; /* Use flexbox inside the scan status for vertical layout */
-    flex-direction: column; /* Stack children vertically */
-    justify-content: space-between; /* Space out the header and status */
+    flex: 0 0 auto; /* Do not grow or shrink */
+    margin-right: 10px; /* Space between each scan status */
+    background-color: transparent; /* No background for a minimalistic look */
+    padding: 8px; /* Smaller padding */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: none; /* Removing the border */
+    box-shadow: none; /* No shadow for a flatter design */
 }
 
 .scan-header {
-    display: flex; /* Use flexbox to line up title and time */
-    justify-content: space-between; /* Space out the title and the time */
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.status-title, .time-ago {
-    margin: 0; /* Remove default margins */
-    font-size: 14px; /* Smaller font size to fit the compact design */
+.status-title {
+    margin: 0;
+    font-size: 16px; /* Slightly larger font for better readability */
+    font-weight: 600; /* Making the font bolder for the title */
+    color: #333; /* Darker color for better contrast */
+}
+
+.time-ago {
+    margin: 0;
+    font-size: 12px; /* Smaller font size for the timestamp */
+    color: #666; /* Lighter color for a subtle appearance */
 }
 
 .status-info {
-    display: flex; /* Use flex to align status text and icon */
-    align-items: center; /* Center align items vertically */
-    font-size: 14px; /* Smaller font size to fit the compact design */
+    font-size: 12px; /* Consistent font size for status info */
+    color: #333; /* Matching color for better contrast */
+    display: flex;
+    align-items: center;
 }
 
 .status-icon {
-    display: inline-block; /* Make the icon behave like text */
-    margin-right: 5px; /* Space between icon and text */
+    width: 10px; /* Smaller icon size */
+    height: 10px; /* Smaller icon size */
+    border-radius: 50%; /* Circle shape */
+    display: inline-block;
+    margin-right: 5px;
 }
+
+/* Success status */
+.status-success {
+    background-color: green;
+}
+
+/* Error status */
+.status-error {
+    background-color: red;
+}
+
+/* Overriding the color style for icons with classes for better semantics */
+.status-info .status-success {
+    color: green; /* Using the class to set the color */
+}
+
+.status-info .status-error {
+    color: red; /* Using the class to set the color */
+}
+
