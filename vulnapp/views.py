@@ -79,6 +79,7 @@ def index(request):
         'current_sort': sort_by,
         'current_order': order,
         'current_date_filter': date_filter,
+        'scan_status': fetch_scan_info()
     })
 
 
