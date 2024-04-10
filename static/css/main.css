@@ -166,73 +166,71 @@ body, html {
     flex-wrap: nowrap;
     overflow-x: auto; /* Allows horizontal scrolling */
     align-items: center;
-    background-color: #f9f9f9; /* Slightly off-white background for a softer look */
+    background-color: #f9f9f9; /* Lighter background for contrast */
     padding: 5px;
-    border-bottom: 1px solid #e1e1e1; /* Light border for subtle separation */
+    border-top: 1px solid #e1e1e1; /* Adding a top border for visual separation */
 }
 
+/* Individual scan status box */
 .scan-status {
-    flex: 0 0 auto; /* Do not grow or shrink */
-    margin-right: 10px; /* Space between each scan status */
-    background-color: transparent; /* No background for a minimalistic look */
-    padding: 8px; /* Smaller padding */
+    flex: 0 0 auto; /* Do not grow, do not shrink, and base width on content */
+    margin-right: 10px; /* Space between each scan status box */
+    background-color: #ffffff; /* White background for each box */
+    padding: 10px;
+    border: 1px solid #dedede; /* Subtle border for each box */
+    border-radius: 4px; /* Rounded corners for modern look */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border: none; /* Removing the border */
-    box-shadow: none; /* No shadow for a flatter design */
+    flex-direction: column; /* Stack content vertically */
+    justify-content: center; /* Center content vertically */
+    align-items: flex-start; /* Align content to the start of the box */
+    min-width: 180px; /* Minimum width so the box doesn't get too narrow */
 }
 
+/* Header containing scan type and timestamp */
 .scan-header {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    display: block; /* Block display to allow the time to appear below the title */
+    margin-bottom: 5px; /* Space between header and status */
 }
 
 .status-title {
-    margin: 0;
-    font-size: 16px; /* Slightly larger font for better readability */
-    font-weight: 600; /* Making the font bolder for the title */
-    color: #333; /* Darker color for better contrast */
+    font-size: 16px; /* Reasonable size for readability */
+    font-weight: 600; /* Bold font for the title */
+    color: #333; /* Dark grey for high contrast and readability */
+    margin: 0 0 2px 0; /* Spacing for visual hierarchy */
 }
 
 .time-ago {
-    margin: 0;
-    font-size: 12px; /* Smaller font size for the timestamp */
-    color: #666; /* Lighter color for a subtle appearance */
+    font-size: 12px; /* Smaller font size for timestamp */
+    color: #666; /* Light grey to differentiate from title */
+    margin: 0; /* No margin for a compact look */
 }
 
+/* Paragraph containing the status information */
 .status-info {
-    font-size: 12px; /* Consistent font size for status info */
-    color: #333; /* Matching color for better contrast */
+    font-size: 14px; /* Clear, readable size */
+    color: #333; /* Dark grey for contrast */
+    margin: 0; /* Remove default margin */
     display: flex;
-    align-items: center;
+    align-items: center; /* Align icon with text */
+    white-space: nowrap; /* Keep status on one line */
 }
 
+/* Status icon */
 .status-icon {
-    width: 10px; /* Smaller icon size */
-    height: 10px; /* Smaller icon size */
-    border-radius: 50%; /* Circle shape */
-    display: inline-block;
-    margin-right: 5px;
+    height: 10px; /* Smaller icon for subtlety */
+    width: 10px; /* Matching width for a perfect circle */
+    border-radius: 50%; /* Fully rounded to make a circle */
+    display: inline-block; /* Allows it to sit inline with text */
+    margin-right: 5px; /* Space between icon and text */
 }
 
 /* Success status */
 .status-success {
-    background-color: green;
+    background-color: #28a745; /* Green for success */
 }
 
 /* Error status */
 .status-error {
-    background-color: red;
+    background-color: #dc3545; /* Red for error */
 }
-
-/* Overriding the color style for icons with classes for better semantics */
-.status-info .status-success {
-    color: green; /* Using the class to set the color */
-}
-
-.status-info .status-error {
-    color: red; /* Using the class to set the color */
-}
-
