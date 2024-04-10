@@ -148,6 +148,47 @@ body, html {
         font-size: 1.5em; /* Adjust brand size on smaller screens */
     }
 }
+/* Dropdown Styles */
+.top-nav-menu .dropdown {
+    position: relative; /* Needed for absolute positioning of dropdown content */
+}
+
+.top-nav-menu .dropbtn {
+    background-color: #263238; /* Match the navbar background */
+    color: #CFD8DC;
+    padding: 16px;
+    font-size: 1.2em; /* Match your nav link size */
+    border: none; /* Remove borders */
+    cursor: pointer; /* Indicates a clickable button */
+}
+
+.top-nav-menu .dropdown-content {
+    display: none; /* Hide dropdown content initially */
+    position: absolute;
+    background-color: #263238; /* Dropdown background */
+    min-width: 160px; /* Set a minimum width */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); /* Add a shadow for depth */
+    z-index: 1;
+}
+
+.top-nav-menu .dropdown-content a {
+    color: #CFD8DC; /* Match your nav link color */
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block; /* Dropdown items should span the width of the container */
+}
+
+.top-nav-menu .dropdown-content a:hover {
+    background-color: #37474F; /* Highlight dropdown items on hover */
+}
+
+.top-nav-menu .dropdown:hover .dropdown-content {
+    display: block; /* Show dropdown content on hover */
+}
+
+.top-nav-menu .dropdown:hover .dropbtn {
+    background-color: #37474F; /* Darken the button on hover for feedback */
+}
 
 
 .exposed_machines_link {
