@@ -3,6 +3,28 @@
 <link rel="stylesheet" href="{% static 'css/filters.css' %}">
 <link rel="stylesheet" href="{% static 'css/cve_table.css' %}">
 <main class="main-content">
+    <div class="scan-status-container">
+    {% if scan_status %}
+        {% for latest_scan in scan_status %}
+            <div class="scan-status">
+                <div class="scan-header">
+                    <h2 class="status-title">{{ latest_scan.scan_type }}</h2>
+                    <p class="time-ago">{{ latest_scan.completed_at|timesince }} ago</p>
+                </div>
+                <p class="status-info">Status:
+                    {% if latest_scan.status == "success" %}
+                        <span class="status-icon" style="color: green;">●</span> Completed without errors
+                    {% else %}
+                        <span class="status-icon" style="color: red;">●</span> Error
+                    {% endif %}
+                </p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <h2 class="status-title">No scans have been performed yet.</h2>
+    {% endif %}
+</div>
+
 
     <div class="filter-section">
         <div class="filter-header">
