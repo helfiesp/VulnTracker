@@ -164,40 +164,44 @@ body, html {
 .scan-status-container {
     display: flex; /* Use flexbox to line up items in a row */
     flex-wrap: wrap; /* Allow items to wrap to the next line if not enough space */
-    gap: 20px; /* Space between each scan status box */
-    padding: 20px; /* Padding around the container */
+    gap: 10px; /* Reduced space between each scan status box */
+    padding: 10px; /* Reduced padding around the container */
     background-color: #f0f0f0; /* Light background color for the container */
-    border-radius: 8px; /* Rounded corners for the container */
+    align-items: center; /* Aligns items vertically in the center */
+    max-height: 200px; /* Maximum height for the container */
+    overflow-y: auto; /* Enables scrolling if content exceeds the height */
 }
 
 .scan-status {
-    flex: 1; /* Each scan status will grow to fill the space */
-    min-width: 220px; /* Minimum width for each scan status box */
+    flex: 0 1 auto; /* Allows the box to shrink if needed, but not grow */
+    height: 150px; /* Fixed height for each scan status box */
     background-color: white; /* Background color for scan status boxes */
     border: 1px solid #ccc; /* Border for each scan status box */
     border-radius: 5px; /* Rounded corners for scan status boxes */
-    padding: 15px; /* Padding inside each scan status box */
+    padding: 10px; /* Reduced padding inside each scan status box */
     box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Soft shadow for depth */
+    display: flex; /* Use flexbox inside the scan status for vertical layout */
+    flex-direction: column; /* Stack children vertically */
+    justify-content: space-between; /* Space out the header and status */
 }
 
 .scan-header {
     display: flex; /* Use flexbox to line up title and time */
     justify-content: space-between; /* Space out the title and the time */
-    margin-bottom: 10px; /* Margin below the header */
 }
 
 .status-title, .time-ago {
     margin: 0; /* Remove default margins */
+    font-size: 14px; /* Smaller font size to fit the compact design */
 }
 
 .status-info {
     display: flex; /* Use flex to align status text and icon */
     align-items: center; /* Center align items vertically */
-    font-size: 16px; /* Font size for status text */
+    font-size: 14px; /* Smaller font size to fit the compact design */
 }
 
 .status-icon {
     display: inline-block; /* Make the icon behave like text */
     margin-right: 5px; /* Space between icon and text */
-    font-size: 24px; /* Bigger icon for visibility */
 }
