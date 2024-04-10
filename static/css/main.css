@@ -177,10 +177,12 @@ body, html {
     padding: 12px 16px;
     text-decoration: none;
     display: block; /* Dropdown items should span the width of the container */
+    border-radius: 10px;
 }
 
 .top-nav-menu .dropdown-content a:hover {
     background-color: #37474F; /* Highlight dropdown items on hover */
+    border-radius: 10px;
 
 }
 
@@ -190,6 +192,7 @@ body, html {
 }
 
 .top-nav-menu .dropdown:hover .dropbtn {
+    border-radius: 10px;
     background-color: #37474F; /* Darken the button on hover for feedback */
 }
 
