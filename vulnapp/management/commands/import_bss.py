@@ -1,6 +1,9 @@
 from django.core.management.base import BaseCommand, CommandError
 import csv
-from vulnapp.models import HostToBSS  # Adjust 'myapp' to the actual name of your Django app
+from vulnapp.models import HostToBSS 
+
+# This code is not used today
+# The code was used to insert BSS data from a csv file from Kartoteket to match against hostnames.
 
 class Command(BaseCommand):
     help = 'Import host and BSS data from a CSV file into the database'
