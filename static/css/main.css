@@ -165,7 +165,8 @@ body, html {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto; /* Allows horizontal scrolling */
-    align-items: center;
+    justify-content: center; /* Center items along the main axis */
+    align-items: center; /* Center items along the cross axis */
     background-color: #f9f9f9; /* Lighter background for contrast */
     padding: 5px;
     border-top: 1px solid #e1e1e1; /* Adding a top border for visual separation */
@@ -183,7 +184,7 @@ body, html {
     display: flex;
     flex-direction: column; /* Stack content vertically */
     justify-content: center; /* Center content vertically */
-    align-items: center; /* Align content to the start of the box */
+    align-items: flex-start; /* Align content to the start of the box */
     min-width: 180px; /* Minimum width so the box doesn't get too narrow */
 }
 
