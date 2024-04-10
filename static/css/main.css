@@ -183,7 +183,7 @@ body, html {
     display: flex;
     flex-direction: column; /* Stack content vertically */
     justify-content: center; /* Center content vertically */
-    align-items: flex-start; /* Align content to the start of the box */
+    align-items: center; /* Align content to the start of the box */
     min-width: 180px; /* Minimum width so the box doesn't get too narrow */
 }
 
