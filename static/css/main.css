@@ -223,6 +223,7 @@ body, html {
     border-radius: 50%; /* Fully rounded to make a circle */
     display: inline-block; /* Allows it to sit inline with text */
     margin-right: 5px; /* Space between icon and text */
+    margin-left: 5px;
 }
 
 /* Success status */
