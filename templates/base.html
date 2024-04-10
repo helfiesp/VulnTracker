@@ -16,11 +16,13 @@
     <a href="{% url 'home' %}" class="top-nav-brand">Sårbarhetsoversikten</a>
     <nav class="top-nav-menu">
         <ul>
-            <li><a href="{% url 'home' %}">CVE</a></li>
-            <div class="dropdown-content">
-                <a href="{% url 'keywords' %}">Keywords</a>
-                <a href="{% url 'blacklist' %}">Blacklist</a>
-            </div>
+            <li class="dropdown">
+                <a href="{% url 'home' %}" class="dropbtn">CVE</a>
+                <div class="dropdown-content">
+                    <a href="{% url 'keywords' %}">Keywords</a>
+                    <a href="{% url 'blacklist' %}">Blacklist</a>
+                </div>
+            </li>            
             <li><a href="{% url 'defender_vulnerabilities' %}">Defender Vulnerabilities</a></li>
             <li><a href="{% url 'software_list_server' %}">Software</a></li>
             <li><a href="{% url 'haveibeenpwned' %}">HaveIBeenPwned</a></li>
