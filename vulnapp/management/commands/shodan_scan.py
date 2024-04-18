@@ -3,6 +3,7 @@ from vulnapp.models import ShodanScanResult, ScanStatus
 import os
 import shodan
 from vulnapp import secrets
+import json
 
 class Command(BaseCommand):
     help = 'Scans IP addresses in the 171.23.0.0/16 range and stores the results in the database'
