@@ -22,6 +22,7 @@ class Command(BaseCommand):
         return json_data
 
     def handle(self, *args, **options):
+        scan_status = ScanStatus.objects.create(scan_type='Nessus_NMAP_Scan', status='in_progress', details='{}')
         scan_ids = [20]
         nmap_scans = {}
         nmap_scanned_hosts = []
@@ -45,7 +46,15 @@ class Command(BaseCommand):
                 exported_scan_data = download_response.content.decode("utf-8")
                 json_data = self.convert_csv_to_json(exported_scan_data)
                 NessusData.objects.create(data=json.dumps(json_data), scan_id=scan_id)
-                print("Exported scan data saved to the database.")
+                scan_status.details = json.dumps({"last_processed_scan_id": scan_id})
+                scan_status.save()
+
+            scan_status.status = 'success'
+            scan_status.save()
+            self.stdout.write(self.style.SUCCESS('Successfully completed all Nessus and NMAP scanning processes.'))
+
         except requests.RequestException as e:
             self.stderr.write(f"Error: {e}")
-
+            scan_status.status = 'error'
+            scan_status.error_message = str(e)
+            scan_status.save()

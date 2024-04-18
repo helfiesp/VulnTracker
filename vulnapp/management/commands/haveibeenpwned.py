@@ -11,17 +11,27 @@ class Command(BaseCommand):
     help = 'Fetches data from HaveIBeenPwned API and updates the database'
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.SUCCESS('Starting the breach data update process...'))
-        self.fetch_and_update_breaches()
-        self.fetch_breached_domains()
+        scan_status = ScanStatus.objects.create(scan_type='HaveIBeenPwned_Import', status='in_progress', details='{}')
+        try:
+            self.stdout.write(self.style.SUCCESS('Starting the breach data update process...'))
+            self.fetch_and_update_breaches(scan_status)
+            self.fetch_breached_domains(scan_status)
+            scan_status.status = 'success'
+            scan_status.details = json.dumps({"details": "Complete"})
+            scan_status.save()
+            self.stdout.write(self.style.SUCCESS('Successfully completed the breach data update process.'))
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f'An error occurred: {str(e)}'))
+            scan_status.status = 'error'
+            scan_status.error_message = str(e)
+            scan_status.save()
 
-    def fetch_and_update_breaches(self):
+    def fetch_and_update_breaches(self, scan_status):
         headers = {
             "hibp-api-key": api_key,
             "Content-Type": "application/json"
         }
         api_endpoint = "https://haveibeenpwned.com/api/v3/breaches"
-
         response = requests.get(api_endpoint, headers=headers, verify=False)
         if response.status_code == 200:
             breaches_data = response.json()
@@ -47,14 +57,13 @@ class Command(BaseCommand):
                         'is_subscription_free': item.get('IsSubscriptionFree', False),
                     }
                 )
-                if created:
-                    self.stdout.write(self.style.SUCCESS(f"Added new breach: {breach.name}"))
-                else:
-                    self.stdout.write(self.style.SUCCESS(f"Updated breach: {breach.name}"))
+                action = "Added" if created else "Updated"
+                self.stdout.write(self.style.SUCCESS(f"{action} breach: {breach.name}"))
         else:
             self.stdout.write(self.style.ERROR('Failed to fetch data'))
+            raise CommandError('Failed to fetch breaches data.')
 
-    def fetch_breached_domains(self):
+    def fetch_breached_domains(self, scan_status):
         # Load domains from a file
         domains_list_path = os.path.join(settings.BASE_DIR, 'static', 'files', 'hibp_domains.txt')
         with open(domains_list_path, 'r') as file:
@@ -66,9 +75,9 @@ class Command(BaseCommand):
         }
 
         for domain in domains:
-            self.check_breached_accounts_for_domain(domain, headers)
+            self.check_breached_accounts_for_domain(domain, headers, scan_status)
 
-    def check_breached_accounts_for_domain(self, domain, headers):
+    def check_breached_accounts_for_domain(self, domain, headers, scan_status):
         api_endpoint = f"https://haveibeenpwned.com/api/v3/breacheddomain/{domain}"
         response = requests.get(api_endpoint, headers=headers, verify=False)
 
@@ -77,8 +86,6 @@ class Command(BaseCommand):
             for user, breached_sites in breaches_data.items():
                 # Construct the email address using the provided user and domain
                 email_address = f"{user}@{domain}"
-                
-                # Directly use the list of breached sites without additional detail fetching
                 obj, created = HaveIBeenPwnedBreachedAccounts.objects.update_or_create(
                     email_address=email_address,
                     defaults={
@@ -91,4 +98,4 @@ class Command(BaseCommand):
             self.stdout.write(self.style.NOTICE(f"No breach data found for domain: {domain}"))
         else:
             self.stdout.write(self.style.ERROR(f"Failed to fetch breach data for domain: {domain}, Status Code: {response.status_code}"))
-
+            raise CommandError(f"Failed to fetch breached domain data for: {domain}")

@@ -14,9 +14,11 @@ class Command(BaseCommand):
 
         api = shodan.Shodan(api_key)
         ip_range = '171.23.0.0/16'
+        scan_status = ScanStatus.objects.create(scan_type='Shodan_IP_Range_Scan', status='in_progress', details='{}')
 
         try:
             page = 1
+            processed_ips = 0
             while True:
                 # Search Shodan with pagination
                 results = api.search(f'net:{ip_range}', page=page)
@@ -29,9 +31,19 @@ class Command(BaseCommand):
                         ip_address=ip_address,
                         defaults={'data': result},
                     )
+                    processed_ips += 1
                     self.stdout.write(self.style.SUCCESS(f'Successfully added/updated {ip_address}'))
                 
                 page += 1
 
+            scan_status.status = 'success'
+            scan_status.details = json.dumps({"processed_ips": processed_ips})
+            scan_status.save()
+            self.stdout.write(self.style.SUCCESS('Successfully completed the Shodan IP range scan.'))
+
         except Exception as e:
+            self.stderr.write(f'Error: {e}')
+            scan_status.status = 'error'
+            scan_status.error_message = str(e)
+            scan_status.save()
             raise CommandError(f'Error fetching data from Shodan: {e}')

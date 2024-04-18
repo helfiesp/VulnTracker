@@ -4,18 +4,21 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
 class Keyword(models.Model):
+    # Stores keywords
     word = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.word
 
 class Blacklist(models.Model):
+    # Stores blacklisted keywords
     word = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.word
         
 class CVE(models.Model):
+    # Model to store individual CVE entries.
     cve_id = models.CharField(max_length=50, unique=True)
     source_identifier = models.CharField(max_length=100)
     published_date = models.DateTimeField()
@@ -35,6 +38,7 @@ class CVE(models.Model):
         return self.cve_id
         
 class Vulnerability(models.Model):
+    # Model to keep track of the vulnerability overview.
     id = models.CharField(max_length=255, primary_key=True)
     name = models.CharField(max_length=255)
     description = models.TextField()
@@ -56,6 +60,7 @@ class Vulnerability(models.Model):
         return self.name
 
 class MachineReference(models.Model):
+    # Model to keep treack of individual vulnerabilities per host.
     vulnerability = models.ForeignKey(Vulnerability, on_delete=models.CASCADE, related_name='machine_references')
     machine_id = models.CharField(max_length=255)
     computer_dns_name = models.CharField(max_length=255, null=True, blank=True)
@@ -72,6 +77,7 @@ class MachineReference(models.Model):
         return self.computer_dns_name
 
 class HaveIBeenPwnedBreaches(models.Model):
+    # Model to keep track of haveibeenpwned breaches 
     name = models.CharField(max_length=100)
     title = models.CharField(max_length=100)
     domain = models.CharField(max_length=100)
@@ -97,12 +103,14 @@ class HaveIBeenPwnedBreaches(models.Model):
         return json.loads(self.data_classes)
 
 class HaveIBeenPwnedBreachedAccounts(models.Model):
+    # Model to keep track of breached accounts.
     email_address = models.CharField(max_length=100)
     breached_sites = models.TextField()
     comment = models.TextField(default=None, null=True)
 
 
 class ExploitedVulnerability(models.Model):
+    # Model to keep track of exploited vulnerabilities (CISA)
     cve_id = models.CharField(max_length=20, primary_key=True)
     vendor_project = models.CharField(max_length=255)
     product = models.CharField(max_length=255)
@@ -118,6 +126,7 @@ class ExploitedVulnerability(models.Model):
 
 
 class Software(models.Model):
+    # Model to keep track of the software overview.
     id = models.CharField(max_length=255, primary_key=True)
     name = models.CharField(max_length=255)
     vendor = models.CharField(max_length=255)
@@ -131,6 +140,7 @@ class Software(models.Model):
         return self.name
 
 class SoftwareHosts(models.Model):
+    # Model to keep track of the individual software entries.
     software = models.ForeignKey(Software, on_delete=models.CASCADE, related_name='software_hosts')
     host_id = models.CharField(max_length=255)  # No longer the primary key
     computer_dns_name = models.CharField(max_length=255)
@@ -146,6 +156,7 @@ class SoftwareHosts(models.Model):
 
 
 class ScanStatus(models.Model):
+    # Model to keep track of the status on the different scans performed.
     scan_type = models.CharField(max_length=200)
     status = models.CharField(max_length=10, choices=(('success', 'Success'), ('error', 'Error')))
     completed_at = models.DateTimeField(auto_now_add=True)
@@ -179,6 +190,7 @@ class ScanStatus(models.Model):
         super(ScanStatus, self).save(*args, **kwargs)
 
 class ShodanScanResult(models.Model):
+    # Stores a singular shodan scan results as an individual entry.
     ip_address = models.CharField(max_length=15, unique=True)
     data = models.JSONField()  # Stores the JSON data returned by Shodan
     created_at = models.DateTimeField(auto_now_add=True)
@@ -187,12 +199,14 @@ class ShodanScanResult(models.Model):
         return self.ip_address
 
 class NessusData(models.Model):
+    # Model that stores the complete nessus dataset.
     data = models.TextField()
     date = models.DateTimeField(auto_now_add=True) 
     scan_id = models.CharField(max_length=255)
 
 
 class Comment(models.Model):
+    # Model to store comments on vulnerabilities and hosts.
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -206,5 +220,6 @@ class Comment(models.Model):
         return f"Comment on {self.content_type.model} - {self.created_at.strftime('%Y-%m-%d %H:%M')}"
 
 class HostToBSS(models.Model):
+    # Depleted model, used for importing BSS from CSV.
     host = models.CharField(max_length=255)
     bss = models.TextField()

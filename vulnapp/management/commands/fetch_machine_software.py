@@ -10,6 +10,7 @@ from requests.exceptions import RequestException
 from urllib.parse import quote  # Import the quote function
 import time
 
+## DEPLETED METHOD, NOT IN USE ### 
 class Command(BaseCommand):
     help = 'Fetches machine references for each software from Microsoft Security Center API'
 
