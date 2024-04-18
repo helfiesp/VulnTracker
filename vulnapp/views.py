@@ -87,7 +87,9 @@ def index(request):
         'scan_status': fetch_scan_info()
     })
 
-
+def scan_status(request):
+    return render(request, 'scan_status.html', {'scan_status': fetch_scan_info()})
+    
 def fetch_scan_info():
     """
     Function to fetch scan status.
