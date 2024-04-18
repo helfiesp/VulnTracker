@@ -44,8 +44,6 @@ urlpatterns = [
 
 
     path('shodan', views.shodan_results, name='shodan'),
-    path('scan/status', views.scan_status, name='scan_status'),
-
     path('add_comment/', views.add_comment, name='add_comment'),
 
 
