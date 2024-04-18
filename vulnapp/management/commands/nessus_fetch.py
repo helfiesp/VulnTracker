@@ -5,7 +5,7 @@ import json
 import csv
 import subprocess
 from django.core.management.base import BaseCommand
-from vulnapp.models import NessusData
+from vulnapp.models import NessusData, ScanStatus
 from django.conf import settings
 import os
 from pathlib import Path

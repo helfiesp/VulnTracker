@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from vulnapp.models import ShodanScanResult
+from vulnapp.models import ShodanScanResult, ScanStatus
 import os
 import shodan
 from vulnapp import secrets

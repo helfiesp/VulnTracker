@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from vulnapp.models import HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts
+from vulnapp.models import HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, ScanStatus
 import requests
 from django.conf import settings
 import os
