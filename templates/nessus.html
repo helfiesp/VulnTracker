@@ -46,26 +46,12 @@
 
 
 
-                </td>
-                {% if cve|get_criticality_level == "Critical" %}
-                    <td class="cvss-score-td" style="background-color: #63121d;">{{ cve.cvss_score }} </td>
-                {% elif cve|get_criticality_level == "High" %}
-                    <td class="cvss-score-td" style="background-color: #fc3d56;">{{ cve.cvss_score }} </td>
-                {% elif cve|get_criticality_level == "Medium" %}
-                    <td class="cvss-score-td" style="background-color: #c4db40;">{{ cve.cvss_score }} </td>
-                {% elif cve|get_criticality_level == "Low" %}
-                    <td class="cvss-score-td" style="background-color: #42f54b;">{{ cve.cvss_score }} </td>
-                {% else %}
-                    <td class="cvss-score-td" style="background-color: grey;">N/A</td>
-                {% endif %}
-
-
     {% if nessus_data %}
         <table>
             <tr>
                 <th>Plugin ID</th>
                 <th>CVE</th>
-                <th>CVSS v2.0 Base Score</th>
+                <th>CVSS Score</th>
                 <th>Risk</th>
                 <th>Name</th>
                 <th>Affected Hosts</th> <!-- New column for Affected Hosts -->
