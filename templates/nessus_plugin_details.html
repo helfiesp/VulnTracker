@@ -15,48 +15,24 @@
             
         </div>
         <div class="filter-controls">
-            <div class="date-filter">
-                <select id="date-filter-select">
-                    <option value="past_day" {% if current_date_filter == 'past_day' %}selected{% endif %}>Past Day</option>
-                    <option value="past_week" {% if current_date_filter == 'past_week' %}selected{% endif %}>Past Week</option>
-                    <option value="past_weekend" {% if current_date_filter == 'past_weekend' %}selected{% endif %}>Past Weekend</option>
-                    <option value="this_month" {% if current_date_filter == 'this_month' %}selected{% endif %}>This Month</option>
-                </select>
-            </div>
-
-                <div class="keyword-filter" style="margin-top:8px">
-
-                    <input type="checkbox" id="filter-keywords" class="sr-only" {% if request.GET.keywords == 'true' %}checked{% endif %}>
-                    <label for="filter-keywords" class="keyword-button">CVEs with Keywords</label>
-                </div>
+           
 
                 <div class="search-filter">
                     <input type="search" id="search-input" placeholder="Search vulnerabilities...">
                 </div>
 
-            <div class="sort-filter">
-       
-            <select id="sort-select">
-                <option value="cvss_score_desc" {% if current_sort == 'cvss_score_desc' %}selected{% endif %}>Highest CVSS Score</option>
-                <option value="cvss_score_asc" {% if current_sort == 'cvss_score_asc' %}selected{% endif %}>Lowest CVSS Score</option>
-                <option value="date_desc" {% if current_sort == 'date_desc' %}selected{% endif %}>Newest First</option>
-                <option value="date_asc" {% if current_sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
-            </select>
-            </div>
+
             </div>
         </div>
 
 
     {% if nessus_data %}
-        <table>
+            <table>
+        <thead>
             <tr>
                 <th>Plugin ID</th>
-                {% if item.CVE %}
-                    <th>CVE</th>
-                    {% if item.CVSS_v2_0_Base_Score %}
-                        <th>CVSS v2.0 Base Score</th>
-                    {% endif %}
-                {% endif %}
+                <th>CVE</th>
+                <th>CVSS v2.0 Base Score</th>
                 <th>Risk</th>
                 <th>Host</th>
                 <th>Protocol</th>
@@ -67,14 +43,13 @@
                 <th>Solution</th>
                 <th>Plugin Output</th>
             </tr>
+        </thead>
+        <tbody>
             {% for item in nessus_data %}
-                <tr>
+                <tr class="cve">
                     <td>{{ item.Plugin_ID }}</td>
-                    {% if item.CVE %}
-                        <td>{{ item.CVE }}</td>
-                    {% else %}
-                        <td>N/A</td>
-                    {% endif %}
+                    <td class="cve-title">{{ item.CVE if item.CVE else 'N/A' }}</td>
+                    <td>{{ item.CVSS_v2_0_Base_Score if item.CVSS_v2_0_Base_Score else 'N/A' }}</td>
                     <td>{{ item.Risk }}</td>
                     <td><a href="{% url 'nessus_host_details' item.Host %}">{{ item.Host }}</a></td>
                     <td>{{ item.Protocol }}</td>
@@ -90,7 +65,7 @@
                         {% endif %}
                     </td>
                     <!-- Description -->
-                    <td>
+                    <td class="cve-description">
                         {{ item.Description|slice:":250" }}
                         {% if item.Description|length > 250 %}
                             <span class="ellipsis">...</span>
@@ -117,15 +92,34 @@
                         {% endif %}
                     </td>
                 </tr>
-                {% endfor %}
-
-
-        </table>
+            {% endfor %}
+        </tbody>
+    </table>
     {% else %}
         <p>No data found.</p>
     {% endif %}
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var searchInput = document.getElementById('search-input');
+    var cveRows = document.querySelectorAll('.cve');
 
+    searchInput.addEventListener('keyup', function(e) {
+        var searchTerm = e.target.value.toLowerCase();
+        cveRows.forEach(function(row) {
+            var titleElement = row.querySelector('.cve-title');
+            var descriptionElement = row.querySelector('.cve-description');
+            var title = titleElement ? titleElement.textContent.toLowerCase() : '';
+            var description = descriptionElement ? descriptionElement.textContent.toLowerCase() : '';
+            if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
 
 
