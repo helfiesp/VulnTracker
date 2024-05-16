@@ -48,8 +48,8 @@
             {% for item in nessus_data %}
                 <tr class="cve">
                     <td>{{ item.Plugin_ID }}</td>
-                    <td class="cve-title">{{ item.CVE if item.CVE else 'N/A' }}</td>
-                    <td>{{ item.CVSS_v2_0_Base_Score if item.CVSS_v2_0_Base_Score else 'N/A' }}</td>
+                    <td class="cve-title">{% if item.CVE %}{{ item.CVE }}{% else %}N/A{% endif %}</td>
+                    <td>{% if item.CVSS_v2_0_Base_Score %}{{ item.CVSS_v2_0_Base_Score }}{% else %}N/A{% endif %}
                     <td>{{ item.Risk }}</td>
                     <td><a href="{% url 'nessus_host_details' item.Host %}">{{ item.Host }}</a></td>
                     <td>{{ item.Protocol }}</td>
