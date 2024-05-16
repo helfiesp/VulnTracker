@@ -83,8 +83,10 @@ document.addEventListener('DOMContentLoaded', function() {
     searchInput.addEventListener('keyup', function(e) {
         var searchTerm = e.target.value.toLowerCase();
         cveRows.forEach(function(row) {
-            var title = row.querySelector('.cve-title').textContent.toLowerCase();
-            var description = row.querySelector('.cve-description').textContent.toLowerCase();
+            var titleElement = row.querySelector('.cve-title');
+            var descriptionElement = row.querySelector('.cve-description');
+            var title = titleElement ? titleElement.textContent.toLowerCase() : '';
+            var description = descriptionElement ? descriptionElement.textContent.toLowerCase() : '';
             if (title.includes(searchTerm) || description.includes(searchTerm)) {
                 row.style.display = '';
             } else {
@@ -92,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
+})
 </script>
 {% endblock %}
 
