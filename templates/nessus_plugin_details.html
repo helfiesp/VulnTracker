@@ -32,7 +32,7 @@
             <tr>
                 <th>Plugin ID</th>
                 <th>CVE</th>
-                <th>CVSS v2.0 Base Score</th>
+                <th>CVSS Score</th>
                 <th>Risk</th>
                 <th>Host</th>
                 <th>Protocol</th>
@@ -77,7 +77,7 @@
                         {% else %}
                             <td class="cvss-score-td" style="background-color: #00BCD4;">N/A</td>
                         {% endif %}
-                        
+
                     <td><a href="{% url 'nessus_host_details' item.Host %}">{{ item.Host }}</a></td>
                     <td>{{ item.Protocol }}</td>
                     <td>{{ item.Port }}</td>
