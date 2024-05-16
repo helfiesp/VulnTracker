@@ -285,3 +285,13 @@ body, html {
 .status-error {
     background-color: #dc3545; /* Red for error */
 }
+.back-button {
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 4px;
+    cursor: pointer;
+}
