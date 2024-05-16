@@ -528,12 +528,16 @@ def sort_nessus_data(nessus_data):
 
 def nessus(request):
     """
-    Fetches the latest nessus result entry and sorts the data.
+    Fetches the latest Nessus result entry and sorts the data.
     """
-    # Fetch the newest entry with scan_id == "20"
-    newest_entry = NessusData.objects.filter(scan_id="20").order_by('-date').first()
+    # Fetch the newest entry
+    newest_entry = models.NessusData.objects.order_by('-date').first()
 
     if newest_entry is not None:
+        # Extract scan_id and date from the newest entry
+        scan_id = newest_entry.scan_id
+        date = newest_entry.date.strftime('%Y-%m-%d')
+
         # Assuming nessus_data is stored as a JSON string, parse it
         nessus_data_raw = json.loads(newest_entry.data)
         
@@ -553,13 +557,15 @@ def nessus(request):
                 # Increment affected hosts count for existing entries
                 grouped_data[plugin_id]["Affected_Hosts"] += 1
 
+        # Assuming sort_nessus_data is a function that sorts the nessus data
         nessus_data = sort_nessus_data(list(grouped_data.values()))
-
     else:
         nessus_data = []  # Use an empty list if no entry is found
+        scan_id = None
+        date = None
 
-    # Pass the processed nessus_data to the context
-    context = {'nessus_data': nessus_data}
+    # Pass the processed nessus_data along with scan_id and date to the context
+    context = {'nessus_data': nessus_data, 'scan_id': scan_id, 'date': date}
     return render(request, 'nessus.html', context)
 
 def nessus_plugin_details(request, plugin_id):

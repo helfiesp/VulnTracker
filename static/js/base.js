@@ -14,3 +14,18 @@ function toggleDescription(button) {
         button.textContent = "View More";
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    var searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('keyup', function(e) {
+        var searchTerm = e.target.value.toLowerCase();
+        cveArticles.forEach(function(article) {
+            var title = article.querySelector('.cve-title').textContent.toLowerCase();
+            var description = article.querySelector('.cve-description').textContent.toLowerCase();
+            if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                article.style.display = '';
+            } else {
+                article.style.display = 'none';
+            }
+        });
+    });
