@@ -17,6 +17,8 @@ function toggleDescription(button) {
 
 document.addEventListener('DOMContentLoaded', function() {
     var searchInput = document.getElementById('search-input');
+    var cveArticles = document.querySelectorAll('.cve');
+
     searchInput.addEventListener('keyup', function(e) {
         var searchTerm = e.target.value.toLowerCase();
         cveArticles.forEach(function(article) {
