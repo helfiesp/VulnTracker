@@ -75,7 +75,25 @@
         <p>No data found.</p>
     {% endif %}
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var searchInput = document.getElementById('search-input');
+    var cveRows = document.querySelectorAll('.cve');
 
+    searchInput.addEventListener('keyup', function(e) {
+        var searchTerm = e.target.value.toLowerCase();
+        cveRows.forEach(function(row) {
+            var title = row.querySelector('.cve-title').textContent.toLowerCase();
+            var description = row.querySelector('.cve-description').textContent.toLowerCase();
+            if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
 
 
