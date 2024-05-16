@@ -48,9 +48,36 @@
             {% for item in nessus_data %}
                 <tr class="cve">
                     <td>{{ item.Plugin_ID }}</td>
-                    <td class="cve-title">{% if item.CVE %}{{ item.CVE }}{% else %}N/A{% endif %}</td>
-                    <td>{% if item.CVSS_v2_0_Base_Score %}{{ item.CVSS_v2_0_Base_Score }}{% else %}N/A{% endif %}
-                    <td>{{ item.Risk }}</td>
+                    {% if item.CVE %}
+                        <td class="cve-title"><a href="https://nvd.nist.gov/vuln/detail/{{ item.CVE }}" target="_blank">{{ item.CVE }}</a></td>
+                        {% if item.Risk == "Critical" %}
+                            <td class="cvss-score-td" style="background-color: #D32F2F;">{{ item.CVSS_v2_0_Base_Score }} </td>
+                        {% elif item.Risk == "High" %}
+                            <td class="cvss-score-td" style="background-color: #FF5722;">{{ item.CVSS_v2_0_Base_Score }} </td>
+                        {% elif item.Risk == "Medium" %}
+                            <td class="cvss-score-td" style="background-color: #FFC107;">{{ item.CVSS_v2_0_Base_Score }} </td>
+                        {% elif item.Risk == "Low" %}
+                            <td class="cvss-score-td" style="background-color: #8BC34A;">{{ item.CVSS_v2_0_Base_Score }} </td>
+                        {% else %}
+                            <td class="cvss-score-td" style="background-color: #00BCD4;">N/A</td>
+                        {% endif %}
+                    {% else %}
+                        <td>Ingen CVE tilgjengelig</td>
+                        <td class="cvss-score-td" style="background-color: #00BCD4;">N/A</td>
+                    {% endif %}
+
+                    {% if item.Risk == "Critical" %}
+                            <td class="cvss-score-td" style="background-color: #D32F2F;">{{ item.Risk }} </td>
+                        {% elif item.Risk == "High" %}
+                            <td class="cvss-score-td" style="background-color: #FF5722;">{{ item.Risk }} </td>
+                        {% elif item.Risk == "Medium" %}
+                            <td class="cvss-score-td" style="background-color: #FFC107;">{{ item.Risk }} </td>
+                        {% elif item.Risk == "Low" %}
+                            <td class="cvss-score-td" style="background-color: #8BC34A;">{{ item.Risk }} </td>
+                        {% else %}
+                            <td class="cvss-score-td" style="background-color: #00BCD4;">N/A</td>
+                        {% endif %}
+                        
                     <td><a href="{% url 'nessus_host_details' item.Host %}">{{ item.Host }}</a></td>
                     <td>{{ item.Protocol }}</td>
                     <td>{{ item.Port }}</td>
