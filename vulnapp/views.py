@@ -531,7 +531,7 @@ def nessus(request):
     Fetches the latest Nessus result entry and sorts the data.
     """
     # Fetch the newest entry
-    newest_entry = models.NessusData.objects.order_by('-date').first()
+    newest_entry = NessusData.objects.order_by('-date').first()
 
     if newest_entry is not None:
         # Extract scan_id and date from the newest entry
