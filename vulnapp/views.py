@@ -542,6 +542,7 @@ def nessus(request):
         for item in nessus_data_raw:
             # Replace spaces in keys with underscores for template compatibility
             item = {key.replace(" ", "_"): value for key, value in item.items()}
+            item = {key.replace(".", "_"): value for key, value in item.items()}
             plugin_id = item["Plugin_ID"]
             
             if plugin_id not in grouped_data:
