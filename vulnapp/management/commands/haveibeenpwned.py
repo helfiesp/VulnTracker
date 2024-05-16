@@ -11,7 +11,7 @@ class Command(BaseCommand):
     help = 'Fetches data from HaveIBeenPwned API and updates the database'
 
     def handle(self, *args, **options):
-        scan_status = ScanStatus.objects.create(scan_type='HaveIBeenPwned_Import', status='in_progress', details='{}')
+        scan_status = ScanStatus.objects.create(scan_type='HaveIBeenPwned', status='in_progress', details='{}')
         try:
             self.stdout.write(self.style.SUCCESS('Starting the breach data update process...'))
             self.fetch_and_update_breaches(scan_status)
