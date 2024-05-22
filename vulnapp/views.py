@@ -524,6 +524,26 @@ def sort_nessus_data(nessus_data):
     """
     risk_order = {"Critical": 5, "High": 4, "Medium": 3, "Low": 2, "None": 1}
     return sorted(nessus_data, key=lambda x: risk_order.get(x.get("Risk", "None"), 0), reverse=True)
+ 
+
+def clean_nessus_data(nessus_data):
+    """ Cleans up the nessus data so it can be properly rendered into the template """
+    # Initialize a dictionary to group data by Plugin_ID
+    grouped_data = {}
+    for item in nessus_data:
+        # Replace spaces in keys with underscores for template compatibility
+        item = {key.replace(" ", "_"): value for key, value in item.items()}
+        item = {key.replace(".", "_"): value for key, value in item.items()}
+        plugin_id = item["Plugin_ID"]
+        
+        if plugin_id not in grouped_data:
+            # Initialize entry with the current item and set affected hosts to 1
+            grouped_data[plugin_id] = item
+            grouped_data[plugin_id]["Affected_Hosts"] = 1
+        else:
+            # Increment affected hosts count for existing entries
+            grouped_data[plugin_id]["Affected_Hosts"] += 1
+    return grouped_data
 
 
 def nessus(request):
@@ -540,22 +560,9 @@ def nessus(request):
 
         # Assuming nessus_data is stored as a JSON string, parse it
         nessus_data_raw = json.loads(newest_entry.data)
-        
-        # Initialize a dictionary to group data by Plugin_ID
-        grouped_data = {}
-        for item in nessus_data_raw:
-            # Replace spaces in keys with underscores for template compatibility
-            item = {key.replace(" ", "_"): value for key, value in item.items()}
-            item = {key.replace(".", "_"): value for key, value in item.items()}
-            plugin_id = item["Plugin_ID"]
-            
-            if plugin_id not in grouped_data:
-                # Initialize entry with the current item and set affected hosts to 1
-                grouped_data[plugin_id] = item
-                grouped_data[plugin_id]["Affected_Hosts"] = 1
-            else:
-                # Increment affected hosts count for existing entries
-                grouped_data[plugin_id]["Affected_Hosts"] += 1
+
+        # Clean the nessus data
+        grouped_data = clean_nessus_data(nessus_data_raw)
 
         # Assuming sort_nessus_data is a function that sorts the nessus data
         nessus_data = sort_nessus_data(list(grouped_data.values()))
@@ -577,19 +584,18 @@ def nessus_plugin_details(request, plugin_id):
 
     if newest_entry is not None:
         # Assuming nessus_data is stored as a JSON string, parse it
-        all_data = json.loads(newest_entry.data)
-        # Preprocess data to replace spaces in keys with underscores
-        processed_data = [{key.replace(" ", "_"): value for key, value in item.items()} for item in all_data]
-        # Filter the data for the given Plugin_ID, taking into account the replaced spaces
-        filtered_data = [entry for entry in processed_data if entry.get('Plugin_ID') == plugin_id]
+        nessus_data_raw = json.loads(newest_entry.data)
 
-        # Sort the filtered data by risk level before passing it to the template
-        filtered_data = sort_nessus_data(filtered_data)
+        # Clean the nessus data
+        grouped_data = clean_nessus_data(nessus_data_raw)
+
+        # Assuming sort_nessus_data is a function that sorts the nessus data
+        nessus_data = sort_nessus_data(list(grouped_data.values()))
 
     else:
-        filtered_data = []
+        nessus_data = []
 
-    context = {'nessus_data': filtered_data, 'plugin_id': plugin_id}
+    context = {'nessus_data': nessus_data, 'plugin_id': plugin_id}
     return render(request, 'nessus_plugin_details.html', context)
 
 def nessus_host_details(request, hostname):
@@ -601,7 +607,14 @@ def nessus_host_details(request, hostname):
 
     if newest_entry is not None:
         # Assuming nessus_data is stored as a JSON string, parse it
-        all_data = json.loads(newest_entry.data)
+        nessus_data_raw = json.loads(newest_entry.data)
+
+        # Clean the nessus data
+        grouped_data = clean_nessus_data(nessus_data_raw)
+
+        # Assuming sort_nessus_data is a function that sorts the nessus data
+        all_data = sort_nessus_data(list(grouped_data.values()))
+
         # Preprocess data to replace spaces in keys with underscores
         processed_data = [{key.replace(" ", "_"): value for key, value in item.items()} for item in all_data]
 
