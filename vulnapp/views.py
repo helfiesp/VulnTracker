@@ -574,7 +574,6 @@ def nessus_plugin_details(request, plugin_id):
     """
     # Fetch the newest entry with scan_id == "20"
     newest_entry = NessusData.objects.filter(scan_id="20").order_by('-date').first()
-    data_date = newest_entry.date
 
     if newest_entry is not None:
         # Assuming nessus_data is stored as a JSON string, parse it
@@ -590,7 +589,7 @@ def nessus_plugin_details(request, plugin_id):
     else:
         filtered_data = []
 
-    context = {'nessus_data': filtered_data, 'plugin_id': plugin_id, 'data_date':data_date}
+    context = {'nessus_data': filtered_data, 'plugin_id': plugin_id}
     return render(request, 'nessus_plugin_details.html', context)
 
 def nessus_host_details(request, hostname):
