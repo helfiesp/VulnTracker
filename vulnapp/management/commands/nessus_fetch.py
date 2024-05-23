@@ -54,8 +54,13 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('Successfully completed all Nessus and NMAP scanning processes.'))
 
         except requests.RequestException as e:
-            print("ERROR: {}".format(e))
             self.stderr.write(f"Error: {e}")
-            scan_status.status = 'error'
-            scan_status.error_message = str(e)
-            scan_status.save()
+            if "https://github.com/helfiesp/VulnTracker" in str(e):
+                print("")
+                scan_status.status = 'scan_running'
+                scan_status.error_message = "Scan is already running"
+                scan_status.save()
+            else:
+                scan_status.status = 'error'
+                scan_status.error_message = str(e)
+                scan_status.save()
