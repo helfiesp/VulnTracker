@@ -55,11 +55,7 @@
           <th>Product</th>
           <th>Status</th>
           <th>Title</th>
-          <th>Organization</th>
-          <th>ISP</th>
-          <th>ASN</th>
           <th>Port</th>
-          <th>Location</th>
           <th>Comments</th>
         </tr>
       </thead>
@@ -70,11 +66,7 @@
         <td>{{ result.product }}</td>
         <td>{{ result.status }}</td>
         <td>{{ result.title }}</td>
-        <td>{{ result.org }}</td>
-        <td>{{ result.isp }}</td>
-        <td>{{ result.asn }}</td>
         <td>{{ result.port }}</td>
-        <td>{{ result.location }}</td>
         <td>
             <div class="comment-form">
                 <form action="{% url 'add_comment' %}" method="post">
