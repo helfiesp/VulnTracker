@@ -375,22 +375,12 @@ def cve_list_for_machine(request, computer_dns_name):
     
     cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct()
     
-    # Check if the data is up-to-date
-    update_needed = False
-    if machine_references.exists():
-        most_recent_update = machine_references.latest('last_updated').last_updated
-        if most_recent_update.date() < timezone.now().date():
-            update_needed = True
-    else:
-        # No local data, need to fetch from API
-        update_needed = True
 
-    if update_needed:
-        token = fetch_auth_token()
-        if token:
-            api_cves = fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token)
-            if api_cves:
-                cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct()
+    token = fetch_auth_token()
+    if token:
+        api_cves = fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token)
+        if api_cves:
+            cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct()
 
 
     context = {
