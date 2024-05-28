@@ -848,15 +848,14 @@ def shodan_results(request):
 
     shodan_content_type = ContentType.objects.get_for_model(ShodanScanResult)
 
+    # Prefetch comments for all results to minimize database hits
+    comments = Comment.objects.filter(content_type=shodan_content_type, object_id__in=results.values_list('id', flat=True))
+    comments_dict = {comment.object_id: comment.content for comment in comments}
+
     for result in results:
         data = result.data
-        # Attempt to fetch the comment for this result
-        comments = Comment.objects.filter(
-            content_type=shodan_content_type,
-            object_id=result.id
-        )
-        comment_content = comments[0].content if comments else ""  # Use the first comment's content if exists
-        
+        comment_content = comments_dict.get(result.id, "")  # Get the comment content if exists, else empty string
+
         parsed_result = {
             'id': result.id,
             'ip_address': result.ip_address,
@@ -909,6 +908,8 @@ def add_comment(request):
     elif comment_type == 'cve-machine':
         # Handle comments for CVE-Machine combinations
         content_type = ContentType.objects.get_for_model(MachineReference)
+    elif comment_type == 'shodan':
+        content_type = ContentType.objects.get_for_model(ShodanScanResult)
     else:
         # Log or handle unsupported comment types
         print(f"Unsupported comment type: {comment_type}")

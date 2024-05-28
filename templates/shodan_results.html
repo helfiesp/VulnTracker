@@ -80,6 +80,7 @@
                 <form action="{% url 'add_comment' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="result_id" value="{{ result.id }}">
+                    <input type="hidden" name="comment_type" value="shodan">
                     <div class="comment-form-controls"> <!-- Flex container -->
                         <textarea name="comment_content">{{ result.comment_content }}</textarea>
                         <button type="submit">Update</button>
