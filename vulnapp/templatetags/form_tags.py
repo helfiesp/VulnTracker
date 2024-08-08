@@ -13,7 +13,7 @@ def get_criticality_level(cve):
     elif 2.5 <= cve.cvss_score < 5.0:
         return 'Low'
     else:
-        return 'Informational'
+        return 'N/A'
 
 @register.filter
 def get_defender_criticality_level(cvssV3):
@@ -28,7 +28,7 @@ def get_defender_criticality_level(cvssV3):
         elif 2.5 <= cve.cvss_score < 5.0:
             return 'Low'
         else:
-            return 'Informational'
+            return 'N/A'
     except ValueError:
-        return "Informational"
+        return "N/A"
 

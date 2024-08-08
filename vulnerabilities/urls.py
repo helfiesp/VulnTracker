@@ -24,27 +24,17 @@ urlpatterns = [
     path('cve/keywords/', views.keyword_view, name='keywords'),
     path('cve/blacklist/', views.blacklist_view, name='blacklist'),
     path('cve/delete/<str:model_name>/<int:word_id>/', views.delete_word, name='delete_word'),
-
-    path('defender/vulnerabilities', views.defender_vulnerabilities, name='defender_vulnerabilities'),
-    path('defender/vulnerabilities/<str:cve_id>/machines/', views.machine_list, name='machine-list'),
-    path('defender/machines/<str:computer_dns_name>/cves/', views.cve_list_for_machine, name='cve-list-for-machine'),
-
-    path('haveibeenpwned', views.haveibeenpwned_breaches, name='haveibeenpwned'),
-    path('haveibeenpwned/<str:breach_name>/', views.breached_users_list, name='breached_users_list'),
-    path('haveibeenpwned/user/<str:email>/', views.get_breaches_for_user, name='get_breaches_for_user'),
-
-    path('software_list/', views.software_list, name='software_list'),
-    path('software_list/server', views.all_software_hosts, name='software_list_server'),
-    path('software_list/software/<path:software_id>/', views.software_list_by_software, name='host_list_by_software'),
-
-
-    path('nessus', views.nessus, name='nessus'),
-    path('nessus/plugin/<str:plugin_id>/', views.nessus_plugin_details, name='nessus_plugin_details'),
-    path('nessus/host/<str:hostname>/', views.nessus_host_details, name='nessus_host_details'),
-
-
-    path('shodan', views.shodan_results, name='shodan'),
     path('add_comment/', views.add_comment, name='add_comment'),
+
+    path('create_cmdb_entry/', views.create_cmdb_entry, name='create_cmdb_entry'),
+    path('cmdb/', views.cmdb_view, name='cmdb'),
+    path('upload_public_ip_csv/', views.upload_public_ip_csv, name='upload_public_ip_csv'),
+    path('create_ticket/', views.create_ticket, name='create_ticket'),
+    path('ticket_list/', views.ticket_list, name='ticket_list'),
+    path('ticket_detail/<int:ticket_id>/', views.ticket_detail, name='ticket_detail'),
+    path('toggle_ticket_status/<int:ticket_id>/', views.toggle_ticket_status, name='toggle_ticket_status'),
+    path('ticket_detail/<int:ticket_id>/delete', views.delete_ticket, name='delete_ticket'),
+    path('public_ip_list/', views.public_ip_list, name='public_ip_list'),
 
 
 ]

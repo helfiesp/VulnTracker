@@ -6,12 +6,10 @@ from datetime import datetime, timedelta
 import pytz
 import re
 from vulnapp.models import CVE, Keyword, ScanStatus, Software, Blacklist
-import spacy
 
 unique_software = []
 
 
-nlp = spacy.load("en_core_web_sm")
 
 class Command(BaseCommand):
     help = 'Fetch and store CVE data from NVD'
@@ -37,16 +35,6 @@ class Command(BaseCommand):
             return re.split(pattern, name)
 
         separators = ["_", "-", ".", "/", "(", ")", "=", " "]
-
-        for software in Software.objects.all():
-            software_name = str(software)
-            if len(software_name) > 2:  # Check the length of the software name once
-                software_splitted = split_software_name(software_name, separators)
-                for entry in software_splitted:
-                    # Ensure entry is not empty, not in unique_software, does not start with a digit, and is longer than 2 characters
-                    if entry and len(entry) > 2 and entry not in unique_software and not entry[0].isdigit():
-                        unique_software.append(entry)
-
 
         try:
             if period == 'past_day':
@@ -155,22 +143,16 @@ class Command(BaseCommand):
                 last_modified_date = timezone.make_aware(last_modified_date, timezone=pytz.UTC)
 
 
-                # Process the text with spaCy
-                doc = nlp(description)
-
                 potential_software_names = set()
-                for ent in doc.ents:
-                    if ent.label_ in ["ORG", "PRODUCT"]:
-                        # Normalize entity text to lowercase for case-insensitive comparison
-                        normalized_ent_text = ent.text.lower()
-                        # Check if the normalized entity text is in the keyword list
-                        if normalized_ent_text in keyword_list_all and normalized_ent_text not in all_blacklisted_words:
-                            potential_software_names.add(normalized_ent_text)
 
                 for word in keyword_list:
-                    if word in description.lower():
-                        if word not in potential_software_names and word not in all_blacklisted_words:
-                            potential_software_names.add(word)
+                    if " " in word:
+                        if word.lower() in description.lower():
+                            potential_software_names.add(word.capitalize())
+                    else:
+                        if word in description.lower().split():
+                            if word not in potential_software_names and word not in all_blacklisted_words:
+                                potential_software_names.add(word.capitalize())
                 
 
                 keywords_string = ', '.join(sorted(potential_software_names))

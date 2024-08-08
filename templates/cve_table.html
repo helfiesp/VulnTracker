@@ -2,6 +2,8 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/filters.css' %}">
 <link rel="stylesheet" href="{% static 'css/cve_table.css' %}">
+
+<div clas="dashboard-container">
 <main class="main-content" style="width:100%">
     <div class="scan-status-container">
     {% if scan_status %}
@@ -43,7 +45,7 @@
                 <div class="keyword-filter" style="margin-top:8px">
 
                     <input type="checkbox" id="filter-keywords" class="sr-only" {% if request.GET.keywords == 'true' %}checked{% endif %}>
-                    <label for="filter-keywords" class="keyword-button">CVEs with Keywords</label>
+                    <label for="filter-keywords" class="keyword-button">Keywords</label>
                 </div>
 
                 <div class="search-filter">
@@ -58,49 +60,9 @@
                 <option value="date_desc" {% if current_sort == 'date_desc' %}selected{% endif %}>Newest First</option>
                 <option value="date_asc" {% if current_sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
             </select>
-            </div>
-                        <button id="toggle-view-btn" class="toggle-view">Show Table View</button>
-            </div>
         </div>
-  
-
-    <section class="vulnerabilities-list" id="latest">
-        {% for cve in cves %}
-            <article class="cve">
-                 <div class="cve-header">
-                    <h3 class="cve-title"><a style="text-decoration: none; color: black;" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{ cve.cve_id }}">{{ cve.cve_id }}</a></h3>
-                        <div class="cve-tags">
-                            {% if cve.known_exploited %}
-                                <div class="cve-tag known-exploited">Known Exploited</div>
-                            {% endif %}
-                            <div class="cve-tag cve-criticality {{ cve|get_criticality_level }}">
-                                {{ cve|get_criticality_level }} {{ cve.cvss_score }}
-                            </div>
-                        </div>
-                </div>
-                <!-- Check the length of the description and truncate if necessary -->
-                <p class="cve-description">
-                    {{ cve.description|slice:":500" }}
-                    {% if cve.description|length > 500 %}
-                        <span class="ellipsis">...</span>
-                        <span class="more-text">{{ cve.description|slice:"500:" }}</span>
-                        <button class="view-more-btn" onclick="toggleDescription(this)">View More</button>
-                    {% endif %}
-                </p>
-                <div class="cve-details">
-                    <span>Published: {{ cve.published_date|date:"M d, Y" }}</span>
-                    <span>Last Modified: {{ cve.last_modified_date|date:"M d, Y" }}</span>
-                </div>
-                {% if cve.keywords %}
-                    <div class="cve-keywords">
-                        {{ cve.keywords }}
-                    </div>
-                {% endif %}
-            </article>
-        {% empty %}
-            <p>No vulnerabilities found.</p>
-        {% endfor %}
-    </section>
+    </div>
+</div> 
 
 <div class="cve-table">
     <table>
@@ -118,9 +80,9 @@
 
         <tbody>
             {% for cve in cves %}
-            <tr>
+            <tr class="cve-article">
                 <td>
-                    <a style="text-decoration: none; color: black;" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{ cve.cve_id }}"><span style="font-weight:bold;">{{ cve.cve_id }}</span></a>
+                    <a style="text-decoration: none; color: black;" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{ cve.cve_id }}"><span class="cve-title">{{ cve.cve_id }}</span></a>
                 </td>
                 {% if cve|get_criticality_level == "Critical" %}
                     <td class="cvss-score-td" style="background-color: #D32F2F;">{{ cve.cvss_score }} </td>
@@ -135,14 +97,14 @@
                 {% endif %}
 
                 <td style="max-width:400px">
-                    <p class="cve-description">
-                    <p>{{ cve.description|slice:":500" }}</p>
-                    {% if cve.description|length > 500 %}
+                    <p class="cve-description" style="display: none;">{{ cve.description }}</p>
+                    <p>{{ cve.description|slice:":300" }}</p>
+                    {% if cve.description|length > 300 %}
                         <span class="ellipsis">...</span>
-                        <span class="more-text"><p>{{ cve.description|slice:"500:" }}</p></span>
+                        <span class="more-text"><p>{{ cve.description|slice:"300:" }}</p></span>
                         <button class="view-more-btn" onclick="toggleDescription(this)">View More</button>
                     {% endif %}
-                    </p>
+                    
                 </td>
                 <td>{{ cve.keywords }}</td>
                 <td>{{ cve.published_date|date:"M d, Y" }}</td>
@@ -153,7 +115,7 @@
     </table>
 </div>
 
-
+</div>
 
 </main>
 
@@ -162,19 +124,21 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     var searchInput = document.getElementById('search-input');
-    var cveArticles = document.querySelectorAll('.cve');
+    var cveArticles = document.querySelectorAll('.cve-article');
     var sortSelect = document.getElementById('sort-select');
 
 
     searchInput.addEventListener('keyup', function(e) {
         var searchTerm = e.target.value.toLowerCase();
-        cveArticles.forEach(function(article) {
-            var title = article.querySelector('.cve-title').textContent.toLowerCase();
-            var description = article.querySelector('.cve-description').textContent.toLowerCase();
-            if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                article.style.display = '';
+        cveArticles.forEach(function(tr) {
+            var title = tr.querySelector('.cve-title').textContent.toLowerCase();
+            var description = tr.querySelector('.cve-description').innerText.toLowerCase(); // Use innerText to get the full text
+            var keywords = tr.querySelector('.cve-keywords').textContent.toLowerCase();
+
+            if (title.includes(searchTerm) || description.includes(searchTerm) || keywords.includes(searchTerm)) {
+                tr.style.display = '';
             } else {
-                article.style.display = 'none';
+                tr.style.display = 'none';
             }
         });
     });
@@ -219,27 +183,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Update the page URL and reload
         window.location.search = queryParams.toString();
-    });
-
-
-    // Toggle view button
-    var toggleViewBtn = document.getElementById('toggle-view-btn');
-    var vulnerabilitiesList = document.querySelector('.vulnerabilities-list');
-    var cveTable = document.querySelector('.cve-table');
-    
-    // Initially hide the table view
-    cveTable.style.display = 'none';
-    
-    toggleViewBtn.addEventListener('click', function() {
-        if (vulnerabilitiesList.style.display === 'none') {
-            vulnerabilitiesList.style.display = '';
-            cveTable.style.display = 'none';
-            toggleViewBtn.textContent = 'Show Table View';
-        } else {
-            vulnerabilitiesList.style.display = 'none';
-            cveTable.style.display = '';
-            toggleViewBtn.textContent = 'Show List View';
-        }
     });
 
 });

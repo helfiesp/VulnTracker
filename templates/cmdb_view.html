@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_header %}
+<link rel="stylesheet" href="{% static 'css/cmdb.css' %}">
+{% endblock %}
+{% block content %}
+
+<h1>CMDB Entries</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Hostname</th>
+                <th>Entra Host ID</th>
+                <th>Subscription Name</th>
+                <th>Subscription ID</th>
+                <th>Host Type</th>
+                <th>IP Address</th>
+                <th>Internet Exposed</th>
+                <th>Department</th>
+                <th>Department Software</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in cmdb_entries %}
+            <tr>
+                <td>{{ entry.hostname }}</td>
+                <td>{{ entry.entra_host_id }}</td>
+                <td>{{ entry.subscription_name }}</td>
+                <td>{{ entry.subscription_id }}</td>
+                <td>{{ entry.host_type }}</td>
+                <td>{{ entry.ip_address }}</td>
+                <td>{{ entry.internet_exposed }}</td>
+                <td>{{ entry.department }}</td>
+                <td>{{ entry.department_software }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

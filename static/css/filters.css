@@ -1,24 +1,24 @@
 .filter-section {
     background: #ffffff;
-    padding: 25px;
+    padding: 20px; /* Slightly reduce padding */
     margin-bottom: 30px;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .filter-header h2 {
-    font-size: 2rem; /* Larger and more prominent title */
+    font-size: 1.8rem; /* Slightly smaller title */
     color: #333;
     margin-bottom: 20px;
     text-align: center;
 }
 
 .filter-controls {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Adapt number of columns based on space */
-    gap: 20px; /* Add space between filter elements */
-    justify-content: center;
+    display: flex; /* Use flexbox for consistent spacing */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    justify-content: space-around; /* Evenly distribute space around items */
     align-items: center;
+    gap: 20px; /* Add space between filter elements */
 }
 
 .date-filter,
@@ -28,13 +28,16 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    min-width: 225px; /* Set a minimum width for each filter */
+    max-width: 350px; /* Set a maximum width for each filter */
+    flex: 1; /* Allow elements to grow and shrink */
 }
 
 .date-filter label,
 .keyword-filter label,
 .search-filter label,
 .sort-filter label {
-    font-size: 1.2rem; /* Larger label size for better readability */
+    font-size: 1.1rem; /* Adjust label size for better readability */
     margin-bottom: 8px;
 }
 
@@ -43,10 +46,10 @@
 .search-filter input,
 .sort-filter select {
     width: 100%;
-    padding: 15px;
+    padding: 12px; /* Slightly reduce padding */
     border: 2px solid #ccc;
     border-radius: 6px;
-    font-size: 1.2rem; /* Larger font size for inputs/selects */
+    font-size: 1.1rem; /* Adjust font size for inputs/selects */
 }
 
 .keyword-filter {
@@ -56,30 +59,19 @@
 }
 
 .keyword-filter input[type="checkbox"] {
-    margin-right: 10px; /* Add more space between checkbox and label */
+    margin-right: 10px; /* Add space between checkbox and label */
 }
 
 .search-filter input {
-    padding: 15px;
+    padding: 12px;
     border: 2px solid #ccc;
     border-radius: 6px;
 }
 
 .sort-filter select {
-    padding: 15px;
+    padding: 12px;
     border: 2px solid #ccc;
     border-radius: 6px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .filter-controls {
-        grid-template-columns: 1fr; /* Stack filters on smaller screens */
-    }
-
-    .keyword-filter {
-        order: 3; /* Position keyword filter after date and sort filters on mobile */
-    }
 }
 
 /* Improve the aesthetics of the checkbox for keyword filter */
@@ -89,15 +81,14 @@
 
 /* Larger and more pronounced submit buttons for filters */
 .filter-controls button {
-    padding: 15px;
-    font-size: 1.2rem;
+    padding: 12px;
+    font-size: 1.1rem;
     color: white;
     background-color: #5cb85c;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-
 }
 
 .filter-controls button:hover {
@@ -117,7 +108,7 @@
 
 .keyword-button {
     display: inline-block;
-    padding: 10px 10px;
+    padding: 8px 10px; /* Slightly reduce padding */
     font-size: 1rem;
     color: black;
     background-color: #17a2b8;
@@ -126,7 +117,7 @@
     cursor: pointer;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
     text-align: center;
-    min-width: 160px;
+    min-width: 140px; /* Adjust minimum width */
 }
 
 .keyword-button:hover,

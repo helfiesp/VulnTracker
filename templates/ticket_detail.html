@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_header %}
+<link rel="stylesheet" href="{% static 'css/ticket.css' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.1.2/tinymce.min.js"></script>
+<script>
+    tinymce.init({
+        selector: 'textarea',
+        menubar: false,
+        plugins: 'lists link',
+        toolbar: 'undo redo | bold italic underline | bullist numlist outdent indent | link'
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+    <form method="post" class="ticket-form">
+        <a href="{% url 'ticket_list' %}" class="back-button">Back</a>
+        <a href="{% url 'toggle_ticket_status' ticket.id %}" class="back-button close-button">{% if ticket.status == "Open" %} Close {% else %} Open {% endif %}</a>
+        <h1>Ticket Detail</h1>
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.ticket_type.label_tag }}
+            {{ form.ticket_type }}
+        </div>
+
+        <div class="form-group">
+            {{ form.title.label_tag }}
+            {{ form.title }}
+        </div>
+        <div class="form-group">
+            {{ form.description.label_tag }}
+            {{ form.description }}
+        </div>
+        <div class="form-group">
+            <label for="id_investigation_results">Investigation Results:</label>
+            <textarea id="id_investigation_results" name="investigation_results" rows="4" cols="50">{{ ticket.investigation_results }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="id_severity">{% if ticket.ticket_type == "Incident" %}Severity{% else %}Priority{% endif %}</label>
+            {{ form.severity }}
+        </div>
+        <div class="form-group">
+            {{ form.status.label_tag }}
+            {{ form.status }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">Update</button>
+        </div>
+    </form>
+{% endblock %}

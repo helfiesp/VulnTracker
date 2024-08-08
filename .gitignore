@@ -1,0 +1,6 @@
+
+db.sqlite3
+*.pyc
+/vulnapp/migrations
+vulnapp/secrets.py
+vulnapp/keygen.py

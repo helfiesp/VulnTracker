@@ -2,6 +2,7 @@ from django.db import models
 import json
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from tinymce.models import HTMLField
 
 class Keyword(models.Model):
     # Stores keywords
@@ -219,7 +220,55 @@ class Comment(models.Model):
     def __str__(self):
         return f"Comment on {self.content_type.model} - {self.created_at.strftime('%Y-%m-%d %H:%M')}"
 
-class HostToBSS(models.Model):
-    # Depleted model, used for importing BSS from CSV.
-    host = models.CharField(max_length=255)
-    bss = models.TextField()
+class CMDB(models.Model):
+    hostname = models.CharField(max_length=255)
+    entra_host_id = models.CharField(max_length=255, default=None, null=True)
+    subscription_name = models.CharField(max_length=255, default=None, null=True)
+    subscription_id = models.CharField(max_length=255, default=None, null=True)
+    host_type = models.CharField(max_length=255, default=None, null=True) # Server or user endpoint?
+    ip_address = models.CharField(max_length=255, default=None, null=True) # Internal IP
+    internet_exposed = models.CharField(max_length=255, default=None, null=True) # If internet exposed, add the exposed IP here
+    department = models.CharField(max_length=255, default=None, null=True)
+    department_software = models.CharField(max_length=255, default=None, null=True)
+
+class Ticket(models.Model):
+    SEVERITY_CHOICES = [
+        ('Low', 'Low'),
+        ('Medium', 'Medium'),
+        ('High', 'High'),
+        ('Critical', 'Critical')
+    ]
+    STATUS_CHOICES = [
+        ('Active', 'Active'),
+        ('Open', 'Open'),
+        ('Closed', 'Closed')
+    ]
+    TICKET_TYPES = [
+        ('Request', 'Request'),
+        ('Incident', 'Incident'),
+    ]
+    title = models.CharField(max_length=255)
+    description = HTMLField()
+    investigation_results = HTMLField(default=None, null=True)
+    severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Open')
+    ticket_type = models.CharField(max_length=10, choices=TICKET_TYPES, default='Incident')
+    changelog = models.JSONField(default=None)
+    date_added = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return self.title
+
+class PublicIP(models.Model):
+    name = models.CharField(max_length=255)
+    resource_group = models.CharField(max_length=255)
+    location = models.CharField(max_length=255)
+    subscription = models.CharField(max_length=255)
+    ip_address = models.GenericIPAddressField()
+    dns_name = models.CharField(max_length=255)
+    subscription_id = models.CharField(max_length=255)
+    associated_to = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name

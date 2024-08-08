@@ -1,6 +1,5 @@
 /* Overall table styling for a modern look */
 table {
-  width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   margin-top: 20px;
@@ -22,7 +21,7 @@ th {
 
 /* Body styles */
 td {
-  padding: 12px 8px;
+  padding: 8px 8px; /* Reduced padding */
   text-align: left;
   border-bottom: 1px solid #ddd;
   font-size: 0.95em; /* Slightly larger for readability */
@@ -30,7 +29,13 @@ td {
   max-width: 200px; /* Adjust the max-width as needed */
   word-wrap: break-word;
   overflow-wrap: break-word;
+}
 
+/* Ensure table rows are not too tall */
+tr {
+  height: auto; /* Auto height to adjust to content */
+  max-height: 50px; /* Maximum height for rows */
+  overflow: hidden; /* Hide overflow content */
 }
 
 /* Row hover effect */
@@ -52,7 +57,6 @@ tr:last-child td {
 td:last-child, th:last-child {
   padding-right: 16px;
 }
-
 
 .comment-form .comment-form-controls {
     display: flex; /* Enable flexbox layout */

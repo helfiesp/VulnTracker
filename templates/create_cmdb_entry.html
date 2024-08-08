@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block extra_header %}
+<link rel="stylesheet" href="{% static 'css/cmdb.css' %}">
+{% endblock %}
+{% block content %}
+
+    <h1>Create CMDB Entry</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+
+{% endblock %}

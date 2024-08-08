@@ -1,37 +1,37 @@
 .vulnerabilities-list {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-bottom: 20px;
+    gap: 10px; /* Reduce the gap between items */
+    margin-bottom: 10px; /* Reduce the bottom margin */
 }
 
 .cve {
     background: #FFFFFF;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 15px;
-    margin-bottom: 20px;
+    padding: 10px; /* Reduce the padding */
+    margin-bottom: 10px; /* Reduce the bottom margin */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    max-width:100%;
+    max-width: 100%;
     position: relative;
 }
 
 .cve-title {
     color: #37474F;
-    font-size: 1em; /* Adjust the size to make it smaller if needed */
-    margin-bottom: 10px;
+    font-size: 0.85em; /* Smaller font size */
+    margin-bottom: 8px; /* Reduce the margin */
 }
 
 .cve-description {
-    font-size: 0.8em; /* Adjust the size to make it smaller if needed */
-    margin-bottom: 10px;
+    font-size: 0.7em; /* Smaller font size */
+    margin-bottom: 8px; /* Reduce the margin */
     color: #546E7A;
 }
 
 .cve-details {
-    font-size: 0.8em;
+    font-size: 0.7em; /* Smaller font size */
     color: #78909C;
 }
 
@@ -45,31 +45,8 @@
     color: #D32F2F;
 }
 
-/* Responsive design for smaller screens */
-@media (max-width: 1200px) {
-    .vulnerabilities-list {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 992px) {
-    .vulnerabilities-list {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .vulnerabilities-list {
-        grid-template-columns: 1fr;
-    }
-    .cve-details span {
-        display: inline-block;
-        margin-right: 10px;
-    }
-}
-
 .main-header select {
-    padding: 10px;
+    padding: 5px; /* Reduce padding */
     border-radius: 5px;
     border: 1px solid #B0BEC5;
 }
@@ -90,7 +67,7 @@
     font: inherit;
     cursor: pointer;
     display: inline;
-    margin-left: 5px;
+    margin-left: 3px; /* Reduce margin */
 }
 
 .view-more-btn:hover {
@@ -106,25 +83,23 @@
 .cve-tags {
     display: flex;
     align-items: center;
-    gap: 10px; /* Space between tags */
+    gap: 5px; /* Reduce the space between tags */
 }
 
 .cve-tag {
-    padding: 2px 8px;
+    padding: 2px 6px; /* Adjust padding */
     border-radius: 4px;
     font-weight: bold;
     color: white;
     text-align: center;
-    font-size: 0.75em; /* Smaller font size */
+    font-size: 0.6em; /* Smaller font size */
     white-space: nowrap; /* Prevent wrapping */
 }
 
-/* Reuse the critical color for the 'Known Exploited' tag */
 .known-exploited {
     background-color: #D32F2F; /* Same as critical */
 }
 
-/* Color coding for criticality levels */
 .Critical { background-color: #D32F2F; }
 .High { background-color: #FF5722; }
 .Medium { background-color: #FFC107; }
@@ -133,13 +108,13 @@
 
 .cve-keywords {
     position: absolute;
-    bottom: 10px; /* Adjust as needed */
-    right: 10px; /* Adjust as needed */
+    bottom: 8px; /* Adjust as needed */
+    right: 8px; /* Adjust as needed */
     background: #E0E0E0; /* Light gray background */
     color: #333;
     padding: 5px;
     border-radius: 4px;
-    font-size: 0.7em; /* Smaller font size for the keywords */
+    font-size: 0.6em; /* Smaller font size */
     text-align: right;
     max-width: 50%; /* Limit the width of the keywords section */
     overflow: hidden; /* Prevent the content from spilling out */
@@ -147,3 +122,7 @@
     white-space: nowrap; /* Keep the content on one line */
 }
 
+.cve-table table {
+    width:100%;
+    margin:auto;
+}

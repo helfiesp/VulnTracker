@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_header %}
+<link rel="stylesheet" href="{% static 'css/cmdb.css' %}">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    .filter-section {
+        width: 100%;
+        margin: auto;
+        margin-top: 20px;
+        text-align: center;
+        padding: 20px;
+        background: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .filter-controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .filter-controls label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .filter-controls select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .clear-filters button {
+        margin-top:10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .clear-filters button:hover {
+        background-color: #0056b3;
+    }
+
+    .search-controls {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .search-controls label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .search-controls input {
+        padding: 10px;
+        width: 80%;
+        max-width: 500px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="filter-section">
+    <h1>Public IP Entries</h1>
+    <div class="filter-controls">
+        <div>
+            <label for="resource_group">Resource Group:</label>
+            <select name="resource_group" id="resource_group" onchange="updateFilters()">
+                <option value="">All</option>
+                {% for group in resource_groups %}
+                    <option value="{{ group }}" {% if group == selected_resource_group %}selected{% endif %}>{{ group }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="location">Location:</label>
+            <select name="location" id="location" onchange="updateFilters()">
+                <option value="">All</option>
+                {% for loc in locations %}
+                    <option value="{{ loc }}" {% if loc == selected_location %}selected{% endif %}>{{ loc }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="subscription">Subscription:</label>
+            <select name="subscription" id="subscription" onchange="updateFilters()">
+                <option value="">All</option>
+                {% for sub in subscriptions %}
+                    <option value="{{ sub }}" {% if sub == selected_subscription %}selected{% endif %}>{{ sub }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+
+    </div>
+
+    <div class="search-controls">
+        <label for="search">Search:</label>
+        <input type="text" id="search" onkeyup="searchTable()" placeholder="Search for entries..">
+        <div class="clear-filters">
+            <button type="button" onclick="clearFilters()">Clear Filters</button>
+        </div>
+    </div>
+
+</div>
+
+<table id="public_ip_table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Resource Group</th>
+            <th>Location</th>
+            <th>Subscription</th>
+            <th>IP Address</th>
+            <th>DNS Name</th>
+            <th>Subscription ID</th>
+            <th>Associated To</th>
+        </tr>
+    </thead>
+    <tbody id="public_ip_table_body">
+        {% for ip in public_ips %}
+        <tr>
+            <td>{{ ip.name }}</td>
+            <td>{{ ip.resource_group }}</td>
+            <td>{{ ip.location }}</td>
+            <td>{{ ip.subscription }}</td>
+            <td>{{ ip.ip_address }}</td>
+            <td>{{ ip.dns_name }}</td>
+            <td>{{ ip.subscription_id }}</td>
+            <td>{{ ip.associated_to }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+function updateFilters() {
+    var resourceGroup = document.getElementById('resource_group').value;
+    var location = document.getElementById('location').value;
+    var subscription = document.getElementById('subscription').value;
+    
+    var queryParams = new URLSearchParams(window.location.search);
+    queryParams.set('resource_group', resourceGroup);
+    queryParams.set('location', location);
+    queryParams.set('subscription', subscription);
+
+    // Update the page URL and reload
+    window.location.search = queryParams.toString();
+}
+
+function clearFilters() {
+    window.location.search = '';
+}
+
+function searchTable() {
+    var input, filter, table, tr, td, i, j, txtValue;
+    input = document.getElementById("search");
+    filter = input.value.toLowerCase();
+    table = document.getElementById("public_ip_table");
+    tr = table.getElementsByTagName("tr");
+    
+    for (i = 1; i < tr.length; i++) {  // Start at 1 to skip the header row
+        tr[i].style.display = "none";  // Initially hide the row
+        td = tr[i].getElementsByTagName("td");
+        for (j = 0; j < td.length; j++) {
+            if (td[j]) {
+                txtValue = td[j].textContent || td[j].innerText;
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";  // Show the row if a match is found
+                    break;  // No need to check other columns if a match is found
+                }
+            }
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('resource_group').addEventListener('change', updateFilters);
+    document.getElementById('location').addEventListener('change', updateFilters);
+    document.getElementById('subscription').addEventListener('change', updateFilters);
+});
+</script>
+
+{% endblock %}

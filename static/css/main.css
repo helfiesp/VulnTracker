@@ -13,7 +13,7 @@ body, html {
 .dashboard-container {
     display: flex;
     height: 100%;
-    width: 80%;
+    width: 90%;
     margin: auto;
 }
 
@@ -289,9 +289,9 @@ body, html {
     background-color: #5cb85c;
     color: white;
     border: none;
-    padding: 10px 15px;
-    text-transform: uppercase;
+    padding: 5px 10px;
     letter-spacing: 1px;
     border-radius: 4px;
     cursor: pointer;
+    text-decoration: none;
 }

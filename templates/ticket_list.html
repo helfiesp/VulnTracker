@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block extra_header %}
+<link rel="stylesheet" href="{% static 'css/ticket.css' %}">
+{% endblock %}
+{% block content %}
+<div class="tickets-container">
+    <div class="tickets-header">
+        <a href="{% url 'create_ticket' %}" class="create-ticket-link">Create a new ticket</a>
+    </div>
+    <div class="table-wrapper">
+        {% if tickets %}
+        <table border="1" class="ticket-table">
+            <thead>
+                <tr>
+                    <th>Ticket title</th>
+                    <th style="text-align: center;">Priority</th>
+                    <th style="text-align: center;">Status</th>
+                    <th>Date added</th>
+                    <th>Last changed</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td><a href="{% url 'ticket_detail' ticket_id=ticket.id %}" style="text-decoration: none; color: blue;">{{ ticket.title }}</td>
+
+                    {% if ticket.severity == "Low" %}
+                        <td class="ticket-severity" 
+                        style="background-color: #8BC34A;">
+                        {{ ticket.severity }}</td>
+                    {% elif ticket.severity == "Medium" %}
+                        <td class="ticket-severity" 
+                        style="background-color: #FFC107;">
+                        {{ ticket.severity }}</td>
+                    {% elif ticket.severity == "High" %}
+                        <td class="ticket-severity" 
+                        style="background-color: #FF5722;">
+                        {{ ticket.severity }}</td>
+                    {% else %}
+                        <td class="ticket-severity" 
+                        style="background-color: #D32F2F;">
+                        {{ ticket.severity }}</td>
+                    {% endif %}
+
+                    {% if ticket.status == "Open" %}
+                        <td class="ticket-status" 
+                        style="background-color: #8BC34A;">
+                        {{ ticket.status }}</td>
+                    {% else %}
+                        <td class="ticket-status" 
+                        style="background-color: #FF5722;">
+                        {{ ticket.status }}</td>
+                    {% endif %}
+                    <td>{{ ticket.date_added }}</td>
+                    <td>{{ ticket.last_changed }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+    <br>
+</div>
+{% endblock %}

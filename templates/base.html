@@ -7,13 +7,15 @@
 <title>Vulnerability Dashboard</title>
 <link rel="stylesheet" href="{% static 'css/main.css' %}">
 <link rel="stylesheet" href="{% static 'css/tables.css' %}">
+{% block extra_header %}
 
+{% endblock %}
 
 </head>
 <body>
 
 <div class="top-nav">
-    <a href="{% url 'home' %}" class="top-nav-brand">Sårbarhetsoversikten</a>
+    <a href="{% url 'home' %}" class="top-nav-brand">VulnTracker</a>
     <nav class="top-nav-menu">
         <ul>
             <li class="dropdown">
@@ -23,20 +25,36 @@
                     <a href="{% url 'blacklist' %}">Blacklist</a>
                 </div>
             </li>            
-            <li><a href="{% url 'defender_vulnerabilities' %}">Defender Vulnerabilities</a></li>
-            <li><a href="{% url 'software_list_server' %}">Software</a></li>
-            <li><a href="{% url 'haveibeenpwned' %}">HaveIBeenPwned</a></li>
-            <li><a href="{% url 'shodan' %}">Shodan</a></li>
-            <li><a href="{% url 'nessus' %}">Nessus</a></li>
+            <li class="dropdown">
+                <a href="{% url 'cmdb' %}" class="dropbtn">CMDB</a>
+                <div class="dropdown-content">
+                    <a href="{% url 'create_cmdb_entry' %}">New entry</a>
+                </div>
+            </li>           
+            <li class="dropdown">
+                <a href="{% url 'ticket_list' %}" class="dropbtn">Tickets</a>
+                <div class="dropdown-content">
+                    <a href="{% url 'create_ticket' %}">Create ticket</a>
+                </div>
+            </li>  
+            <li class="dropdown">
+                <a href="{% url 'public_ip_list' %}" class="dropbtn">Public IPs</a>
+                <div class="dropdown-content">
+                    <a href="{% url 'upload_public_ip_csv' %}">Add IP list</a>
+                </div>
+            </li>  
+
+
+
         </ul>
     </nav>
 </div>
 
-<div class="dashboard-container">
+
     {% block content %}
 
     {% endblock %}
-</div>
+
 <script src="{% static 'js/base.js' %}"></script>
 </body>
 </html>

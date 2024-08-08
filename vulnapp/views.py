@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import CVE, Keyword, Blacklist
-from .forms import KeywordForm, KeywordUploadForm, BlacklistForm
+from .forms import KeywordForm, UploadIPCSVForm, KeywordUploadForm, BlacklistForm, CMDBForm, TicketForm
 import csv
 from django.utils import timezone
 from datetime import timedelta
@@ -22,7 +22,7 @@ from django.http import HttpResponseRedirect
 from django.db.models.functions import ExtractYear
 from django.db.models import Count, Q, Sum
 from django.urls import reverse, NoReverseMatch
-from .models import CVE, Comment, HostToBSS, NessusData, Vulnerability, MachineReference, HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, Software, SoftwareHosts, ScanStatus, ShodanScanResult
+from .models import CVE, Comment, PublicIP, CMDB, Ticket, NessusData, Vulnerability, MachineReference, HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, Software, SoftwareHosts, ScanStatus, ShodanScanResult
 from vulnapp import secrets
 
 def index(request):
@@ -925,3 +925,175 @@ def add_comment(request):
 
     print(f"Comment {'created' if created else 'updated'}: {comment}")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+
+# CMDB
+def create_cmdb_entry(request):
+    if request.method == 'POST':
+        form = CMDBForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('cmdb_success')
+    else:
+        form = CMDBForm()
+    return render(request, 'create_cmdb_entry.html', {'form': form})
+
+def cmdb_view(request):
+    cmdb_entries = CMDB.objects.all()
+    return render(request, 'cmdb_view.html', {'cmdb_entries': cmdb_entries})
+
+
+# TICKETS
+
+def create_ticket(request):
+    if request.method == 'POST':
+        form = TicketForm(request.POST)
+        if form.is_valid():
+            ticket = form.save(commit=False)
+            ticket.changelog = [
+                {"field": "Created", "timestamp": timezone.now().isoformat()}
+            ]
+            ticket.save()
+            return redirect('ticket_list')
+    else:
+        form = TicketForm()
+    return render(request, 'create_ticket.html', {'form': form})
+
+def ticket_list(request):
+    tickets = Ticket.objects.all()
+
+    for ticket in tickets:
+        if ticket.changelog:
+            last_changed = ticket.changelog[-1].get('timestamp', None)
+            ticket.last_changed = last_changed
+
+    return render(request, 'ticket_list.html', {'tickets': tickets})
+
+def ticket_detail(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    if request.method == 'POST':
+        form = TicketForm(request.POST, instance=ticket)
+        if form.is_valid():
+            updated_ticket = form.save(commit=False)
+            changelog = ticket.changelog or []
+            # Track changes
+            for field in form.changed_data:
+                changelog.append({
+                    "field": field,
+                    "old_value": getattr(ticket, field),
+                    "new_value": form.cleaned_data[field],
+                    "timestamp": timezone.now().isoformat()
+                })
+
+            if 'investigation_results' in request.POST and request.POST['investigation_results'] != ticket.investigation_results:
+                changelog.append({
+                    "field": "investigation_results",
+                    "old_value": ticket.investigation_results,
+                    "new_value": request.POST['investigation_results'],
+                    "timestamp": timezone.now().isoformat()
+                })
+
+            updated_ticket.investigation_results = request.POST.get('investigation_results', ticket.investigation_results)
+            updated_ticket.changelog = changelog
+            updated_ticket.save()
+            return redirect('ticket_list')
+        else:
+            print("invalid_form")
+    else:
+        form = TicketForm(instance=ticket)
+    return render(request, 'ticket_detail.html', {'form': form, 'ticket': ticket})
+
+def toggle_ticket_status(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    old_status = ticket.status
+    if ticket.status == 'Closed':
+        ticket.status = 'Open'
+    else:
+        ticket.status = 'Closed'
+    ticket.changelog.append({
+        "field": "status",
+        "old_value": old_status,
+        "new_value": ticket.status,
+        "timestamp": timezone.now().isoformat()
+    })
+    ticket.save()
+    return redirect('ticket_detail', ticket_id=ticket_id)
+
+def delete_ticket(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    ticket.delete()
+    return redirect('ticket_list')
+
+
+def upload_public_ip_csv(request):
+    if request.method == 'POST':
+        form = UploadIPCSVForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = request.FILES['file']
+            try:
+                decoded_file = file.read().decode('utf-8').splitlines()
+            except UnicodeDecodeError:
+                try:
+                    file.seek(0)  # Reset file pointer to the beginning
+                    decoded_file = file.read().decode('latin-1').splitlines()
+                except UnicodeDecodeError:
+                    return render(request, 'upload_csv.html', {
+                        'form': form,
+                        'error': 'File encoding not supported. Please upload a file with UTF-8 or Latin-1 encoding.'
+                    })
+            
+            reader = csv.DictReader(decoded_file)
+
+            for row in reader:
+                # Ensure all keys are in uppercase, strip any leading/trailing spaces
+                row = {key.strip().upper(): value for key, value in row.items()}
+                PublicIP.objects.update_or_create(
+                    name=row.get('NAME', ''),
+                    ip_address=row.get('IP ADDRESS', ''),
+                    defaults={
+                        'resource_group': row.get('RESOURCE GROUP', ''),
+                        'location': row.get('LOCATION', ''),
+                        'subscription': row.get('SUBSCRIPTION', ''),
+                        'dns_name': row.get('DNS NAME', ''),
+                        'subscription_id': row.get('SUBSCRIPTION ID', ''),
+                        'associated_to': row.get('ASSOCIATED TO', '')
+                    }
+                )
+            return redirect('home')
+        else:
+            print("Form is not valid")
+    else:
+        form = UploadIPCSVForm()
+    return render(request, 'upload_public_ip.html', {'form': form})
+
+def public_ip_list(request):
+    resource_group = request.GET.get('resource_group')
+    location = request.GET.get('location')
+    subscription = request.GET.get('subscription')
+
+    public_ips = PublicIP.objects.all().order_by('ip_address')
+
+    if resource_group:
+        public_ips = public_ips.filter(resource_group=resource_group)
+    if location:
+        public_ips = public_ips.filter(location=location)
+    if subscription:
+        public_ips = public_ips.filter(subscription=subscription)
+
+    # Get distinct values for the filters based on the filtered public_ips queryset and sort them alphabetically
+    resource_groups = PublicIP.objects.filter(location__in=public_ips.values('location')).values_list('resource_group', flat=True).distinct().order_by('resource_group')
+    locations = PublicIP.objects.filter(subscription__in=public_ips.values('subscription')).values_list('location', flat=True).distinct().order_by('location')
+    subscriptions = PublicIP.objects.filter(resource_group__in=public_ips.values('resource_group')).values_list('subscription', flat=True).distinct().order_by('subscription')
+
+    context = {
+        'public_ips': public_ips,
+        'resource_groups': resource_groups,
+        'locations': locations,
+        'subscriptions': subscriptions,
+        'selected_resource_group': resource_group,
+        'selected_location': location,
+        'selected_subscription': subscription,
+    }
+
+    return render(request, 'public_ip_list.html', context)
