@@ -52,7 +52,6 @@ class Command(BaseCommand):
                 response = requests.get(url, headers=headers)
 
                 if response.status_code == 200:
-                    print("Fetched vulns.")
                     vulnerabilities = response.json()["value"]
                     for vuln_data in vulnerabilities:
                         processed_count += 1
@@ -60,7 +59,7 @@ class Command(BaseCommand):
                         published_on = self.parse_datetime(vuln_data['publishedOn'])
                         updated_on = self.parse_datetime(vuln_data['updatedOn'])
                         first_detected = self.parse_datetime(vuln_data.get('firstDetected'))
-
+                        print("Processed vulnerability: {}".format(vuln_data['name']))
                         Vulnerability.objects.update_or_create(
                             id=vuln_data['id'],
                             defaults={
