@@ -61,6 +61,7 @@ class Command(BaseCommand):
     def process_vulnerabilities(self, vulnerabilities, headers):
         vulnerabilities_to_retry = []
         for vulnerability in vulnerabilities:
+            time.sleep(2.5)
             retry_count = 0
             while retry_count < 3:  # Allow up to 3 retries
                 machine_references_data = self.fetch_machine_references(vulnerability.id, headers)
