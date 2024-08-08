@@ -59,27 +59,29 @@ class Command(BaseCommand):
                         published_on = self.parse_datetime(vuln_data['publishedOn'])
                         updated_on = self.parse_datetime(vuln_data['updatedOn'])
                         first_detected = self.parse_datetime(vuln_data.get('firstDetected'))
-                        print("Processed vulnerability: {}".format(vuln_data['name']))
-                        Vulnerability.objects.update_or_create(
-                            id=vuln_data['id'],
-                            defaults={
-                                'name': vuln_data['name'],
-                                'description': vuln_data['description'],
-                                'severity': vuln_data['severity'],
-                                'cvssV3': vuln_data.get('cvssV3'),
-                                'cvssVector': vuln_data.get('cvssVector', ''),
-                                'exposedMachines': vuln_data.get('exposedMachines', 0),
-                                'publishedOn': published_on,
-                                'updatedOn': updated_on,
-                                'firstDetected': first_detected,
-                                'publicExploit': vuln_data.get('publicExploit', False),
-                                'exploitVerified': vuln_data.get('exploitVerified', False),
-                                'exploitInKit': vuln_data.get('exploitInKit', False),
-                                'exploitTypes': vuln_data.get('exploitTypes', []),
-                                'exploitUris': vuln_data.get('exploitUris', []),
-                                'cveSupportability': vuln_data.get('cveSupportability', ''),
-                            }
-                        )
+                        if vuln_data.get('exposedMachines', 0) > 0:
+                            print("Processed vulnerability: {} with {} exposed machines".format(vuln_data['name'], vuln_data.get('exposedMachines', 0)))
+                            Vulnerability.objects.update_or_create(
+                                id=vuln_data['id'],
+                                defaults={
+                                    'name': vuln_data['name'],
+                                    'description': vuln_data['description'],
+                                    'severity': vuln_data['severity'],
+                                    'cvssV3': vuln_data.get('cvssV3'),
+                                    'cvssVector': vuln_data.get('cvssVector', ''),
+                                    'exposedMachines': vuln_data.get('exposedMachines', 0),
+                                    'publishedOn': published_on,
+                                    'updatedOn': updated_on,
+                                    'firstDetected': first_detected,
+                                    'publicExploit': vuln_data.get('publicExploit', False),
+                                    'exploitVerified': vuln_data.get('exploitVerified', False),
+                                    'exploitInKit': vuln_data.get('exploitInKit', False),
+                                    'exploitTypes': vuln_data.get('exploitTypes', []),
+                                    'exploitUris': vuln_data.get('exploitUris', []),
+                                    'cveSupportability': vuln_data.get('cveSupportability', ''),
+                                }
+                            )
+                            
 
                     if len(vulnerabilities) < page_size:
                         break  # Exit the loop if we fetched fewer items than requested
