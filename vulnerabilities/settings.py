@@ -58,7 +58,7 @@ ROOT_URLCONF = 'vulnerabilities.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['C:/Users/ChristianHagby/Documents/Programming/VulnTracker/templates'],
+        'DIRS': ['C:/Users/ChristianHagby/Documents/Programming/VulnTracker/templates', '/var/web/VulnTracker/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
