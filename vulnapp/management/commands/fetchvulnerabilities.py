@@ -28,6 +28,7 @@ class Command(BaseCommand):
         response = requests.post(url, data=payload, headers=headers)
         
         if response.status_code == 200:
+            print("Fetched auth token.")
             data = response.json()
             return data["access_token"]
         else:
@@ -51,6 +52,7 @@ class Command(BaseCommand):
                 response = requests.get(url, headers=headers)
 
                 if response.status_code == 200:
+                    print("Fetched vulns.")
                     vulnerabilities = response.json()["value"]
                     for vuln_data in vulnerabilities:
                         processed_count += 1
