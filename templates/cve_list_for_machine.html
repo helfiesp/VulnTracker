@@ -52,6 +52,18 @@
             </div>
         </div>
 
+<div class="charts-container">
+    <div class="chart-container">
+        <h2>Unique vulnerabilities by criticality</h2>
+
+    </div>
+
+    <div class="chart-container">
+        <h2>All vulnerabilities by criticality</h2>
+    </div>
+</div>
+
+
 <div class="cve-table" style="margin:auto;">
         <table>
         <thead>
@@ -72,9 +84,9 @@
                     <a style="text-decoration: none; color: black;" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{ cve.name }}"><span class="cve-title">{{ cve.name }}</span></a>
                 </td>
                     <td class="cvss-score-td">
-                            <div class="cve-tag cve-criticality {{ cve.severity }}">
-                                {{ cve.severity }} {{ cve.cvssV3 }}
-                            </div></td>
+                        <div class="cve-tag cve-criticality {{ cve.severity }}">
+                            {{ cve.severity }} {{ cve.cvssV3 }}
+                        </div></td>
 
 
                 <td style="max-width:400px">
@@ -87,7 +99,7 @@
                     {% endif %}
                     
                 </td>
-                <td><a style="text-decoration: none;" href="{% url 'machine-list' cve_id=cve.id %}">{{ cve.exposedMachines }}</a></td>
+                <td><a style="text-decoration: none; color:black;" href="{% url 'machine-list' cve_id=cve.id %}">{{ cve.exposedMachines }}</a></td>
                 <td>Published: {{ cve.publishedOn |date:"M d, Y" }}</td>
             </tr>
             {% endfor %}

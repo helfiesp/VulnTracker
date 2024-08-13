@@ -133,3 +133,26 @@
 #filter-keywords:not(:checked) + .keyword-button {
     background-color: white;
 }
+
+.charts-container {
+    background: #fff;
+    display: flex;
+    justify-content: space-around; /* This centers the charts and provides equal spacing around them */
+    align-items: flex-start; /* Aligns items at the start of the container */
+    flex-wrap: wrap; /* Allows items to wrap if the screen is too small */
+    border-radius: 10px;
+    margin-bottom: 40px;
+}
+
+.chart-container {
+    flex-basis: 50%; /* Each chart container takes up 50% of the width */
+    max-width: 50%; /* Prevents the container from exceeding 50% of the parent's width */
+    box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+    padding: 10px; /* Adds some spacing inside each chart container */
+}
+
+canvas {
+    max-height: 400px; /* Sets the maximum height for the canvas */
+    width: 100% !important; /* Ensures the canvas fills the container width */
+    height: auto !important; /* Maintains the aspect ratio of the canvas */
+}

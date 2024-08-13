@@ -55,7 +55,7 @@ body, html {
     background: #ECEFF1;
     padding: 20px;
     overflow-y: auto;
-    width: 100%;
+    width: 80%;
 }
 
 .main-header {
@@ -295,3 +295,4 @@ body, html {
     cursor: pointer;
     text-decoration: none;
 }
+
