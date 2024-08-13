@@ -162,70 +162,65 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+</script>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
 const severityColors = {
-    'Critical': 'rgba(200, 0, 0, 1)', // Dark red for Critical
-    'High': 'rgba(255, 99, 132, 1)', // Red for High
-    'Medium': 'rgba(255, 206, 86, 1)', // Yellow for Medium
-    'Low': 'rgba(75, 192, 192, 1)', // Green for Low
+    'Critical': 'rgba(200, 0, 0, 1)',      // Dark red for Critical
+    'High': 'rgba(255, 99, 132, 1)',       // Red for High
+    'Medium': 'rgba(255, 206, 86, 1)',     // Yellow for Medium
+    'Low': 'rgba(75, 192, 192, 1)',        // Green for Low
     'Known_Exploited': 'rgba(139, 0, 0, 1)' // Dark red for Known Exploited
 };
 
-// Assuming you have your stats data in JavaScript objects
-const vulnerabilityData = {
-    labels: Object.keys({{ stats.vulnerabilities|safe }}),
-    datasets: [{
-        label: 'Vulnerabilities by Severity',
-        data: Object.values({{ stats.vulnerabilities|safe }}),
-        // Initial placeholder for backgroundColor, to be replaced.
-        backgroundColor: [],
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-    }]
+// Function to generate chart data
+function generateChartData(labels, data, borderColor) {
+    return {
+        labels: labels,
+        datasets: [{
+            label: 'Vulnerabilities by Severity',
+            data: data,
+            backgroundColor: labels.map(label => severityColors[label.replace(' ', '_')] || 'rgba(54, 162, 235, 0.2)'),
+            borderColor: borderColor,
+            borderWidth: 1
+        }]
+    };
+}
+
+// Fetching labels and data from the Django context safely
+const vulnerabilityLabels = Object.keys({{ stats.vulnerabilities|safe }});
+const vulnerabilityDataValues = Object.values({{ stats.vulnerabilities|safe }});
+const exposedMachinesLabels = Object.keys({{ stats.exposed_machines|safe }});
+const exposedMachinesDataValues = Object.values({{ stats.exposed_machines|safe }});
+
+// Creating data objects for the charts
+const vulnerabilityData = generateChartData(vulnerabilityLabels, vulnerabilityDataValues, 'rgba(54, 162, 235, 1)');
+const exposedMachinesData = generateChartData(exposedMachinesLabels, exposedMachinesDataValues, 'rgba(255, 99, 132, 1)');
+
+// Chart configuration options
+const chartOptions = {
+    scales: {
+        y: {
+            beginAtZero: true
+        }
+    }
 };
 
-const exposedMachinesData = {
-    labels: Object.keys({{ stats.exposed_machines|safe }}),
-    datasets: [{
-        label: 'Exposed Machines by Severity',
-        data: Object.values({{ stats.exposed_machines|safe }}),
-        // Initial placeholder for backgroundColor, to be replaced.
-        backgroundColor: [],
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 1
-    }]
-};
-
-// Apply colors based on severity level
-vulnerabilityData.datasets[0].backgroundColor = vulnerabilityData.labels.map(label => severityColors[label] || 'rgba(54, 162, 235, 0.2)');
-exposedMachinesData.datasets[0].backgroundColor = exposedMachinesData.labels.map(label => severityColors[label.replace(' ', '_')] || 'rgba(255, 99, 132, 0.2)');
-
-const vulnerabilityChart = new Chart(document.getElementById('vulnerabilityChart'), {
+// Initializing the charts
+new Chart(document.getElementById('vulnerabilityChart'), {
     type: 'bar',
     data: vulnerabilityData,
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
-    }
+    options: chartOptions
 });
 
-const exposedMachinesChart = new Chart(document.getElementById('exposedMachinesChart'), {
+new Chart(document.getElementById('exposedMachinesChart'), {
     type: 'bar',
     data: exposedMachinesData,
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
-    }
+    options: chartOptions
 });
+
 </script>
-
-
 
 
 
