@@ -163,58 +163,82 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-  const severityColors = {
-    'Critical': 'rgba(200, 0, 0, 1)',      // Dark red for Critical
-    'High': 'rgba(255, 99, 132, 1)',       // Red for High
-    'Medium': 'rgba(255, 206, 86, 1)',     // Yellow for Medium
-    'Low': 'rgba(75, 192, 192, 1)',        // Green for Low
-    'Known_Exploited': 'rgba(139, 0, 0, 1)' // Dark red for Known Exploited
-};
-
-// Function to generate chart data
-function generateChartData(labels, data, borderColor) {
-    return {
-        labels: labels,
-        datasets: [{
-            label: 'Vulnerabilities by Severity',
-            data: data,
-            backgroundColor: labels.map(label => severityColors[label.replace(' ', '_')] || 'rgba(54, 162, 235, 0.2)'),
-            borderColor: borderColor,
-            borderWidth: 1
-        }]
+document.addEventListener('DOMContentLoaded', function () {
+    // Define severity colors
+    const severityColors = {
+        'Critical': 'rgba(200, 0, 0, 1)',      // Dark red for Critical
+        'High': 'rgba(255, 99, 132, 1)',       // Red for High
+        'Medium': 'rgba(255, 206, 86, 1)',     // Yellow for Medium
+        'Low': 'rgba(75, 192, 192, 1)',        // Green for Low
+        'Known_Exploited': 'rgba(139, 0, 0, 1)' // Dark red for Known Exploited
     };
-}
 
-// Fetching labels and data from the Django context safely
-const vulnerabilityLabels = Object.keys({{ stats.vulnerabilities|safe }});
-const vulnerabilityDataValues = Object.values({{ stats.vulnerabilities|safe }});
-const exposedMachinesLabels = Object.keys({{ stats.exposed_machines|safe }});
-const exposedMachinesDataValues = Object.values({{ stats.exposed_machines|safe }});
+    // Safely retrieve data
+    const vulnerabilityStats = {{ stats.vulnerabilities|default:"{}"|safe }};
+    const exposedMachinesStats = {{ stats.exposed_machines|default:"{}"|safe }};
 
-// Creating data objects for the charts
-const vulnerabilityData = generateChartData(vulnerabilityLabels, vulnerabilityDataValues, 'rgba(54, 162, 235, 1)');
-const exposedMachinesData = generateChartData(exposedMachinesLabels, exposedMachinesDataValues, 'rgba(255, 99, 132, 1)');
+    // Ensure there's valid data before proceeding
+    if (Object.keys(vulnerabilityStats).length > 0) {
+        const vulnerabilityLabels = Object.keys(vulnerabilityStats);
+        const vulnerabilityDataValues = Object.values(vulnerabilityStats);
 
-// Chart configuration options
-const chartOptions = {
-    scales: {
-        y: {
-            beginAtZero: true
-        }
+        const vulnerabilityData = {
+            labels: vulnerabilityLabels,
+            datasets: [{
+                label: 'Vulnerabilities by Severity',
+                data: vulnerabilityDataValues,
+                backgroundColor: vulnerabilityLabels.map(label => severityColors[label.replace(' ', '_')] || 'rgba(54, 162, 235, 0.2)'),
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        const ctxVulnerability = document.getElementById('vulnerabilityChart').getContext('2d');
+        new Chart(ctxVulnerability, {
+            type: 'bar',
+            data: vulnerabilityData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    } else {
+        console.error('No vulnerability data available.');
     }
-};
 
-// Initializing the charts
-new Chart(document.getElementById('vulnerabilityChart'), {
-    type: 'bar',
-    data: vulnerabilityData,
-    options: chartOptions
-});
+    if (Object.keys(exposedMachinesStats).length > 0) {
+        const exposedMachinesLabels = Object.keys(exposedMachinesStats);
+        const exposedMachinesDataValues = Object.values(exposedMachinesStats);
 
-new Chart(document.getElementById('exposedMachinesChart'), {
-    type: 'bar',
-    data: exposedMachinesData,
-    options: chartOptions
+        const exposedMachinesData = {
+            labels: exposedMachinesLabels,
+            datasets: [{
+                label: 'Exposed Machines by Severity',
+                data: exposedMachinesDataValues,
+                backgroundColor: exposedMachinesLabels.map(label => severityColors[label.replace(' ', '_')] || 'rgba(255, 99, 132, 0.2)'),
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        const ctxExposedMachines = document.getElementById('exposedMachinesChart').getContext('2d');
+        new Chart(ctxExposedMachines, {
+            type: 'bar',
+            data: exposedMachinesData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    } else {
+        console.error('No exposed machines data available.');
+    }
 });
 
 </script>
