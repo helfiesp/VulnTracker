@@ -36,5 +36,11 @@ urlpatterns = [
     path('ticket_detail/<int:ticket_id>/delete', views.delete_ticket, name='delete_ticket'),
     path('public_ip_list/', views.public_ip_list, name='public_ip_list'),
 
+    path('defender/vulnerabilities', views.defender_vulnerabilities, name='defender_vulnerabilities'),
+    path('defender/vulnerabilities/<str:cve_id>/machines/', views.machine_list, name='machine-list'),
+    path('defender/machines/<str:computer_dns_name>/cves/', views.cve_list_for_machine, name='cve-list-for-machine'),
+
+
+
 
 ]
