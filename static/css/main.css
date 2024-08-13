@@ -296,3 +296,25 @@ body, html {
     text-decoration: none;
 }
 
+.single-charts-container {
+    background: #fff;
+    display: flex;
+    justify-content: space-around; /* Centers the charts and provides equal spacing */
+    align-items: flex-start; /* Aligns items at the start of the container */
+    flex-wrap: wrap; /* Allows items to wrap if the screen is too small */
+    border-radius: 10px;
+    margin-bottom: 40px;
+}
+
+.left-chart-box, .right-chart-box {
+    flex-basis: 48%; /* Each chart box takes up 48% of the width to allow some space between them */
+    max-width: 48%; /* Prevents the box from exceeding 48% of the parent's width */
+    box-sizing: border-box; /* Includes padding and border in the element's total width and height */
+    padding: 10px; /* Adds spacing inside each chart box */
+}
+
+.left-chart-box canvas, .right-chart-box canvas {
+    max-height: 400px; /* Sets the maximum height for the canvas */
+    width: 100% !important; /* Ensures the canvas fills the box width */
+    height: auto !important; /* Maintains the aspect ratio of the canvas */
+}
