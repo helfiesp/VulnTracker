@@ -367,7 +367,7 @@ def cve_list_for_machine(request, computer_dns_name):
         'cves': cves,
         'software_list': software_list,
         'machine_id': computer_dns_name,
-        'severity_stats': severity_stats_dict
+        'severity_stats': json.dumps(severity_stats_dict)
     }
     return render(request, 'cve_list_for_machine.html', context)
 
