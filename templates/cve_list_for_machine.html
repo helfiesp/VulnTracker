@@ -53,7 +53,7 @@
         </div>
 
     <section class="vulnerabilities-list" id="vulnerabilities-list">
-
+<div class="cve-table">
         <table>
         <thead>
             <tr>
@@ -62,7 +62,6 @@
                 <th>Description</th>
                 <th>Affected systems</th>
                 <th>Published</th>
-                <th>Last Modified</th>
             </tr>
         </thead>
 
@@ -71,19 +70,13 @@
             {% for cve in cves %}
             <tr class="cve-article">
                 <td>
-                    <a style="text-decoration: none; color: black;" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{ cve.cve_id }}"><span class="cve-title">{{ cve.cve_id }}</span></a>
+                    <a style="text-decoration: none; color: black;" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{ cve.name }}"><span class="cve-title">{{ cve.name }}</span></a>
                 </td>
-                {% if cve|get_criticality_level == "Critical" %}
-                    <td class="cvss-score-td" style="background-color: #D32F2F;">{{ cve.cvss_score }} </td>
-                {% elif cve|get_criticality_level == "High" %}
-                    <td class="cvss-score-td" style="background-color: #FF5722;">{{ cve.cvss_score }} </td>
-                {% elif cve|get_criticality_level == "Medium" %}
-                    <td class="cvss-score-td" style="background-color: #FFC107;">{{ cve.cvss_score }} </td>
-                {% elif cve|get_criticality_level == "Low" %}
-                    <td class="cvss-score-td" style="background-color: #8BC34A;">{{ cve.cvss_score }} </td>
-                {% else %}
-                    <td class="cvss-score-td" style="background-color: #00BCD4;">N/A</td>
-                {% endif %}
+                    <td class="cvss-score-td">
+                            <div class="cve-tag cve-criticality {{ cve.severity }}">
+                                {{ cve.severity }} {{ cve.cvssV3 }}
+                            </div></td>
+
 
                 <td style="max-width:400px">
                     <p class="cve-description" style="display: none;">{{ cve.description }}</p>
@@ -96,12 +89,12 @@
                     
                 </td>
                 <td>{{ cve.keywords }}</td>
-                <td>{{ cve.published_date|date:"M d, Y" }}</td>
-                <td>{{ cve.last_modified_date|date:"M d, Y" }}</td>
+                <td>Published: {{ cve.publishedOn |date:"M d, Y" }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+</div>
 
 
     <section class="software-list" id="softwareList" style="display: none;">
