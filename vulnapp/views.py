@@ -326,7 +326,6 @@ def machine_list(request, cve_id):
         'selected_rbac_group_name': selected_rbac_group_name,
         'selected_machine_type': selected_machine_type,
         'is_fetching_from_api': is_fetching_from_api,
-        'selected_bss': selected_bss,
     }
     return render(request, 'machine_list.html', context)
 
