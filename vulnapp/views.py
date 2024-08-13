@@ -338,7 +338,6 @@ def fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token):
     
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        print(response.json()["value"])
         return response.json()["value"]
     else:
         return None
@@ -352,7 +351,6 @@ def cve_list_for_machine(request, computer_dns_name):
     
     cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct()
     
-
     token = fetch_auth_token()
     if token:
         api_cves = fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token)
