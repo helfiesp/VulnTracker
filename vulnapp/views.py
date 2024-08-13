@@ -317,19 +317,6 @@ def machine_list(request, cve_id):
     elif selected_machine_type == 'client':
         machines = machines.exclude(Q(os_platform__icontains='server') | Q(rbac_group_name__icontains='server'))
 
-
-    # Filter machines based on the selected bss, if applicable
-    selected_bss = request.GET.get('bss')
-    if selected_bss:
-        filtered_machines = [machine for machine in machines if machine.bss == selected_bss]
-        machines = filtered_machines
-    else:
-        filtered_machines = machines
-
-    # Deduplicate and sort bss values for the filter dropdown
-    bss_values = sorted(set(machine.bss for machine in machines if machine.bss is not None))
-
-
     context = {
         'cve': cve,
         'machines': machines,
