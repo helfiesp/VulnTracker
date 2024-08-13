@@ -52,7 +52,6 @@
             </div>
         </div>
 
-    <section class="vulnerabilities-list" id="vulnerabilities-list">
 <div class="cve-table" style="margin:auto;">
         <table>
         <thead>
@@ -88,14 +87,14 @@
                     {% endif %}
                     
                 </td>
-                <td>{{ cve.exposedMachines }}</td>
+                <td><a style="text-decoration: none;" href="{% url 'machine-list' cve_id=cve.id %}">{{ cve.exposedMachines }}</a></td>
                 <td>Published: {{ cve.publishedOn |date:"M d, Y" }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-    
+   
 
     <section class="software-list" id="softwareList" style="display: none;">
         <h3>Installed Software</h3>
