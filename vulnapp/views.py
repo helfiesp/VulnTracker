@@ -299,14 +299,6 @@ def machine_list(request, cve_id):
         ).order_by('-created_at')
         machine.comment_content = comments[0].content if comments.exists() else ""
 
-        # Lookup and assign BSS value
-        hostname = machine.computer_dns_name.replace(".oslofelles.oslo.kommune.no","")
-        try:
-            host_to_bss = HostToBSS.objects.get(host=hostname)
-            machine.bss = host_to_bss.bss
-        except HostToBSS.DoesNotExist:
-            machine.bss = None
-
 
     # Existing filter logic for OS Platforms and RBAC Group Names
     os_platforms = machines.order_by('os_platform').values_list('os_platform', flat=True).distinct()
@@ -347,7 +339,6 @@ def machine_list(request, cve_id):
         'selected_rbac_group_name': selected_rbac_group_name,
         'selected_machine_type': selected_machine_type,
         'is_fetching_from_api': is_fetching_from_api,
-        'bss_values': bss_values,
         'selected_bss': selected_bss,
     }
     return render(request, 'machine_list.html', context)
