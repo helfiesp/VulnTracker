@@ -10,8 +10,6 @@
     <div class="filter-section">
         <div class="filter-header">
             <h2>CVEs for Machine: {{ machine_id }}</h2>
-            <button id="toggleViewBtn" class="toggle-view-btn">Show Software</button>
-
         </div>
         <div class="filter-controls">
             <div class="date-filter">
@@ -52,15 +50,13 @@
             </div>
         </div>
 
-<div class="charts-container">
+<div class="single-charts-container">
     <div class="chart-container">
         <h2>Unique vulnerabilities by criticality</h2>
         <canvas id="vulnerabilityChart"></canvas>
     </div>
-
-    <div class="chart-container">
+    <div class="right-chart-container">
         <h2>All vulnerabilities by criticality</h2>
-        <canvas id="exposedMachinesChart"></canvas>
     </div>
 </div>
 
@@ -167,6 +163,59 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Assuming `severity_stats` is passed to the template context and available as a JavaScript object.
+    const severityStats = JSON.parse('{{ severity_stats|safe }}');
+
+    const ctx = document.getElementById('vulnerabilityChart').getContext('2d');
+
+    const chartLabels = Object.keys(severityStats); // Extract the severity levels (e.g., Critical, High, Medium, Low)
+    const chartData = Object.values(severityStats); // Extract the counts for each severity level
+
+    const vulnerabilityChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Vulnerabilities by Criticality',
+                data: chartData,
+                backgroundColor: [
+                    '#FF6384', // Color for the first segment (e.g., Critical)
+                    '#36A2EB', // Color for the second segment (e.g., High)
+                    '#FFCE56', // Color for the third segment (e.g., Medium)
+                    '#4BC0C0'  // Color for the fourth segment (e.g., Low)
+                ],
+                hoverBackgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            const label = chartLabels[tooltipItem.dataIndex];
+                            const value = chartData[tooltipItem.dataIndex];
+                            return `${label}: ${value}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+
 
 {% endblock %}
 

@@ -341,10 +341,10 @@ def fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token):
         return response.json()["value"]
     else:
         return None
-
+        
 def cve_list_for_machine(request, computer_dns_name):
     """
-    View function to show all vulnerabilities for a specific host.
+    View function to show all vulnerabilities for a specific host and provide statistics on CVE severity.
     """
     machine_references = MachineReference.objects.filter(computer_dns_name__icontains=computer_dns_name)
     software_list = Software.objects.filter(software_hosts__computer_dns_name__icontains=computer_dns_name).distinct()
@@ -357,11 +357,17 @@ def cve_list_for_machine(request, computer_dns_name):
         if api_cves:
             cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct()
 
+    # Create the statistics dictionary
+    severity_statistics = cves.values('severity').annotate(count=Count('severity'))
+
+    # Converting the QuerySet to a dictionary for easy use in templates or further processing
+    severity_stats_dict = {entry['severity']: entry['count'] for entry in severity_statistics}
 
     context = {
         'cves': cves,
         'software_list': software_list,
-        'machine_id': computer_dns_name
+        'machine_id': computer_dns_name,
+        'severity_stats': severity_stats_dict
     }
     return render(request, 'cve_list_for_machine.html', context)
 
