@@ -183,8 +183,8 @@ def defender_vulnerabilities(request):
     if public_exploit_filter:
         vulnerabilities = vulnerabilities.filter(publicExploit=True)
 
-    # Sort by exposedMachines (descending) first, then by cvssV3 (descending)
-    vulnerabilities = vulnerabilities.order_by('-exposedMachines', '-cvssV3')
+    # Sort by cvssV3 (descending) first, then by exposedMachines (descending)
+    vulnerabilities = vulnerabilities.order_by('-cvssV3', '-exposedMachines')
 
     # Calculate statistics
     vulnerabilities_stats = vulnerabilities.values('severity').annotate(total=Count('id')).order_by('severity')
@@ -345,7 +345,7 @@ def fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token):
         return response.json()["value"]
     else:
         return None
-        
+
 def cve_list_for_machine(request, computer_dns_name):
     """
     View function to show all vulnerabilities for a specific host and provide statistics on CVE severity.
