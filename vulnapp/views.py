@@ -183,6 +183,9 @@ def defender_vulnerabilities(request):
     if public_exploit_filter:
         vulnerabilities = vulnerabilities.filter(publicExploit=True)
 
+    # Sort by exposedMachines (descending) first, then by cvssV3 (descending)
+    vulnerabilities = vulnerabilities.order_by('-exposedMachines', '-cvssV3')
+
     # Calculate statistics
     vulnerabilities_stats = vulnerabilities.values('severity').annotate(total=Count('id')).order_by('severity')
     exposed_machines_stats = vulnerabilities.values('severity').annotate(exposed_total=Sum('exposedMachines')).order_by('severity')
@@ -216,6 +219,7 @@ def defender_vulnerabilities(request):
     }
 
     return render(request, 'defender_vulnerabilities.html', {'vulnerabilities': vulnerabilities, 'stats': stats})
+
 
 def generate_unique_comment_id(cve_id, machine_id):
     """
