@@ -61,8 +61,11 @@ class Vulnerability(models.Model):
         return self.name
 
 class MachineReference(models.Model):
-    # Model to keep treack of individual vulnerabilities per host.
+    # Optional ForeignKey to Device
+    device = models.ForeignKey('Device', on_delete=models.CASCADE, related_name='machine_references', null=True, blank=True)
     vulnerability = models.ForeignKey(Vulnerability, on_delete=models.CASCADE, related_name='machine_references')
+    
+    # Other fields
     machine_id = models.CharField(max_length=255)
     computer_dns_name = models.CharField(max_length=255, null=True, blank=True)
     os_platform = models.CharField(max_length=100, null=True, blank=True)
@@ -87,7 +90,7 @@ class Device(models.Model):
     compliance_state = models.CharField(max_length=100, null=True, blank=True)
     is_managed = models.BooleanField(default=False)
     is_compliant = models.BooleanField(default=False)
-    vulnerabilities = models.ManyToManyField(Vulnerability, through='MachineReference', related_name='devices')
+    vulnerabilities = models.ManyToManyField(Vulnerability, through=MachineReference, related_name='devices')
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
