@@ -88,14 +88,14 @@ class Device(models.Model):
     device_type = models.CharField(max_length=100, null=True, blank=True)
     last_sync_date_time = models.DateTimeField(null=True, blank=True)
     compliance_state = models.CharField(max_length=100, null=True, blank=True)
-    is_managed = models.BooleanField(default=False)  # Set default value
-    is_compliant = models.BooleanField(default=False)
+    is_managed = models.BooleanField(default=False, null=True)  # Set default value
+    is_compliant = models.BooleanField(default=False, null=True)
     vulnerabilities = models.ManyToManyField(Vulnerability, through=MachineReference, related_name='devices')
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.display_name or self.device_id
-        
+
 class HaveIBeenPwnedBreaches(models.Model):
     # Model to keep track of haveibeenpwned breaches 
     name = models.CharField(max_length=100)
