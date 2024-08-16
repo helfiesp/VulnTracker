@@ -88,7 +88,7 @@ class Device(models.Model):
     device_type = models.CharField(max_length=100, null=True, blank=True)
     last_sync_date_time = models.DateTimeField(null=True, blank=True)
     compliance_state = models.CharField(max_length=100, null=True, blank=True)
-    is_managed = models.BooleanField(default=False)
+    is_managed = models.BooleanField(default=False)  # Set default value
     is_compliant = models.BooleanField(default=False)
     vulnerabilities = models.ManyToManyField(Vulnerability, through=MachineReference, related_name='devices')
     last_updated = models.DateTimeField(auto_now=True)

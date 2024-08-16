@@ -88,8 +88,8 @@ class Command(BaseCommand):
                             'device_type': device_data.get('deviceType'),
                             'last_sync_date_time': parse(device_data.get('approximateLastSignInDateTime')) if device_data.get('approximateLastSignInDateTime') else None,
                             'compliance_state': device_data.get('complianceState'),
-                            'is_managed': device_data.get('isManaged'),
-                            'is_compliant': device_data.get('isCompliant'),
+                            'is_managed': device_data.get('isManaged', False),  # Provide default value if missing
+                            'is_compliant': device_data.get('isCompliant', False),  # Provide default value if missing
                         }
                     )
 
