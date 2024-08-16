@@ -22,7 +22,7 @@ from django.http import HttpResponseRedirect
 from django.db.models.functions import ExtractYear
 from django.db.models import Count, Q, Sum
 from django.urls import reverse, NoReverseMatch
-from .models import CVE, Comment, PublicIP, CMDB, Ticket, NessusData, Vulnerability, MachineReference, HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, Software, SoftwareHosts, ScanStatus, ShodanScanResult
+from .models import Device, CVE, Comment, PublicIP, CMDB, Ticket, NessusData, Vulnerability, MachineReference, HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, Software, SoftwareHosts, ScanStatus, ShodanScanResult
 from vulnapp import secrets
 
 def index(request):
@@ -1082,3 +1082,8 @@ def public_ip_list(request):
     }
 
     return render(request, 'public_ip_list.html', context)
+
+
+def device_list(request):
+    devices = Device.objects.all()  # Fetch all devices from the database
+    return render(request, 'device_list.html', {'devices': devices})

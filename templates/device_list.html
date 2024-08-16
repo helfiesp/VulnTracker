@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Device List</title>
+</head>
+<body>
+    <h2>Device List</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Device ID</th>
+                <th>Display Name</th>
+                <th>Operating System</th>
+                <th>OS Version</th>
+                <th>Device Type</th>
+                <th>Compliance State</th>
+                <th>Is Managed?</th>
+                <th>Is Compliant?</th>
+                <th>Last Sync</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for device in devices %}
+            <tr>
+                <td>{{ device.device_id }}</td>
+                <td>{{ device.display_name }}</td>
+                <td>{{ device.operating_system }}</td>
+                <td>{{ device.operating_system_version }}</td>
+                <td>{{ device.device_type }}</td>
+                <td>{{ device.compliance_state }}</td>
+                <td>{{ device.is_managed }}</td>
+                <td>{{ device.is_compliant }}</td>
+                <td>{{ device.last_sync_date_time }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

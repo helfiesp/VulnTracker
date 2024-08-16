@@ -40,7 +40,7 @@ urlpatterns = [
     path('defender/vulnerabilities/<str:cve_id>/machines/', views.machine_list, name='machine-list'),
     path('defender/machines/<str:computer_dns_name>/cves/', views.cve_list_for_machine, name='cve-list-for-machine'),
 
-
+    path('devices/', views.device_list, name='device_list'),
 
 
 ]
