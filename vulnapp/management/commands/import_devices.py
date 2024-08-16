@@ -127,4 +127,4 @@ class Command(BaseCommand):
             scan_status.status = 'error'
             scan_status.error_message = str(e)
             scan_status.save()
-            raise CommandError(f'An error occurred: {str(e)}")
+            raise CommandError('An error occurred: {}'.format(e))
