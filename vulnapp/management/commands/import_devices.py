@@ -36,24 +36,32 @@ class Command(BaseCommand):
             raise CommandError('Failed to fetch authentication token.')
 
     def fetch_devices(self, headers):
-        url = f"https://graph.microsoft.com/v1.0/devices"
-        try:
-            response = requests.get(url, headers=headers)
+        url = "https://graph.microsoft.com/v1.0/devices"
+        all_devices = []
+        
+        while url:
+            try:
+                response = requests.get(url, headers=headers)
 
-            if response.status_code == 200:
-                return response.json()["value"]
-            elif response.status_code == 429:
-                self.stdout.write(self.style.WARNING("Rate limit exceeded, retrying later."))
-                return "retry"
-            elif response.status_code == 401:
-                self.stdout.write(self.style.ERROR("Unauthorized access. Token may have expired."))
-                return "refresh_token"
-            else:
-                self.stdout.write(self.style.ERROR(f"Unexpected response: {response.status_code} - {response.text}"))
+                if response.status_code == 200:
+                    data = response.json()
+                    all_devices.extend(data.get("value", []))  # Collect the current page of devices
+                    url = data.get("@odata.nextLink")  # Get the next page URL, if any
+                elif response.status_code == 429:
+                    self.stdout.write(self.style.WARNING("Rate limit exceeded, retrying later."))
+                    time.sleep(300)  # Wait for 5 minutes before retrying
+                    continue
+                elif response.status_code == 401:
+                    self.stdout.write(self.style.ERROR("Unauthorized access. Token may have expired."))
+                    return "refresh_token"
+                else:
+                    self.stdout.write(self.style.ERROR(f"Unexpected response: {response.status_code} - {response.text}"))
+                    return []
+            except requests.RequestException as e:
+                self.stdout.write(self.style.ERROR(f"Error fetching data: {e}"))
                 return []
-        except requests.RequestException as e:
-            self.stdout.write(self.style.ERROR(f"Error fetching data: {e}"))
-            return []
+
+        return all_devices  # Return the full list of devices
 
     def process_devices(self, devices, headers):
         devices_to_retry = []
