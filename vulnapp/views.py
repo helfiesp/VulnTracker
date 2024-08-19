@@ -304,7 +304,7 @@ def machine_list(request, cve_id):
         machine.comment_content = comments[0].content if comments.exists() else ""
         # Fetch the corresponding device information
         try:
-            device_info = Device.objects.get(display_name=machine.computer_dns_name)
+            device_info = Device.objects.get(device_id=machine.machine_id)
             machine.device_info = device_info
         except Device.DoesNotExist:
             machine.device_info = None
