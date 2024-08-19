@@ -302,8 +302,12 @@ def machine_list(request, cve_id):
             object_id=unique_id
         ).order_by('-created_at')
         machine.comment_content = comments[0].content if comments.exists() else ""
-        device_info = Device.objects.filter(display_name=machine.computer_dns_name)
-        machine.device_info = device_info
+        # Fetch the corresponding device information
+        try:
+            device_info = Device.objects.get(display_name=machine.computer_dns_name)
+            machine.device_info = device_info
+        except Device.DoesNotExist:
+            machine.device_info = None
 
 
     # Existing filter logic for OS Platforms and RBAC Group Names
