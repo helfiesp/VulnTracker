@@ -304,10 +304,15 @@ def machine_list(request, cve_id):
         ).order_by('-created_at')
         machine.comment_content = comments[0].content if comments.exists() else ""
         # Fetch the corresponding device information
-        try:
-            device_info = Device.objects.get(display_name__iexact=machine.computer_dns_name.lower())
-            machine.device_info = device_info
-        except Device.DoesNotExist:
+        # Fetch all devices matching the display name, case-insensitively
+        device_info_queryset = Device.objects.filter(display_name__iexact=machine.computer_dns_name.lower())
+
+        # Check if any devices were found
+        if device_info_queryset.exists():
+            # If there are multiple devices, you may need to decide how to handle this situation
+            # For example, you can select the first one, or log an error
+            machine.device_info = device_info_queryset.first()
+        else:
             machine.device_info = None  # Handle the case where no device is found
 
 
