@@ -15,6 +15,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from datetime import timedelta
 import os
+from django.db.models.functions import Lower
 import requests
 from django.db import transaction
 import re
@@ -304,10 +305,10 @@ def machine_list(request, cve_id):
         machine.comment_content = comments[0].content if comments.exists() else ""
         # Fetch the corresponding device information
         try:
-            device_info = Device.objects.get(device_id=machine.machine_id)
+            device_info = Device.objects.get(display_name__iexact=machine.computer_dns_name.lower())
             machine.device_info = device_info
         except Device.DoesNotExist:
-            machine.device_info = None
+            machine.device_info = None  # Handle the case where no device is found
 
 
     # Existing filter logic for OS Platforms and RBAC Group Names
