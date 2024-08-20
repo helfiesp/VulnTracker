@@ -325,6 +325,17 @@ body, html {
     padding: 20px; /* Padding around the text */
 }
 
+.statistic-square-chart {
+    position: relative;
+    height: 200px; /* Adjust according to your needs */
+    width: 200px;  /* Adjust according to your needs */
+    margin: auto;
+}
+
+#endpointsPieChart {
+    width: 100% !important;
+    height: 100% !important;
+}
 .statistic-square p {
     white-space: normal; /* Allows text to wrap normally */
     word-wrap: break-word; /* Forces long words to break to the next line if necessary */
