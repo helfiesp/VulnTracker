@@ -233,9 +233,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var endpointsPieChart = new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: ['Servers', 'Clients'],
+            labels: ['Servers: ' + serverCount, 'Clients: ' + clientCount],
             datasets: [{
-                label: 'Affected Endpoints',
                 data: [serverCount, clientCount],
                 backgroundColor: ['#36a2eb', '#ff6384'], // Colors for the slices
                 hoverOffset: 4
@@ -243,20 +242,26 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false, // Allows for manual control over size
             plugins: {
                 legend: {
                     position: 'top',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return tooltipItem.label + ': ' + tooltipItem.raw + ' endpoints';
+                    labels: {
+                        font: {
+                            size: 14 // Adjust label size
                         }
                     }
+                },
+                tooltip: {
+                    enabled: false // Disable tooltips since we're showing the data on the chart
                 }
             }
         }
     });
+
+    // Resize the canvas to 50% of its original size
+    document.getElementById('endpointsPieChart').style.width = '50%';
+    document.getElementById('endpointsPieChart').style.height = '50%';
 });
 </script>
 
