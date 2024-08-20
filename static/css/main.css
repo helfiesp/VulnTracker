@@ -329,11 +329,26 @@ body, html {
     white-space: normal; /* Allows text to wrap normally */
     word-wrap: break-word; /* Forces long words to break to the next line if necessary */
     overflow: hidden; /* Prevents overflow of the content */
+    display: inline; /* Make sure the paragraph content flows inline */
 }
 
-.ellipsis,
+.ellipsis {
+    white-space: nowrap; /* Prevents the ellipsis from breaking into a new line */
+}
+
 .more-text {
     display: inline;
-    white-space: nowrap; /* Ensures that text within these spans also wraps */
+    white-space: normal; /* Ensures that text within this span wraps */
     word-wrap: break-word;
+}
+.view-more-btn {
+    display: inline;
+    white-space: nowrap; /* Keep the button on the same line as the text */
+    margin-left: 5px; /* Small spacing to separate button from text */
+    color: #007bff;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
 }
