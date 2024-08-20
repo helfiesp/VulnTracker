@@ -42,10 +42,12 @@ def smart_truncate(text, length=300):
     """
     if len(text) <= length:
         return text
-    # Find the nearest punctuation mark after the given length
-    truncated_text = text[:length]
-    match = re.search(r'[.!?]\s', text[length:])
+    # Truncate the text to the nearest word first
+    truncated_text = text[:length].rsplit(' ', 1)[0]
+    # Find the nearest punctuation mark after the truncated text
+    remainder_text = text[len(truncated_text):]
+    match = re.search(r'[.!?]\s', remainder_text)
     if match:
-        punctuation_index = length + match.start() + 1
+        punctuation_index = len(truncated_text) + match.start() + 1
         return text[:punctuation_index]
     return truncated_text + '...'

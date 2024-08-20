@@ -74,7 +74,7 @@
 <div class="single-charts-container">
 <div class="left-chart-box">
         <h2>Vulnerability information</h2>
-        <div class="statistic-square">
+           <div class="statistic-square">
         <p>
             {% if cve.description|length > 300 %}
                 {{ cve.description|smart_truncate:300 }}<span class="ellipsis">...</span>
@@ -84,7 +84,6 @@
                 {{ cve.description }}
             {% endif %}
         </p>
-    </div>
     </div>
     </div>
 
