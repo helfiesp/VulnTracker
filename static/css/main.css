@@ -319,3 +319,13 @@ body, html {
     width: 100% !important; /* Ensures the canvas fills the box width */
     height: auto !important; /* Maintains the aspect ratio of the canvas */
 }
+.statistic-square {
+    font-size: 18px; /* Font size for readability */
+    color: #333; /* Dark text color */
+    padding: 20px; /* Padding around the text */
+}
+
+.statistic-square p {
+    margin: 10px 0; /* Spacing between statistics */
+    font-weight: bold; /* Bold font for emphasis */
+}

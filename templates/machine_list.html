@@ -72,6 +72,27 @@
   </script>
 {% else %}
 
+<div class="single-charts-container">
+    <div class="left-chart-box">
+        <h2>Unique vulnerabilities by criticality</h2>
+        <div class="statistic-square">
+            <p>Critical: 32</p>
+            <p>High: 45</p>
+            <p>Medium: 60</p>
+            <p>Low: 15</p>
+        </div>
+    </div>
+
+    <div class="right-chart-box">
+        <h2>All vulnerabilities by criticality</h2>
+        <div class="statistic-square">
+            <p>Critical: 120</p>
+            <p>High: 250</p>
+            <p>Medium: 340</p>
+            <p>Low: 90</p>
+        </div>
+    </div>
+</div>
 
   {% if machines %}
   <table>
@@ -81,7 +102,6 @@
         <th>OS Platform</th>
         <th>Device Info</th>
         <th>RBAC Group Name</th>
-        <th>RBAC Group ID</th>
         <th>Comments</th>
         <!-- Add more headers if needed -->
       </tr>
@@ -97,7 +117,7 @@
             <td>None</td>
           {% endif %}
           <td>{{ machine.os_platform }}</td>
-          <td>{{ machine.device_info.is_managed }}</td>
+          <td>{{ machine.device_info }}</td>
           <td>{{ machine.rbac_group_name }}</td>
           <td>{{ machine.rbac_group_id }}</td>
         <td>
