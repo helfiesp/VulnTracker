@@ -175,9 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
     machineTypeSelect.addEventListener('change', function() {
         window.location.href = updateQueryParams('machine_type', this.value);
     });
-});
 
-document.addEventListener('DOMContentLoaded', function() {
     var description = document.getElementById('vulnerability-description');
     var originalText = description.innerText;
     var truncated = false;
