@@ -97,7 +97,8 @@
         <th>Computer DNS Name</th>
         <th>OS Platform</th>
         <th>Device Info</th>
-        <th>RBAC Group Name</th>
+        <th>Detection time</th>
+        <th>Last detected</th>
         <th>Comments</th>
         <!-- Add more headers if needed -->
       </tr>
@@ -114,7 +115,8 @@
           {% endif %}
           <td>{{ machine.os_platform }}</td>
           <td>{{ machine.device_info }}</td>
-          <td>{{ machine.rbac_group_name }}</td>
+          <td>{{ machine.detection_time }}</td>
+          <td>{{ machine.last_detected }}</td>
         <td>
             <div class="comment-form">
                 <form action="{% url 'add_comment' %}" method="post">
