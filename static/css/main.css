@@ -334,6 +334,6 @@ body, html {
 .ellipsis,
 .more-text {
     display: inline;
-    white-space: nowrap; /* Prevents line breaks within the elements */
+    white-space: nowrap; /* Ensures that text within these spans also wraps */
     word-wrap: break-word;
 }
