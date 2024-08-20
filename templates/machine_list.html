@@ -74,7 +74,7 @@
 
 <div class="single-charts-container">
     <div class="left-chart-box">
-        <h2>Unique vulnerabilities by criticality</h2>
+        <h2>RBAC Group Name Distribution</h2>
         <div class="statistic-square">
             {% for group_name, count in rbac_group_name_counts.items %}
                 <p>{{ group_name }}: {{ count }}</p>
@@ -83,12 +83,10 @@
     </div>
 
     <div class="right-chart-box">
-        <h2>All vulnerabilities by criticality</h2>
+        <h2>Machine Type Distribution</h2>
         <div class="statistic-square">
-            <p>Critical: 120</p>
-            <p>High: 250</p>
-            <p>Medium: 340</p>
-            <p>Low: 90</p>
+            <p>Servers: {{ server_count }}</p>
+            <p>Clients: {{ client_count }}</p>
         </div>
     </div>
 </div>

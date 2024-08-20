@@ -296,6 +296,14 @@ def machine_list(request, cve_id):
 
     machine_content_type = ContentType.objects.get_for_model(MachineReference)
 
+    # Counting machines by RBAC Group Name
+    rbac_group_name_counts = machines.values('rbac_group_name').annotate(count=Count('rbac_group_name'))
+
+    # Counting servers and clients separately
+    server_count = machines.filter(Q(os_platform__icontains='server') | Q(rbac_group_name__icontains='server')).count()
+    client_count = machines.filter(~Q(os_platform__icontains='server') & ~Q(rbac_group_name__icontains='server')).count()
+
+
     for machine in machines:
         unique_id = generate_unique_comment_id(cve_id, machine.machine_id)
         comments = Comment.objects.filter(
@@ -340,6 +348,9 @@ def machine_list(request, cve_id):
         'rbac_group_names': rbac_group_names,
         'selected_os_platform': selected_os_platform,
         'selected_rbac_group_name': selected_rbac_group_name,
+        'rbac_group_name_counts': rbac_group_name_counts,
+        'server_count': server_count,
+        'client_count': client_count,
         'selected_machine_type': selected_machine_type,
         'is_fetching_from_api': is_fetching_from_api,
     }
