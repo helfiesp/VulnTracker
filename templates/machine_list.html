@@ -11,7 +11,6 @@
     <div class="filter-section">
         <div class="filter-header">
             <h2>Endpoints with vulnerability: {{ cve.id }}</h2>
-            <p style="text-align: center;">Amount of results: {{ machines|length}} </p>
             
         </div>
         <div class="filter-controls">
@@ -74,11 +73,10 @@
 
 <div class="single-charts-container">
     <div class="left-chart-box">
-        <h2>RBAC Group Name Distribution</h2>
+        <h2>Vulnerability information</h2>
         <div class="statistic-square">
-            {% for group_name, count in rbac_group_name_counts.items %}
-                <p>{{ group_name }}: {{ count }}</p>
-            {% endfor %}
+            <p>Affected endpoints: {{ machines|length}}<br>
+            {{ cve.description }}<br>
         </div>
     </div>
 
