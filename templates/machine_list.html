@@ -75,14 +75,20 @@
     <div class="left-chart-box">
         <h2>Vulnerability information</h2>
         <div class="statistic-square">
-            <p>Affected endpoints: {{ machines|length}}<br>
-            {{ cve.description }}<br>
+            <p class="cve-description" style="display: none;">{{ cve.description }}</p>
+            <p>{{ cve.description|slice:":300" }}</p>
+            {% if cve.description|length > 300 %}
+                <span class="ellipsis">...</span>
+                <span class="more-text"><p>{{ cve.description|slice:"300:" }}</p></span>
+                <button class="view-more-btn" onclick="toggleDescription(this)">View More</button>
+            {% endif %}
         </div>
     </div>
 
     <div class="right-chart-box">
-        <h2>Machine Type Distribution</h2>
+        <h2>Affected endpoints</h2>
         <div class="statistic-square">
+            <p>Affected endpoints: {{ machines|length}}</p>
             <p>Servers: {{ server_count }}</p>
             <p>Clients: {{ client_count }}</p>
         </div>
