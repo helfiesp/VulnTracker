@@ -74,10 +74,11 @@
 <div class="single-charts-container">
 <div class="left-chart-box">
         <h2>Vulnerability information</h2>
-        <div class="statistic-square">
+            <div class="statistic-square">
         <p>
             {% if cve.description|length > 300 %}
-                {{ cve.description|slice:":300"|cut:""|rtrim }}<span class="ellipsis">...</span><span class="more-text" style="display: none;">{{ cve.description|slice:"300:" }}</span>
+                {{ cve.description|slice:":300"|cut:" " }}<span class="ellipsis">...</span>
+                <span class="more-text" style="display: none;">{{ cve.description|slice:"300:" }}</span>
                 <button class="view-more-btn" onclick="toggleDescription(this)">View More</button>
             {% else %}
                 {{ cve.description }}
