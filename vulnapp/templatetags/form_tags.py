@@ -38,16 +38,22 @@ def get_defender_criticality_level(cvssV3):
 @register.filter
 def smart_truncate(text, length=300):
     """
-    Truncate text at the nearest punctuation mark after the specified length.
+    Truncate text at the nearest punctuation mark after the specified length,
+    without removing any characters.
     """
     if len(text) <= length:
         return text
-    # Truncate the text to the nearest word first
-    truncated_text = text[:length].rsplit(' ', 1)[0]
-    # Find the nearest punctuation mark after the truncated text
-    remainder_text = text[len(truncated_text):]
-    match = re.search(r'[.!?]\s', remainder_text)
-    if match:
-        punctuation_index = len(truncated_text) + match.start() + 1
+
+    # Attempt to truncate at the nearest punctuation mark within the length limit
+    punctuation_match = re.search(r'[.!?]\s', text[length:])
+    if punctuation_match:
+        punctuation_index = length + punctuation_match.end()
         return text[:punctuation_index]
+
+    # If no punctuation is found, truncate to the nearest word within the length limit
+    truncated_text = text[:length]
+    last_space = truncated_text.rfind(' ')
+    if last_space > -1:
+        truncated_text = truncated_text[:last_space]
+
     return truncated_text + '...'
