@@ -81,13 +81,10 @@
         <button class="view-more-btn" onclick="toggleVulnDescription(this)">View More</button>
     </div>
     </div>
-
     <div class="right-chart-box">
         <h2>Affected endpoints</h2>
         <div class="statistic-square">
-            <p>Affected endpoints: {{ machines|length}}</p>
-            <p>Servers: {{ server_count }}</p>
-            <p>Clients: {{ client_count }}</p>
+            <canvas id="endpointsPieChart"></canvas>
         </div>
     </div>
 </div>
@@ -183,8 +180,6 @@
     }
 </script>
 
-
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Function to update the query parameters
@@ -227,6 +222,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </script>
 
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('endpointsPieChart').getContext('2d');
+    var serverCount = {{ server_count }};
+    var clientCount = {{ client_count }};
+    
+    var endpointsPieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Servers', 'Clients'],
+            datasets: [{
+                label: 'Affected Endpoints',
+                data: [serverCount, clientCount],
+                backgroundColor: ['#36a2eb', '#ff6384'], // Colors for the slices
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.label + ': ' + tooltipItem.raw + ' endpoints';
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
 
 {% endblock %}
 
