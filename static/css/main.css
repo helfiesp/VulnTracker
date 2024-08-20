@@ -326,6 +326,14 @@ body, html {
 }
 
 .statistic-square p {
-    margin: 10px 0; /* Spacing between statistics */
-    font-weight: bold; /* Bold font for emphasis */
+    white-space: normal; /* Allows text to wrap normally */
+    word-wrap: break-word; /* Forces long words to break to the next line if necessary */
+    overflow: hidden; /* Prevents overflow of the content */
+}
+
+.ellipsis,
+.more-text {
+    display: inline;
+    white-space: normal; /* Ensures that text within these spans also wraps */
+    word-wrap: break-word;
 }

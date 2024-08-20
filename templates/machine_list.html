@@ -4,26 +4,6 @@
 
 {% block content %}
 
-<style>
-.more-text {
-    display: none;
-}
-
-.ellipsis {
-    display: inline;
-}
-
-.view-more-btn {
-    margin-top: 5px;
-    cursor: pointer;
-    color: #007bff;
-    background: none;
-    border: none;
-    padding: 0;
-    font: inherit;
-    outline: inherit;
-}
-</style>
 <link rel="stylesheet" href="{% static 'css/filters.css' %}">
 
     
@@ -92,12 +72,12 @@
 {% else %}
 
 <div class="single-charts-container">
-    <div class="left-chart-box">
+       <div class="left-chart-box">
         <h2>Vulnerability information</h2>
         <div class="statistic-square">
             <p>
                 {% if cve.description|length > 300 %}
-                    {{ cve.description|slice:":300"|cut:" " }}...<span class="ellipsis"> </span>
+                    {{ cve.description|slice:":300"|cut:" " }}...<span class="ellipsis"></span>
                     <span class="more-text" style="display: none;">{{ cve.description|slice:"300:" }}</span>
                     <button class="view-more-btn" onclick="toggleDescription(this)">View More</button>
                 {% else %}
