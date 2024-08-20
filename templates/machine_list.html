@@ -76,10 +76,9 @@
     <div class="left-chart-box">
         <h2>Unique vulnerabilities by criticality</h2>
         <div class="statistic-square">
-            <p>Critical: 32</p>
-            <p>High: 45</p>
-            <p>Medium: 60</p>
-            <p>Low: 15</p>
+            {% for group_name, count in rbac_group_name_counts.items %}
+                <p>{{ group_name }}: {{ count }}</p>
+            {% endfor %}
         </div>
     </div>
 
@@ -119,7 +118,6 @@
           <td>{{ machine.os_platform }}</td>
           <td>{{ machine.device_info }}</td>
           <td>{{ machine.rbac_group_name }}</td>
-          <td>{{ machine.rbac_group_id }}</td>
         <td>
             <div class="comment-form">
                 <form action="{% url 'add_comment' %}" method="post">
