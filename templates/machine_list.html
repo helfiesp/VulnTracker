@@ -78,7 +78,7 @@
             <p>{{ cve.description|slice:":300" }}</p>
             {% if cve.description|length > 300 %}
                 <span class="ellipsis">...</span>
-                <span class="more-text"><p>{{ cve.description|slice:"300:" }}</p></span>
+                <span class="more-text" style="display: none;"><p>{{ cve.description|slice:"300:" }}</p></span>
                 <button class="view-more-btn" onclick="toggleDescription(this)">View More</button>
             {% endif %}
         </div>
