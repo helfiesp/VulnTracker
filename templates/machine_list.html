@@ -175,8 +175,6 @@ document.addEventListener('DOMContentLoaded', function() {
     machineTypeSelect.addEventListener('change', function() {
         window.location.href = updateQueryParams('machine_type', this.value);
     });
-
-
 });
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -217,11 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
     description.innerText = truncateText(originalText, maxLength);
     truncated = true;
 });
-
-
-
 </script>
-
 
 {% endblock %}
 
