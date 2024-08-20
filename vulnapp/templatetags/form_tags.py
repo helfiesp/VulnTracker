@@ -32,3 +32,19 @@ def get_defender_criticality_level(cvssV3):
     except ValueError:
         return "N/A"
 
+
+
+@register.filter
+def smart_truncate(text, length=300):
+    """
+    Truncate text at the nearest punctuation mark after the specified length.
+    """
+    if len(text) <= length:
+        return text
+    # Find the nearest punctuation mark after the given length
+    truncated_text = text[:length]
+    match = re.search(r'[.!?]\s', text[length:])
+    if match:
+        punctuation_index = length + match.start() + 1
+        return text[:punctuation_index]
+    return truncated_text + '...'
