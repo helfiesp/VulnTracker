@@ -376,7 +376,7 @@ def cve_list_for_machine(request, computer_dns_name):
     machine_references = MachineReference.objects.filter(computer_dns_name__icontains=computer_dns_name)
     software_list = Software.objects.filter(software_hosts__computer_dns_name__icontains=computer_dns_name).distinct()
     
-    cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct()
+    cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct().order_by('-cvssV3')
     
     token = fetch_auth_token()
     if token:
