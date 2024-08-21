@@ -172,10 +172,23 @@ document.addEventListener('DOMContentLoaded', function() {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'top',
+                    position: 'right', // Move the legend to the right
+                    labels: {
+                        font: {
+                            size: 14 // Adjust label size
+                        }
+                    }
                 },
                 tooltip: {
                     enabled: false // Disable tooltips since we show the data on the chart
+                }
+            },
+            layout: {
+                padding: {
+                    left: 0,
+                    right: 20, // Adjust padding to create space for the legend
+                    top: 0,
+                    bottom: 0
                 }
             }
         }
@@ -186,6 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('severityPieChart').style.height = '50%';
 });
 </script>
+
 
 
 <script>
