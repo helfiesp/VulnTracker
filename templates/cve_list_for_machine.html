@@ -11,44 +11,32 @@
         <div class="filter-header">
             <h2>CVEs for Machine: {{ machine_id }}</h2>
         </div>
-        <div class="filter-controls">
-            <div class="date-filter">
-                <select id="date-filter-select">
-                    <option value="past_day" {% if current_date_filter == 'past_day' %}selected{% endif %}>Past Day</option>
-                    <option value="past_week" {% if current_date_filter == 'past_week' %}selected{% endif %}>Past Week</option>
-                    <option value="past_weekend" {% if current_date_filter == 'past_weekend' %}selected{% endif %}>Past Weekend</option>
-                    <option value="this_month" {% if current_date_filter == 'this_month' %}selected{% endif %}>This Month</option>
-                </select>
-            </div>
+       <div class="filter-controls">
+    <div class="search-filter">
+        <input type="search" id="search-input" placeholder="Search vulnerabilities...">
+    </div>
 
-                <div class="keyword-filter" style="margin-top:8px">
+    <div class="keyword-filter" style="margin-top:8px">
+        <input type="checkbox" id="filter-keywords" class="sr-only">
+        <label for="filter-keywords" class="keyword-button">CISA Known exploited</label>
+    </div>
 
-                    <input type="checkbox" id="filter-keywords" class="sr-only" {% if request.GET.keywords == 'true' %}checked{% endif %}>
-                    <label for="filter-keywords" class="keyword-button">CVEs with Keywords</label>
-                </div>
+    <div class="sort-filter">
+        <select id="os-select">
+            <option value="server">Servers</option>
+            <option value="client">Clients</option>
+        </select>
+    </div>
 
-                <div class="search-filter">
-                    <input type="search" id="search-input" placeholder="Search vulnerabilities...">
-                </div>
-
-            <div class="sort-filter">
-
-            <select id="sort-select">
-                <option value="server">Servers</option>
-                <option value="client">Clients</option>
-            </select>
-        </div>
-            <div class="sort-filter">
-                <select id="sort-select" onchange="filterAndSortVulnerabilities()">
-                    <option value="cvss_score_desc">Highest CVSS Score</option>
-                    <option value="cvss_score_asc">Lowest CVSS Score</option>
-                    <option value="exposed_desc">Most Exposed Machines</option>
-                    <option value="exposed_asc">Least Exposed Machines</option>
-                    <!-- Keep other options as is -->
-                </select>
-            </div>
-            </div>
-        </div>
+    <div class="sort-filter">
+        <select id="sort-select" onchange="filterAndSortVulnerabilities()">
+            <option value="cvss_score_desc">Highest CVSS Score</option>
+            <option value="cvss_score_asc">Lowest CVSS Score</option>
+            <option value="exposed_desc">Most Exposed Machines</option>
+            <option value="exposed_asc">Least Exposed Machines</option>
+        </select>
+    </div>
+</div>
 
 <div class="single-charts-container">
 <div class="left-chart-box">
@@ -215,50 +203,73 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-
-
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const toggleViewBtn = document.getElementById('toggleViewBtn');
-    toggleViewBtn.addEventListener('click', function() {
-        let softwareList = document.getElementById('softwareList');
-        let vulnerabilitiesList = document.getElementById('vulnerabilities-list');
-        
-        // Toggle display of lists
-        softwareList.style.display = softwareList.style.display === 'none' ? '' : 'none';
-        vulnerabilitiesList.style.display = vulnerabilitiesList.style.display === 'none' ? '' : 'none';
-
-        // Update button text
-        this.textContent = softwareList.style.display === 'none' ? 'Show Software' : 'Show CVEs';
-    });
-
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const keywordCheckbox = document.getElementById('filter-keywords');
+    const osSelect = document.getElementById('os-select');
     const sortSelect = document.getElementById('sort-select');
-    sortSelect.addEventListener('change', filterAndSortVulnerabilities);
 
     function filterAndSortVulnerabilities() {
-        const option = sortSelect.value;
-        const cveList = document.querySelectorAll('.cve');
-        const sortedAndFiltered = Array.from(cveList).sort(function(a, b) {
-            switch(option) {
-                case 'cvss_score_desc':
-                    return b.dataset.cvss - a.dataset.cvss;
-                case 'cvss_score_asc':
-                    return a.dataset.cvss - b.dataset.cvss;
-                case 'exposed_desc':
-                    return b.dataset.exposedMachines - a.dataset.exposedMachines;
-                case 'exposed_asc':
-                    return a.dataset.exposedMachines - b.dataset.exposedMachines;
-                default:
-                    return 0;
-            }
+        const searchTerm = searchInput.value.toLowerCase();
+        const keywordFilter = keywordCheckbox.checked;
+        const osFilter = osSelect.value;
+        const sortOption = sortSelect.value;
+
+        let cveRows = Array.from(document.querySelectorAll('.cve-article'));
+
+        // Filter rows based on search term
+        if (searchTerm) {
+            cveRows = cveRows.filter(row => {
+                const cveTitle = row.querySelector('.cve-title-defender a').textContent.toLowerCase();
+                const description = row.querySelector('.cve-description').textContent.toLowerCase();
+                return cveTitle.includes(searchTerm) || description.includes(searchTerm);
+            });
+        }
+
+        // Filter rows based on CISA Known Exploited filter
+        if (keywordFilter) {
+            cveRows = cveRows.filter(row => {
+                return row.querySelector('.cve-title-defender a').textContent.toLowerCase().includes('cisa');
+            });
+        }
+
+        // Filter rows based on OS type (server or client)
+        if (osFilter) {
+            cveRows = cveRows.filter(row => {
+                return row.querySelector('.cve-title-defender a').textContent.toLowerCase().includes(osFilter);
+            });
+        }
+
+        // Sort rows based on the selected sorting option
+        cveRows.sort((a, b) => {
+            const scoreA = parseFloat(a.querySelector('.cvss-score-td').textContent) || 0;
+            const scoreB = parseFloat(b.querySelector('.cvss-score-td').textContent) || 0;
+            const exposedA = parseInt(a.querySelector('.affected-systems').textContent) || 0;
+            const exposedB = parseInt(b.querySelector('.affected-systems').textContent) || 0;
+
+            if (sortOption === 'cvss_score_desc') return scoreB - scoreA;
+            if (sortOption === 'cvss_score_asc') return scoreA - scoreB;
+            if (sortOption === 'exposed_desc') return exposedB - exposedA;
+            if (sortOption === 'exposed_asc') return exposedA - exposedB;
         });
 
-        const vulnerabilitiesList = document.querySelector('.vulnerabilities-list');
-        vulnerabilitiesList.innerHTML = '';
-        sortedAndFiltered.forEach(function(cve) {
-            vulnerabilitiesList.appendChild(cve);
-        });
+        // Clear the table body
+        const tbody = document.querySelector('.cve-table tbody');
+        tbody.innerHTML = '';
+
+        // Reinsert the filtered and sorted rows
+        cveRows.forEach(row => tbody.appendChild(row));
     }
+
+    // Attach event listeners to trigger filtering and sorting
+    searchInput.addEventListener('input', filterAndSortVulnerabilities);
+    keywordCheckbox.addEventListener('change', filterAndSortVulnerabilities);
+    osSelect.addEventListener('change', filterAndSortVulnerabilities);
+    sortSelect.addEventListener('change', filterAndSortVulnerabilities);
+
+    // Initial filter and sort when the page loads
+    filterAndSortVulnerabilities();
 });
 </script>
 
