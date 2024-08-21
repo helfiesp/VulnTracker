@@ -364,3 +364,12 @@ body, html {
     font: inherit;
     cursor: pointer;
 }
+
+.affected-systems {
+    text-align: center;
+    font-weight: bold;
+}
+.cve-title-defender {
+    color:black;
+    text-decoration: none;
+}
