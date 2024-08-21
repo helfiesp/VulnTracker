@@ -94,9 +94,19 @@
                 <td>
                     <a style="text-decoration: none; color: black;" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{ cve.name }}"><span class="cve-title">{{ cve.name }}</span></a>
                 </td>
-                    <td class="cvss-score-td">
-                        {{ cve.cvssV3 }}
-                    </td>
+                </td>
+                {% if cve.severity == "Critical" %}
+                    <td class="cvss-score-td" style="background-color: #D32F2F;">{{ cve.cvssV3 }} </td>
+                {% elif cve.severity == "High" %}
+                    <td class="cvss-score-td" style="background-color: #FF5722;">{{ cve.cvssV3 }} </td>
+                {% elif cve.severity == "Medium" %}
+                    <td class="cvss-score-td" style="background-color: #FFC107;">{{ cve.cvssV3 }} </td>
+                {% elif cve.severity == "Low" %}
+                    <td class="cvss-score-td" style="background-color: #8BC34A;">{{ cve.cvssV3 }} </td>
+                {% else %}
+                    <td class="cvss-score-td" style="background-color: #00BCD4;">N/A</td>
+                {% endif %}
+
 
 
                 <td style="max-width:400px">
@@ -147,15 +157,15 @@ document.addEventListener('DOMContentLoaded', function() {
     var backgroundColors = labels.map(function(severity) {
         switch (severity) {
             case 'Critical':
-                return '#ff6384'; // Red
+                return '#D32F2F'; // Red
             case 'High':
-                return '#ff9f40'; // Orange
+                return '#FF5722'; // Orange
             case 'Medium':
-                return '#ffcd56'; // Yellow
+                return '#FFC107'; // Yellow
             case 'Low':
-                return '#4bc0c0'; // Teal
+                return '#8BC34A'; // Teal
             default:
-                return '#36a2eb'; // Blue
+                return '#00BCD4'; // Blue
         }
     });
 
