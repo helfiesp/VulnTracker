@@ -384,6 +384,11 @@ def cve_list_for_machine(request, computer_dns_name):
         if api_cves:
             cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct()
 
+    # Extract device info and machine-specific data from one entry in machine_references
+    example_reference = None
+    if machine_references.exists():
+        example_reference = machine_references.first()
+
     # Create the statistics dictionary
     severity_statistics = cves.values('severity').annotate(count=Count('severity'))
 
@@ -395,7 +400,7 @@ def cve_list_for_machine(request, computer_dns_name):
         'software_list': software_list,
         'machine_id': computer_dns_name,
         'severity_stats': json.dumps(severity_stats_dict),
-        'machine_reference': machine_references,
+        'machine_reference': example_reference, 
     }
     return render(request, 'cve_list_for_machine.html', context)
 
