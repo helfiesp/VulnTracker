@@ -211,14 +211,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const osSelect = document.getElementById('os-select');
     const sortSelect = document.getElementById('sort-select');
 
-    // Define the function globally so it can be called in inline events or elsewhere
     window.filterAndSortVulnerabilities = function() {
         const searchTerm = searchInput.value.toLowerCase();
         const keywordFilter = keywordCheckbox.checked;
-        const osFilter = osSelect.value.toLowerCase(); // Convert OS filter to lowercase
+        const osFilter = osSelect.value.toLowerCase();
         const sortOption = sortSelect.value;
 
         let cveRows = Array.from(document.querySelectorAll('.cve-article'));
+
+        console.log("Initial CVE rows:", cveRows.length);
 
         // Filter rows based on search term
         if (searchTerm) {
@@ -227,22 +228,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 const description = row.querySelector('.cve-description').textContent.toLowerCase();
                 return cveTitle.includes(searchTerm) || description.includes(searchTerm);
             });
+            console.log("After search filter:", cveRows.length);
         }
 
         // Filter rows based on CISA Known Exploited filter
         if (keywordFilter) {
             cveRows = cveRows.filter(row => {
                 const cveTitle = row.querySelector('.cve-title-defender a').textContent.toLowerCase();
-                return cveTitle.includes('cisa'); // Adjust this to your actual CISA keyword check
+                return cveTitle.includes('cisa'); // Adjust to actual condition
             });
+            console.log("After keyword filter:", cveRows.length);
         }
 
         // Filter rows based on OS type (server or client)
-        if (osFilter && osFilter !== 'all') { // Assuming 'all' is the default or no filter option
+        if (osFilter && osFilter !== 'all') {
             cveRows = cveRows.filter(row => {
                 const osType = row.querySelector('.cve-title-defender a').textContent.toLowerCase();
                 return osType.includes(osFilter);
             });
+            console.log("After OS filter:", cveRows.length);
         }
 
         // Sort rows based on the selected sorting option
@@ -258,12 +262,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (sortOption === 'exposed_asc') return exposedA - exposedB;
         });
 
-        // Clear the table body
-        const tbody = document.querySelector('.cve-table tbody');
-        tbody.innerHTML = '';
+        console.log("After sorting:", cveRows.length);
 
-        // Reinsert the filtered and sorted rows
-        cveRows.forEach(row => tbody.appendChild(row));
+        // Clear the table body (commented out for debugging)
+        // const tbody = document.querySelector('.cve-table tbody');
+        // tbody.innerHTML = '';
+
+        // Log the filtered and sorted rows
+        cveRows.forEach(row => console.log(row));
+
+        // Reinsert the filtered and sorted rows (commented out for debugging)
+        // cveRows.forEach(row => tbody.appendChild(row));
     }
 
     // Attach event listeners to trigger filtering and sorting
@@ -276,6 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
     filterAndSortVulnerabilities();
 });
 </script>
+
 
 
 {% endblock %}
