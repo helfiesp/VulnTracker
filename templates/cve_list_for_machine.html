@@ -203,6 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- Filtering and Sorting Script -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search-input');
@@ -210,7 +211,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const osSelect = document.getElementById('os-select');
     const sortSelect = document.getElementById('sort-select');
 
-    function filterAndSortVulnerabilities() {
+    // Define the function globally so it can be called in inline events or elsewhere
+    window.filterAndSortVulnerabilities = function() {
         const searchTerm = searchInput.value.toLowerCase();
         const keywordFilter = keywordCheckbox.checked;
         const osFilter = osSelect.value;
@@ -272,6 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
     filterAndSortVulnerabilities();
 });
 </script>
+
 
 
 
