@@ -64,7 +64,7 @@
     <div class="right-chart-box">
         <h2>Affected endpoints</h2>
         <div class="statistic-square-chart">
-            <canvas id="endpointsPieChart"></canvas>
+            <canvas id="severityPieChart"></canvas>
         </div>
     </div>
 </div>
@@ -129,49 +129,6 @@
 </main>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const toggleViewBtn = document.getElementById('toggleViewBtn');
-    toggleViewBtn.addEventListener('click', function() {
-        let softwareList = document.getElementById('softwareList');
-        let vulnerabilitiesList = document.getElementById('vulnerabilities-list');
-        
-        // Toggle display of lists
-        softwareList.style.display = softwareList.style.display === 'none' ? '' : 'none';
-        vulnerabilitiesList.style.display = vulnerabilitiesList.style.display === 'none' ? '' : 'none';
-
-        // Update button text
-        this.textContent = softwareList.style.display === 'none' ? 'Show Software' : 'Show CVEs';
-    });
-
-    const sortSelect = document.getElementById('sort-select');
-    sortSelect.addEventListener('change', filterAndSortVulnerabilities);
-
-    function filterAndSortVulnerabilities() {
-        const option = sortSelect.value;
-        const cveList = document.querySelectorAll('.cve');
-        const sortedAndFiltered = Array.from(cveList).sort(function(a, b) {
-            switch(option) {
-                case 'cvss_score_desc':
-                    return b.dataset.cvss - a.dataset.cvss;
-                case 'cvss_score_asc':
-                    return a.dataset.cvss - b.dataset.cvss;
-                case 'exposed_desc':
-                    return b.dataset.exposedMachines - a.dataset.exposedMachines;
-                case 'exposed_asc':
-                    return a.dataset.exposedMachines - b.dataset.exposedMachines;
-                default:
-                    return 0;
-            }
-        });
-
-        const vulnerabilitiesList = document.querySelector('.vulnerabilities-list');
-        vulnerabilitiesList.innerHTML = '';
-        sortedAndFiltered.forEach(function(cve) {
-            vulnerabilitiesList.appendChild(cve);
-        });
-    }
-});
-
 document.addEventListener('DOMContentLoaded', function() {
     var ctx = document.getElementById('severityPieChart').getContext('2d');
     
@@ -229,6 +186,54 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('severityPieChart').style.height = '50%';
 });
 </script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleViewBtn = document.getElementById('toggleViewBtn');
+    toggleViewBtn.addEventListener('click', function() {
+        let softwareList = document.getElementById('softwareList');
+        let vulnerabilitiesList = document.getElementById('vulnerabilities-list');
+        
+        // Toggle display of lists
+        softwareList.style.display = softwareList.style.display === 'none' ? '' : 'none';
+        vulnerabilitiesList.style.display = vulnerabilitiesList.style.display === 'none' ? '' : 'none';
+
+        // Update button text
+        this.textContent = softwareList.style.display === 'none' ? 'Show Software' : 'Show CVEs';
+    });
+
+    const sortSelect = document.getElementById('sort-select');
+    sortSelect.addEventListener('change', filterAndSortVulnerabilities);
+
+    function filterAndSortVulnerabilities() {
+        const option = sortSelect.value;
+        const cveList = document.querySelectorAll('.cve');
+        const sortedAndFiltered = Array.from(cveList).sort(function(a, b) {
+            switch(option) {
+                case 'cvss_score_desc':
+                    return b.dataset.cvss - a.dataset.cvss;
+                case 'cvss_score_asc':
+                    return a.dataset.cvss - b.dataset.cvss;
+                case 'exposed_desc':
+                    return b.dataset.exposedMachines - a.dataset.exposedMachines;
+                case 'exposed_asc':
+                    return a.dataset.exposedMachines - b.dataset.exposedMachines;
+                default:
+                    return 0;
+            }
+        });
+
+        const vulnerabilitiesList = document.querySelector('.vulnerabilities-list');
+        vulnerabilitiesList.innerHTML = '';
+        sortedAndFiltered.forEach(function(cve) {
+            vulnerabilitiesList.appendChild(cve);
+        });
+    }
+});
+</script>
+
+
 
 
 
