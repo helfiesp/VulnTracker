@@ -328,7 +328,7 @@ body, html {
 .statistic-square-chart {
     position: relative;
     height: 200px; /* Adjust according to your needs */
-    width: 200px;  /* Adjust according to your needs */
+    width: 400px;  /* Adjust according to your needs */
     margin: auto;
 }
 
