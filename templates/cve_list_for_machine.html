@@ -95,9 +95,8 @@
                     <a style="text-decoration: none; color: black;" target="_blank" href="https://nvd.nist.gov/vuln/detail/{{ cve.name }}"><span class="cve-title">{{ cve.name }}</span></a>
                 </td>
                     <td class="cvss-score-td">
-                        <div class="cve-tag cve-criticality {{ cve.severity }}">
-                            {{ cve.severity }} {{ cve.cvssV3 }}
-                        </div></td>
+                        {{ cve.cvssV3 }}
+                    </td>
 
 
                 <td style="max-width:400px">
