@@ -55,8 +55,13 @@
     <h2>Endpoint information</h2>
  <div class="statistic-square">
         <p id="vulnerability-description">
-            Name: {{ machine_reference.computer_dns_name}}<br>
-            OS: {{ machine_reference.os_platform}}
+            <b>Name:</b> {{ machine_reference.computer_dns_name}}<br>
+            <b>OS:</b> {{ machine_reference.os_platform}}<br><br>
+
+            {% if machine_reference.device %}
+            <b>Device type</b>: {{ machine_reference.device.device_type }}
+
+            {% endif %}
         </p>
 
     </div>
