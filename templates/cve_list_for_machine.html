@@ -51,12 +51,20 @@
         </div>
 
 <div class="single-charts-container">
-    <div class="chart-container">
-        <h2>Unique vulnerabilities by criticality</h2>
-        <canvas id="vulnerabilityChart"></canvas>
+<div class="left-chart-box">
+    <h2>Endpoint information</h2>
+ <div class="statistic-square">
+        <p id="vulnerability-description">
+            {{ cve.description }}
+        </p>
+        <button class="view-more-btn" onclick="toggleVulnDescription(this)">View More</button>
     </div>
-    <div class="right-chart-container">
-        <h2>All vulnerabilities by criticality</h2>
+    </div>
+    <div class="right-chart-box">
+        <h2>Affected endpoints</h2>
+        <div class="statistic-square-chart">
+            <canvas id="endpointsPieChart"></canvas>
+        </div>
     </div>
 </div>
 
@@ -163,84 +171,63 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Define severity colors
-    const severityColors = {
-        'Critical': 'rgba(200, 0, 0, 1)',      // Dark red for Critical
-        'High': 'rgba(255, 99, 132, 1)',       // Red for High
-        'Medium': 'rgba(255, 206, 86, 1)',     // Yellow for Medium
-        'Low': 'rgba(75, 192, 192, 1)',        // Green for Low
-        'Known_Exploited': 'rgba(139, 0, 0, 1)' // Dark red for Known Exploited
-    };
+d<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('severityPieChart').getContext('2d');
+    
+    // Data passed from Django to JavaScript
+    var severityStats = JSON.parse('{{ severity_stats|escapejs }}');
+    
+    // Extracting the keys (severity levels) and values (counts)
+    var labels = Object.keys(severityStats);
+    var data = Object.values(severityStats);
+    
+    // Define colors for each severity level
+    var backgroundColors = labels.map(function(severity) {
+        switch (severity) {
+            case 'Critical':
+                return '#ff6384'; // Red
+            case 'High':
+                return '#ff9f40'; // Orange
+            case 'Medium':
+                return '#ffcd56'; // Yellow
+            case 'Low':
+                return '#4bc0c0'; // Teal
+            default:
+                return '#36a2eb'; // Blue
+        }
+    });
 
-    // Safely retrieve data
-    const vulnerabilityStats = {{ stats.vulnerabilities|default:"{}"|safe }};
-    const exposedMachinesStats = {{ stats.exposed_machines|default:"{}"|safe }};
-
-    // Ensure there's valid data before proceeding
-    if (Object.keys(vulnerabilityStats).length > 0) {
-        const vulnerabilityLabels = Object.keys(vulnerabilityStats);
-        const vulnerabilityDataValues = Object.values(vulnerabilityStats);
-
-        const vulnerabilityData = {
-            labels: vulnerabilityLabels,
+    var severityPieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels.map(function(label, index) {
+                return label + ": " + data[index];
+            }),
             datasets: [{
-                label: 'Vulnerabilities by Severity',
-                data: vulnerabilityDataValues,
-                backgroundColor: vulnerabilityLabels.map(label => severityColors[label.replace(' ', '_')] || 'rgba(54, 162, 235, 0.2)'),
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
+                data: data,
+                backgroundColor: backgroundColors,
+                hoverOffset: 4
             }]
-        };
-
-        const ctxVulnerability = document.getElementById('vulnerabilityChart').getContext('2d');
-        new Chart(ctxVulnerability, {
-            type: 'bar',
-            data: vulnerabilityData,
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    enabled: false // Disable tooltips since we show the data on the chart
                 }
             }
-        });
-    } else {
-        console.error('No vulnerability data available.');
-    }
+        }
+    });
 
-    if (Object.keys(exposedMachinesStats).length > 0) {
-        const exposedMachinesLabels = Object.keys(exposedMachinesStats);
-        const exposedMachinesDataValues = Object.values(exposedMachinesStats);
-
-        const exposedMachinesData = {
-            labels: exposedMachinesLabels,
-            datasets: [{
-                label: 'Exposed Machines by Severity',
-                data: exposedMachinesDataValues,
-                backgroundColor: exposedMachinesLabels.map(label => severityColors[label.replace(' ', '_')] || 'rgba(255, 99, 132, 0.2)'),
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            }]
-        };
-
-        const ctxExposedMachines = document.getElementById('exposedMachinesChart').getContext('2d');
-        new Chart(ctxExposedMachines, {
-            type: 'bar',
-            data: exposedMachinesData,
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    } else {
-        console.error('No exposed machines data available.');
-    }
+    // Optionally, you can adjust the canvas size directly via CSS or here in the script
+    document.getElementById('severityPieChart').style.width = '50%';
+    document.getElementById('severityPieChart').style.height = '50%';
 });
-
 </script>
 
 
