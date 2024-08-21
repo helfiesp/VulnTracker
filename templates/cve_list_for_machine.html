@@ -55,9 +55,10 @@
     <h2>Endpoint information</h2>
  <div class="statistic-square">
         <p id="vulnerability-description">
-            {{ cve.description }}
+            Name: {{ machine_reference.computer_dns_name}}<br>
+            OS: {{ machine_reference.os_platform}}
         </p>
-        <button class="view-more-btn" onclick="toggleVulnDescription(this)">View More</button>
+
     </div>
     </div>
     <div class="right-chart-box">
@@ -171,7 +172,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-d<script>
 document.addEventListener('DOMContentLoaded', function() {
     var ctx = document.getElementById('severityPieChart').getContext('2d');
     
