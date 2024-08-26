@@ -1115,4 +1115,5 @@ def public_ip_list(request):
 
 def device_list(request):
     devices = Device.objects.all()  # Fetch all devices from the database
-    return render(request, 'device_list.html', {'devices': devices})
+    device_length = len(devices)
+    return render(request, 'device_list.html', {'devices': devices, 'count':device_length})
