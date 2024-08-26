@@ -73,7 +73,7 @@ class Command(BaseCommand):
                         os_version = vm['properties'].get('osProfile', {}).get('windowsConfiguration', {}).get('additionalUnattendContent', [{}])[0].get('content', None)
                         compliance_state = vm.get('properties', {}).get('provisioningState', None)
                         last_sync = vm.get('properties', {}).get('instanceView', {}).get('statuses', [{}])[0].get('time', None)
-                        
+                        print(vm)
                         # Check if the device already exists
                         device = Device.objects.filter(device_id=vm_id).first()
                         if device:
