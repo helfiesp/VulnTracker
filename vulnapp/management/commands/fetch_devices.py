@@ -33,9 +33,14 @@ class Command(BaseCommand):
         response = requests.get(url, headers=headers)
 
         if response.status_code == 200:
-            return response.json().get("value", [])
+            vms = response.json().get("value", [])
+            self.stdout.write(self.style.SUCCESS(f"Found {len(vms)} VMs in resource group {resource_group_name} under subscription {subscription_id}."))
+            return vms
+        elif response.status_code == 404:
+            self.stdout.write(self.style.WARNING(f"No VMs found or resource group not found: {resource_group_name} in subscription {subscription_id}. Response: {response.text}"))
+            return []  # Return an empty list if no VMs are found
         else:
-            self.stdout.write(self.style.ERROR(f"Failed to fetch VMs for resource group {resource_group_name} in subscription {subscription_id}: {response.status_code}"))
+            self.stdout.write(self.style.ERROR(f"Failed to fetch VMs for resource group {resource_group_name} in subscription {subscription_id}: {response.status_code} - {response.text}"))
             return []
 
     def handle(self, *args, **options):
@@ -63,17 +68,29 @@ class Command(BaseCommand):
                     # Fetch all VMs in the resource group
                     vms = self.fetch_vms_in_resource_group(subscription.subscription_id, resource_group.name, headers)
 
+                    if not vms:
+                        self.stdout.write(self.style.WARNING(f"No VMs found in resource group {resource_group.name}."))
+                        continue  # Skip to the next resource group if no VMs found
+
                     to_create = []
                     to_update = []
 
                     for vm in vms:
-                        vm_id = vm['id']
-                        vm_name = vm['name']
-                        os_type = vm['properties']['storageProfile']['osDisk']['osType'] if 'storageProfile' in vm['properties'] and 'osDisk' in vm['properties']['storageProfile'] else None
-                        os_version = vm['properties'].get('osProfile', {}).get('windowsConfiguration', {}).get('additionalUnattendContent', [{}])[0].get('content', None)
+                        # Extracting VM details
+                        vm_id = vm.get('id', None)
+                        vm_name = vm.get('name', None)
+                        os_type = vm.get('properties', {}).get('storageProfile', {}).get('osDisk', {}).get('osType', None)
+                        os_version = vm.get('properties', {}).get('osProfile', {}).get('windowsConfiguration', {}).get('additionalUnattendContent', [{}])[0].get('content', None)
                         compliance_state = vm.get('properties', {}).get('provisioningState', None)
                         last_sync = vm.get('properties', {}).get('instanceView', {}).get('statuses', [{}])[0].get('time', None)
-                        print(vm)
+                        
+                        # Debug output to verify VM details
+                        self.stdout.write(f"Processing VM: {vm_name}, ID: {vm_id}, OS: {os_type}, OS Version: {os_version}")
+
+                        if not vm_id or not vm_name:
+                            self.stdout.write(self.style.ERROR(f"VM details are incomplete: {vm}"))
+                            continue  # Skip this VM if critical details are missing
+
                         # Check if the device already exists
                         device = Device.objects.filter(device_id=vm_id).first()
                         if device:
