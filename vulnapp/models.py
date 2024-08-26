@@ -310,7 +310,7 @@ class Subscription(models.Model):
         return f"{self.display_name} ({self.subscription_id})"
 
 class ResourceGroup(models.Model):
-    resource_group_id = models.CharField(max_length=100, unique=True)
+    resource_group_id = models.CharField(max_length=100, unique=True)  # This remains as is
     subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE, related_name='resource_groups')
     name = models.CharField(max_length=255)
     location = models.CharField(max_length=100)

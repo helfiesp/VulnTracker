@@ -2,7 +2,7 @@ import os
 import json
 import requests
 from django.core.management.base import BaseCommand, CommandError
-from vulnapp.models import ResourceGroup, ScanStatus
+from vulnapp.models import ResourceGroup, Subscription, ScanStatus
 from vulnapp import secrets
 
 class Command(BaseCommand):
@@ -47,8 +47,17 @@ class Command(BaseCommand):
             processed_count = 0
 
             # Iterate over each subscription to fetch resource groups
-            for subscription in subscriptions:
-                subscription_id = subscription['subscriptionId']
+            for subscription_data in subscriptions:
+                subscription_id = subscription_data['subscriptionId']
+                subscription_obj, _ = Subscription.objects.get_or_create(
+                    subscription_id=subscription_id,
+                    defaults={
+                        'display_name': subscription_data.get('displayName', ''),
+                        'state': subscription_data.get('state', ''),
+                        'tenant_id': subscription_data.get('tenantId', None),
+                    }
+                )
+                
                 base_url = f"https://management.azure.com/subscriptions/{subscription_id}/resourcegroups"
                 api_version = "2022-12-01"
                 url = f"{base_url}?api-version={api_version}"
@@ -62,7 +71,7 @@ class Command(BaseCommand):
                         ResourceGroup.objects.update_or_create(
                             resource_group_id=rg_data['id'],
                             defaults={
-                                'subscription_id': subscription_id,
+                                'subscription': subscription_obj,
                                 'name': rg_data['name'],
                                 'location': rg_data['location'],
                                 'managed_by': rg_data.get('managedBy'),
