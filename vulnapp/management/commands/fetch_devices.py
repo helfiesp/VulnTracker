@@ -36,7 +36,8 @@ class Command(BaseCommand):
 
         if response.status_code == 200:
             vms = response.json().get("value", [])
-            self.stdout.write(self.style.SUCCESS(f"Found {len(vms)} VMs in resource group {resource_group_name} under subscription {subscription_id}."))
+            if len(vms):
+                self.stdout.write(self.style.SUCCESS(f"Found {len(vms)} VMs in resource group {resource_group_name} under subscription {subscription_id}."))
             return vms
         elif response.status_code == 404:
             return []  # Return an empty list if no VMs are found
