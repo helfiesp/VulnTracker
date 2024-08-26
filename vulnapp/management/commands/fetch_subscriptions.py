@@ -44,8 +44,7 @@ class Command(BaseCommand):
             response = requests.get(url, headers=headers)
 
             if response.status_code == 200:
-                subscriptions = response.json()
-                print(subscriptions)
+                subscriptions = response.json()["value"]
                 processed_count = 0
                 for sub_data in subscriptions:
                     processed_count += 1
