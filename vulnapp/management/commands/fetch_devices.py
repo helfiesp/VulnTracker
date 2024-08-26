@@ -29,7 +29,9 @@ class Command(BaseCommand):
 
     def fetch_vms_in_resource_group(self, subscription_id, resource_group_name, headers):
         """Fetches all VMs in a specific resource group."""
-        url = f"https://management.azure.com/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/Microsoft.Compute/virtualMachines?api-version=2022-12-01"
+        # Updated API version to a supported one
+        api_version = "2023-09-01"  # Use a supported API version
+        url = f"https://management.azure.com/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/Microsoft.Compute/virtualMachines?api-version={api_version}"
         response = requests.get(url, headers=headers)
 
         if response.status_code == 200:
