@@ -90,11 +90,16 @@ class Device(models.Model):
     compliance_state = models.CharField(max_length=100, null=True, blank=True)
     is_managed = models.BooleanField(default=False, null=True)  # Set default value
     is_compliant = models.BooleanField(default=False, null=True)
-    vulnerabilities = models.ManyToManyField(Vulnerability, through=MachineReference, related_name='devices')
     last_updated = models.DateTimeField(auto_now=True)
+
+    subscription = models.ForeignKey('Subscription', on_delete=models.CASCADE, related_name='devices', null=True, blank=True)
+    resource_group = models.ForeignKey('ResourceGroup', on_delete=models.CASCADE, related_name='devices', null=True, blank=True)
+
+    vulnerabilities = models.ManyToManyField('Vulnerability', through='MachineReference', related_name='devices')
 
     def __str__(self):
         return self.display_name or self.device_id
+
 
 class HaveIBeenPwnedBreaches(models.Model):
     # Model to keep track of haveibeenpwned breaches 
