@@ -45,6 +45,7 @@ class Command(BaseCommand):
 
             if response.status_code == 200:
                 subscriptions = response.json()["value"]
+                print(subscriptions)
                 processed_count = 0
                 for sub_data in subscriptions:
                     processed_count += 1
