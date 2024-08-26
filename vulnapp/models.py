@@ -291,3 +291,15 @@ class PublicIP(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Subscription(models.Model):
+    subscription_id = models.CharField(max_length=100, unique=True)
+    display_name = models.CharField(max_length=255)
+    state = models.CharField(max_length=50)
+    tenant_id = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.display_name} ({self.subscription_id})"
