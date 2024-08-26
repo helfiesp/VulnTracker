@@ -303,3 +303,16 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f"{self.display_name} ({self.subscription_id})"
+
+class ResourceGroup(models.Model):
+    resource_group_id = models.CharField(max_length=100, unique=True)
+    subscription_id = models.CharField(max_length=100)
+    name = models.CharField(max_length=255)
+    location = models.CharField(max_length=100)
+    managed_by = models.CharField(max_length=255, blank=True, null=True)
+    provisioning_state = models.CharField(max_length=50, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.resource_group_id})"
