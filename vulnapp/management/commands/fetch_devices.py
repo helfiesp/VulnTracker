@@ -39,10 +39,8 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f"Found {len(vms)} VMs in resource group {resource_group_name} under subscription {subscription_id}."))
             return vms
         elif response.status_code == 404:
-            self.stdout.write(self.style.WARNING(f"No VMs found or resource group not found: {resource_group_name} in subscription {subscription_id}. Response: {response.text}"))
             return []  # Return an empty list if no VMs are found
         else:
-            self.stdout.write(self.style.ERROR(f"Failed to fetch VMs for resource group {resource_group_name} in subscription {subscription_id}: {response.status_code} - {response.text}"))
             return []
 
     def handle(self, *args, **options):
@@ -64,14 +62,12 @@ class Command(BaseCommand):
             for subscription in subscriptions:
                 # Fetch all resource groups within the subscription
                 resource_groups = ResourceGroup.objects.filter(subscription=subscription)
-                self.stdout.write(f"Processing {resource_groups.count()} resource groups in subscription {subscription.subscription_id} ({subscription.display_name})")
 
                 for resource_group in resource_groups:
                     # Fetch all VMs in the resource group
                     vms = self.fetch_vms_in_resource_group(subscription.subscription_id, resource_group.name, headers)
 
                     if not vms:
-                        self.stdout.write(self.style.WARNING(f"No VMs found in resource group {resource_group.name}."))
                         continue  # Skip to the next resource group if no VMs found
 
                     to_create = []
