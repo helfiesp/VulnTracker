@@ -3,7 +3,7 @@ import json
 import requests
 from dateutil.parser import parse
 from django.core.management.base import BaseCommand, CommandError
-from vunlapp.models import Subscription, ScanStatus
+from vulnapp.models import Subscription, ScanStatus
 from vulnapp import secrets
 
 class Command(BaseCommand):
