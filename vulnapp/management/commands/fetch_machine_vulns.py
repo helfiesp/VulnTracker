@@ -86,6 +86,8 @@ class Command(BaseCommand):
                 to_create = []
 
                 for machine_data in machine_references_data:
+                    if "frax.internal.cloudapp.net" in machine_data['computerDnsName']:
+                        continue
                     machine_id = machine_data['id']
                     if machine_id in seen_machine_ids:
                         continue
@@ -94,7 +96,7 @@ class Command(BaseCommand):
                     to_create.append(MachineReference(
                         vulnerability=vulnerability,
                         machine_id=machine_id,
-                        computer_dns_name=machine_data['computerDnsName'],
+                        computer_dns_name=machine_data['computerDnsName'].replace(".psr.local", ""),
                         os_platform=machine_data['osPlatform'],
                         rbac_group_name=machine_data.get('rbacGroupName', ''),
                         rbac_group_id=machine_data.get('rbacGroupId', 0),
