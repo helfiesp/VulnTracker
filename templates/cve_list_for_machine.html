@@ -43,6 +43,7 @@
     <h2>Endpoint information</h2>
  <div class="statistic-square">
         <p id="vulnerability-description">
+            {{ sev_stats_raw }}
             <b>Name:</b> {{ machine_reference.computer_dns_name}}<br>
             <b>OS:</b> {{ machine_reference.os_platform}}<br>
             <b>Subscription: </b>{{ device_info.subscription|filter_device_info }}<br>
