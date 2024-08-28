@@ -71,7 +71,7 @@
 {% else %}
 
 
-            {{ device_vulnerability_stats }}<br>
+
             {{ total_vulnerabilities }}<br>
             {{ severity_stats_dict }}
 <div class="single-charts-container">
@@ -234,26 +234,49 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    var ctx = document.getElementById('endpointsPieChart').getContext('2d');
-    var serverCount = {{ server_count }};
-    var clientCount = {{ client_count }};
+    var ctx = document.getElementById('severityPieChart').getContext('2d');
     
-    var endpointsPieChart = new Chart(ctx, {
+    // Data passed from Django to JavaScript
+    var severityStats = JSON.parse('{{ severity_stats_dict|escapejs }}');
+    
+    // Extracting the keys (severity levels) and values (counts)
+    var labels = Object.keys(severityStats);
+    var data = Object.values(severityStats);
+    
+    // Define colors for each severity level
+    var backgroundColors = labels.map(function(severity) {
+        switch (severity) {
+            case 'Critical':
+                return '#D32F2F'; // Red
+            case 'High':
+                return '#FF5722'; // Orange
+            case 'Medium':
+                return '#FFC107'; // Yellow
+            case 'Low':
+                return '#8BC34A'; // Teal
+            default:
+                return '#00BCD4'; // Blue
+        }
+    });
+
+    var severityPieChart = new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: ['Servers: ' + serverCount, 'Clients: ' + clientCount],
+            labels: labels.map(function(label, index) {
+                return label + ": " + data[index];
+            }),
             datasets: [{
-                data: [serverCount, clientCount],
-                backgroundColor: ['#36a2eb', '#ff6384'], // Colors for the slices
+                data: data,
+                backgroundColor: backgroundColors,
                 hoverOffset: 4
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false, // Allows for manual control over size
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'left',
+                    position: 'left', // Move the legend to the left
                     labels: {
                         font: {
                             size: 14 // Adjust label size
@@ -261,15 +284,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 tooltip: {
-                    enabled: false // Disable tooltips since we're showing the data on the chart
+                    enabled: false // Disable tooltips since we show the data on the chart
+                }
+            },
+            layout: {
+                padding: {
+                    left: 0,
+                    right: 20, // Adjust padding to create space for the legend
+                    top: 0,
+                    bottom: 0
                 }
             }
         }
     });
 
-    // Resize the canvas to 50% of its original size
-    document.getElementById('endpointsPieChart').style.width = '50%';
-    document.getElementById('endpointsPieChart').style.height = '50%';
+    // Optionally, you can adjust the canvas size directly via CSS or here in the script
+    document.getElementById('severityPieChart').style.width = '50%';
+    document.getElementById('severityPieChart').style.height = '50%';
 });
 </script>
 
