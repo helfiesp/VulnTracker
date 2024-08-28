@@ -237,8 +237,8 @@ document.addEventListener('DOMContentLoaded', function() {
         var ctx = document.getElementById('severityPieChart').getContext('2d');
         
         // Data from the Django context
-        var severityLabels = {{ severity_stats_dict.keys|safe }};
-        var severityData = {{ severity_stats_dict.values|safe }};
+        var severityLabels = {{ severity_stats_dict }};
+        var severityData = {{ severity_stats_dict }};
         
         var severityPieChart = new Chart(ctx, {
             type: 'pie',
