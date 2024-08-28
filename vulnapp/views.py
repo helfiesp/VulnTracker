@@ -1138,21 +1138,44 @@ def device_list(request):
 
 def devices_in_subscription(request, subscription_id):
     """
-    View function to show all devices within a specific subscription.
+    View function to show all devices within a specific subscription
+    and provide statistics on vulnerabilities.
     """
     # Fetch the subscription object
     subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
     
     # Fetch all devices related to the subscription
     devices = Device.objects.filter(subscription=subscription)
-    
+
+    # Annotate each device with the count of vulnerabilities associated with it
+    devices_with_vuln_count = devices.annotate(vuln_count=Count('vulnerabilities'))
+
+    # Fetch overall statistics of vulnerabilities across all devices in the subscription
+    overall_vuln_stats = (
+        Vulnerability.objects.filter(devices__subscription=subscription)
+        .values('severity')
+        .annotate(total_count=Count('severity'))
+    )
+
+    # Combine all entries of each severity level into a single dictionary element
+    overall_severity_stats_dict = {}
+    for entry in overall_vuln_stats:
+        severity = entry['severity']
+        total_count = entry['total_count']
+        if severity in overall_severity_stats_dict:
+            overall_severity_stats_dict[severity] += total_count
+        else:
+            overall_severity_stats_dict[severity] = total_count
+
     context = {
         'subscription': subscription,
-        'devices': devices,
-        'device_count': len(devices)
+        'devices': devices_with_vuln_count,
+        'device_count': devices_with_vuln_count.count(),
+        'overall_vuln_stats': overall_severity_stats_dict
     }
     
     return render(request, 'subscription_devices.html', context)
+
 
 
 def devices_in_resource_group(request, resource_group_id):

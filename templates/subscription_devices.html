@@ -77,6 +77,7 @@
         <p id="vulnerability-description">
             <b>Subscription:</b> {{ subscription|filter_device_info }}<br>
             <b>Devices:</b> {{ device_count }}<br>
+            <b>{{ overall_vuln_stats }}
         </p>
 
     </div>
@@ -101,6 +102,7 @@
                 <th>Device Type</th>
 
                 <th>Last Updated</th>
+                <th>Vulnerabilities</th>
                 <th>Comments</th>
             </tr>
         </thead>
@@ -117,6 +119,7 @@
                 <td>{{ device.operating_system }}</td>
                 <td>{{ device.device_type }}</td>
                 <td>{{ device.last_updated|date:"Y-m-d H:i" }}</td>
+                <td>{{ device.vuln_count }}</td>
         <td>
             <div class="comment-form">
                 <form action="{% url 'add_comment' %}" method="post">
