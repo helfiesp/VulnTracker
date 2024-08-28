@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var ctx = document.getElementById('severityPieChart').getContext('2d');
         
         // Data passed from Django to JavaScript
-        var severityStats = JSON.parse('{{ severity_stats|escapejs }}');
+        var severityStats = JSON.parse('{{ severity_stats_dict|escapejs }}');
         
         // Extracting the keys (severity levels) and values (counts)
         var labels = Object.keys(severityStats);
