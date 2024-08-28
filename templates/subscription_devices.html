@@ -89,25 +89,6 @@
 </div>
 
 
-class Device(models.Model):
-    device_id = models.CharField(max_length=255, unique=True)
-    display_name = models.CharField(max_length=255, null=True, blank=True)
-    operating_system = models.CharField(max_length=100, null=True, blank=True)
-    operating_system_version = models.CharField(max_length=100, null=True, blank=True)
-    device_type = models.CharField(max_length=100, null=True, blank=True)
-    last_sync_date_time = models.DateTimeField(null=True, blank=True)
-    compliance_state = models.CharField(max_length=100, null=True, blank=True)
-    is_managed = models.BooleanField(default=False, null=True)  # Set default value
-    is_compliant = models.BooleanField(default=False, null=True)
-    last_updated = models.DateTimeField(auto_now=True)
-
-    subscription = models.ForeignKey('Subscription', on_delete=models.CASCADE, related_name='devices', null=True, blank=True)
-    resource_group = models.ForeignKey('ResourceGroup', on_delete=models.CASCADE, related_name='devices', null=True, blank=True)
-
-    vulnerabilities = models.ManyToManyField('Vulnerability', through='MachineReference', related_name='devices')
-
-    def __str__(self):
-        return self.display_name or self.device_id
 
 
   {% if machines %}
