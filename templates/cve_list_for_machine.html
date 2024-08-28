@@ -45,7 +45,7 @@
         <p id="vulnerability-description">
             <b>Name:</b> {{ machine_reference.computer_dns_name}}<br>
             <b>OS:</b> {{ machine_reference.os_platform}}<br>
-            <b>Subscription: </b>{{ device_info.subscription|filter_device_info }}<br>
+            <b>Subscription: </b><a style="text-decoration: none; color: black;" href="{% url 'devices_in_subscription' subscription_id=device_info.subscription.subscription_id %}">{{ device_info.subscription|filter_device_info }}</a><br>
             <b>Resource Group: </b>{{ device_info.resource_group|filter_device_info }}<br>
             <b>Security Champion: </b>N/A<br>
 
