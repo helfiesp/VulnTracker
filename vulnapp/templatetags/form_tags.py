@@ -57,3 +57,8 @@ def smart_truncate(text, length=300):
 
     # If no punctuation is found, return the text as is up to the length limit
     return truncated_text + '...'
+
+@register.filter
+def filter_device_info(text, device_info):
+    device_info = device_info.split(" (")[0]
+    return device_info
