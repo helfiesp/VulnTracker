@@ -1144,29 +1144,18 @@ def devices_in_subscription(request, subscription_id):
     # Fetch the subscription object
     subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
     
-    # Fetch all devices related to the subscription
-    devices = Device.objects.filter(subscription=subscription)
-
-    # List to hold machine names (display names of devices)
-    machine_names = [device.display_name for device in devices if device.display_name]
-
-    # Dictionary to hold vulnerability data for each device
-    machine_references_data = {}
+    # Get today's date
     today = timezone.now().date()
 
-    for machine_name in machine_names:
-        # Fetch MachineReference objects for the current machine name
-        vuln_data = MachineReference.objects.filter(computer_dns_name__icontains=machine_name)
-        
-        if vuln_data.exists():
-            # If data exists for today, use local data
-            machine_references_data[machine_name] = vuln_data.count()
+    # Fetch all devices related to the subscription and annotate with vulnerability count
+    devices = Device.objects.filter(subscription=subscription).annotate(
+        vuln_count=Count('machine_references', filter=Q(machine_references__last_updated__date=today))
+    )
 
     context = {
         'subscription': subscription,
         'devices': devices,
         'device_count': devices.count(),
-        'device_vulnerability_stats': machine_references_data,
     }
     
     return render(request, 'subscription_devices.html', context)
