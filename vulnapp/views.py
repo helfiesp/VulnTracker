@@ -1152,7 +1152,7 @@ def devices_in_subscription(request, subscription_id):
 
     machine_references_data = []
     for machines in machine_names:
-        machine_references_data.appaned(MachineReference.objects.filter(computer_dns_name__icontains=machines))
+        machine_references_data.append(MachineReference.objects.filter(computer_dns_name__icontains=machines))
 
     context = {
         'subscription': subscription,
