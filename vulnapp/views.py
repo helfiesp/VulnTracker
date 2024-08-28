@@ -1155,7 +1155,7 @@ def device_list(request):
 def devices_in_subscription(request, subscription_id):
     """
     View function to show all devices within a specific subscription
-    and provide statistics on vulnerabilities per device, including comments.
+    and provide statistics on vulnerabilities per device, including comments and total statistics.
     """
     # Fetch the subscription object
     subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
@@ -1172,6 +1172,10 @@ def devices_in_subscription(request, subscription_id):
     # Get ContentType for Device model for generic relation in Comment
     device_content_type = ContentType.objects.get_for_model(Device)
 
+    # Initialize total vulnerabilities count and dictionary for severity statistics
+    total_vulnerabilities = 0
+    severity_stats_dict = {}
+
     for device in devices:
         # Fetch MachineReference objects for the current device
         vuln_data = MachineReference.objects.filter(computer_dns_name__icontains=device.display_name)
@@ -1179,6 +1183,7 @@ def devices_in_subscription(request, subscription_id):
         if vuln_data.filter(last_updated__date=today).exists():
             # If data exists for today, use local data and count vulnerabilities
             vuln_count = vuln_data.count()
+            total_vulnerabilities += vuln_count
         else:
             vuln_count = "N/A"  # Indicating data needs to be fetched from the API or is not available
 
@@ -1201,11 +1206,25 @@ def devices_in_subscription(request, subscription_id):
             'latest_comment': latest_comment,
         })
 
+        # Fetch severity statistics for the vulnerabilities associated with this device
+        severity_statistics = vuln_data.values('vulnerability__severity').annotate(total_count=Count('vulnerability__severity'))
+
+        # Combine all entries of each severity level into a single dictionary element
+        for entry in severity_statistics:
+            severity = entry['vulnerability__severity']
+            total_count = entry['total_count']
+            if severity in severity_stats_dict:
+                severity_stats_dict[severity] += total_count
+            else:
+                severity_stats_dict[severity] = total_count
+
     context = {
         'subscription': subscription,
         'devices': devices,
         'device_count': devices.count(),
         'device_vulnerability_stats': device_vulnerability_stats,
+        'total_vulnerabilities': total_vulnerabilities,
+        'severity_stats_dict': severity_stats_dict,
     }
     
     return render(request, 'subscription_devices.html', context)

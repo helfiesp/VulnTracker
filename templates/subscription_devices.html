@@ -9,7 +9,7 @@
     <main class="main-content">
     <div class="filter-section">
         <div class="filter-header">
-            <h2>Devices in {{ subscription|filter_device_info }}</h2>
+            <h2>{{ subscription|filter_device_info }}</h2>
             
         </div>
         <div class="filter-controls">
@@ -70,6 +70,10 @@
   </script>
 {% else %}
 
+
+            {{ device_vulnerability_stats }}<br>
+            {{ total_vulnerabilities }}<br>
+            {{ severity_stats_dict }}
 <div class="single-charts-container">
 <div class="left-chart-box">
     <h2>Subscription Information</h2>
@@ -120,18 +124,18 @@
                 <td>{{ item.vuln_count }}</td>
         <td>
             <div class="comment-form">
-    <form action="{% url 'add_comment' %}" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="subscription_id" value="{{ subscription.subscription_id }}">
-        <input type="hidden" name="device_id" value="{{ item.device.device_id }}">
-        <input type="hidden" name="comment_type" value="subscription-device">
+            <form action="{% url 'add_comment' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="subscription_id" value="{{ subscription.subscription_id }}">
+                <input type="hidden" name="device_id" value="{{ item.device.device_id }}">
+                <input type="hidden" name="comment_type" value="subscription-device">
 
-        <div class="comment-form-controls">
-            <textarea name="comment_content">{{ item.latest_comment }}</textarea>
-            <button type="submit">Post Comment</button>
+                <div class="comment-form-controls">
+                    <textarea name="comment_content">{{ item.latest_comment }}</textarea>
+                    <button type="submit">Post Comment</button>
+                </div>
+            </form>
         </div>
-    </form>
-</div>
         </td>
         </tr>
       {% endfor %}
