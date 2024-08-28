@@ -316,7 +316,7 @@ def machine_list(request, cve_id):
         # Fetch all devices matching the display name, case-insensitively
         try:
             machine.device_info = Device.objects.filter(display_name=str(machine.computer_dns_name)).get()
-        except DoesNotExist:
+        except:
             machine.device_info = None
 
 
