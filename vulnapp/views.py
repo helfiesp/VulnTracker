@@ -1191,11 +1191,14 @@ def devices_in_subscription(request, subscription_id):
             object_id=unique_id
         ).order_by('-created_at')
 
+        # Check if there are any comments and retrieve the latest one if exists
+        latest_comment = comments[0].content if comments.exists() else ""
+
         # Append the device with its vulnerability count and the latest comment
         device_vulnerability_stats.append({
             'device': device,
             'vuln_count': vuln_count,
-            'latest_comment': comments[0].content if comments.exists() else ""
+            'latest_comment': latest_comment,
         })
 
     context = {
