@@ -1150,16 +1150,26 @@ def devices_in_subscription(request, subscription_id):
     # List to hold machine names (display names of devices)
     machine_names = [device.display_name for device in devices if device.display_name]
 
-    machine_references_data = []
-    for machines in machine_names:
-        machine_references_data.append(MachineReference.objects.filter(computer_dns_name__icontains=machines))
+    # Dictionary to hold vulnerability data for each device
+    machine_references_data = {}
+    today = timezone.now().date()
+
+    for machine_name in machine_names:
+        # Fetch MachineReference objects for the current machine name
+        vuln_data = MachineReference.objects.filter(computer_dns_name__icontains=machine_name, last_updated__date=today)
+        
+        if vuln_data.exists():
+            # If data exists for today, use local data
+            machine_references_data[machine_name] = vuln_data.count()
+        else:
+            # If no data for today, mark for API fetch (or handle accordingly)
+            machine_references_data[machine_name] = 'Fetch from API'
 
     context = {
         'subscription': subscription,
         'devices': devices,
         'device_count': devices.count(),
         'device_vulnerability_stats': machine_references_data,
-        'overall_vuln_stats': machine_references_data
     }
     
     return render(request, 'subscription_devices.html', context)
