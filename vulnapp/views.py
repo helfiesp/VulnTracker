@@ -1161,9 +1161,6 @@ def devices_in_subscription(request, subscription_id):
         if vuln_data.exists():
             # If data exists for today, use local data
             machine_references_data[machine_name] = vuln_data.count()
-        else:
-            # If no data for today, mark for API fetch (or handle accordingly)
-            machine_references_data[machine_name] = 'Fetch from API'
 
     context = {
         'subscription': subscription,
