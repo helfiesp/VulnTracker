@@ -1160,7 +1160,7 @@ def devices_in_subscription(request, subscription_id):
             # If data exists for today, use local data and count vulnerabilities
             vuln_count = vuln_data.count()
         else:
-            vuln_count = None 
+            vuln_count = "N/A" 
 
         # Append the device with its vulnerability count
         device_vulnerability_stats.append({
