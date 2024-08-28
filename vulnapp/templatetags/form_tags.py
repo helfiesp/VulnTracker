@@ -60,5 +60,5 @@ def smart_truncate(text, length=300):
 
 @register.filter
 def filter_device_info(device_info):
-    device_info = device_info.split(" (")[0]
+    device_info = str(device_info).split(" (")[0]
     return device_info
