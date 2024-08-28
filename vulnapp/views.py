@@ -397,8 +397,8 @@ def cve_list_for_machine(request, computer_dns_name):
 
 
     # Device info
-    device_info_queryset = Device.objects.filter(display_name=str(computer_dns_name))
-    
+    device_info_queryset = Device.objects.filter(display_name=str(computer_dns_name)).get()
+
     context = {
         'cves': cves,
         'software_list': software_list,
