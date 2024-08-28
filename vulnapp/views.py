@@ -930,18 +930,36 @@ def add_comment(request):
     """
     Function to add a comment on the different fields around the application.
     """
-    object_id = request.POST.get('result_id')
     comment_content = request.POST.get('comment_content')
     comment_type = request.POST.get('comment_type')
 
-    # Handle comments for software entities
-    if comment_type == 'software':
+    if comment_type == 'subscription-device':
+        # Handle comments for Device entities based on subscription and device IDs
+        subscription_id = request.POST.get('subscription_id')
+        device_id = request.POST.get('device_id')
+
+        # Fetch the device object
+        device = get_object_or_404(Device, device_id=device_id, subscription__subscription_id=subscription_id)
+
+        # Prepare the content type and object_id for the generic relation
+        content_type = ContentType.objects.get_for_model(Device)
+        object_id = device_id  # Use device_id as the unique identifier for the comment
+
+    elif comment_type == 'software':
+        # Handle comments for software entities
         content_type = ContentType.objects.get_for_model(SoftwareHosts)
+        object_id = request.POST.get('result_id')
+
     elif comment_type == 'cve-machine':
         # Handle comments for CVE-Machine combinations
         content_type = ContentType.objects.get_for_model(MachineReference)
+        object_id = request.POST.get('result_id')
+
     elif comment_type == 'shodan':
+        # Handle comments for Shodan scan results
         content_type = ContentType.objects.get_for_model(ShodanScanResult)
+        object_id = request.POST.get('result_id')
+
     else:
         # Log or handle unsupported comment types
         print(f"Unsupported comment type: {comment_type}")
@@ -956,7 +974,6 @@ def add_comment(request):
 
     print(f"Comment {'created' if created else 'updated'}: {comment}")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
 
 
 # CMDB
@@ -1138,7 +1155,7 @@ def device_list(request):
 def devices_in_subscription(request, subscription_id):
     """
     View function to show all devices within a specific subscription
-    and provide statistics on vulnerabilities per device.
+    and provide statistics on vulnerabilities per device, including comments.
     """
     # Fetch the subscription object
     subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
@@ -1149,8 +1166,11 @@ def devices_in_subscription(request, subscription_id):
     # Get today's date
     today = timezone.now().date()
 
-    # List to hold devices with their vulnerability count
+    # List to hold devices with their vulnerability count and comments
     device_vulnerability_stats = []
+
+    # Get ContentType for Device model for generic relation in Comment
+    device_content_type = ContentType.objects.get_for_model(Device)
 
     for device in devices:
         # Fetch MachineReference objects for the current device
@@ -1160,12 +1180,22 @@ def devices_in_subscription(request, subscription_id):
             # If data exists for today, use local data and count vulnerabilities
             vuln_count = vuln_data.count()
         else:
-            vuln_count = "N/A" 
+            vuln_count = "N/A"  # Indicating data needs to be fetched from the API or is not available
 
-        # Append the device with its vulnerability count
+        # Generate unique identifier for the device to fetch comments
+        unique_id = device.device_id
+
+        # Fetch comments for the device
+        comments = Comment.objects.filter(
+            content_type=device_content_type,
+            object_id=unique_id
+        ).order_by('-created_at')
+
+        # Append the device with its vulnerability count and the latest comment
         device_vulnerability_stats.append({
             'device': device,
-            'vuln_count': vuln_count
+            'vuln_count': vuln_count,
+            'latest_comment': comments[0].content if comments.exists() else ""
         })
 
     context = {
