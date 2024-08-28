@@ -75,9 +75,10 @@
     <h2>Subscription Information</h2>
  <div class="statistic-square">
         <p id="vulnerability-description">
-            {{ cve.description }}
+            <b>Subscription:</b> {{ subscription|filter_device_info }}<br>
+            <b>Devices:</b> {{ device_count }}<br>
         </p>
-        <button class="view-more-btn" onclick="toggleVulnDescription(this)">View More</button>
+
     </div>
     </div>
     <div class="right-chart-box">
@@ -98,12 +99,8 @@
                 <th>Device ID</th>
                 <th>Display Name</th>
                 <th>Operating System</th>
-                <th>OS Version</th>
                 <th>Device Type</th>
-                <th>Last Sync Date</th>
-                <th>Compliance State</th>
-                <th>Is Managed</th>
-                <th>Is Compliant</th>
+
                 <th>Last Updated</th>
                 <th>Comments</th>
             </tr>
@@ -120,12 +117,7 @@
                     {% endif %}
                 </td>
                 <td>{{ device.operating_system }}</td>
-                <td>{{ device.operating_system_version }}</td>
                 <td>{{ device.device_type }}</td>
-                <td>{{ device.last_sync_date_time|date:"Y-m-d H:i" }}</td>
-                <td>{{ device.compliance_state }}</td>
-                <td>{{ device.is_managed|yesno:"Yes,No" }}</td>
-                <td>{{ device.is_compliant|yesno:"Yes,No" }}</td>
                 <td>{{ device.last_updated|date:"Y-m-d H:i" }}</td>
         <td>
             <div class="comment-form">

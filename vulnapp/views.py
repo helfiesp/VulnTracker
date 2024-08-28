@@ -1148,7 +1148,8 @@ def devices_in_subscription(request, subscription_id):
     
     context = {
         'subscription': subscription,
-        'devices': devices
+        'devices': devices,
+        'device_count': len(devices)
     }
     
     return render(request, 'subscription_devices.html', context)
