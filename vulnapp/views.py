@@ -1135,11 +1135,10 @@ def device_list(request):
     device_length = len(devices)
     return render(request, 'device_list.html', {'devices': devices, 'count':device_length})
 
-
 def devices_in_subscription(request, subscription_id):
     """
     View function to show all devices within a specific subscription
-    and provide statistics on vulnerabilities.
+    and provide statistics on vulnerabilities per device.
     """
     # Fetch the subscription object
     subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
@@ -1147,8 +1146,14 @@ def devices_in_subscription(request, subscription_id):
     # Fetch all devices related to the subscription
     devices = Device.objects.filter(subscription=subscription)
 
-    # Annotate each device with the count of vulnerabilities associated with it
-    devices_with_vuln_count = devices.annotate(vuln_count=Count('vulnerabilities'))
+    # Dictionary to hold vulnerability counts per device
+    device_vulnerability_stats = {}
+
+    # Loop through each device and count its vulnerabilities
+    for device in devices:
+        # Fetch the number of vulnerabilities associated with this device
+        vuln_count = MachineReference.objects.filter(device=device).count()
+        device_vulnerability_stats[device.device_id] = vuln_count
 
     # Fetch overall statistics of vulnerabilities across all devices in the subscription
     overall_vuln_stats = (
@@ -1169,14 +1174,13 @@ def devices_in_subscription(request, subscription_id):
 
     context = {
         'subscription': subscription,
-        'devices': devices_with_vuln_count,
-        'device_count': devices_with_vuln_count.count(),
+        'devices': devices,
+        'device_count': devices.count(),
+        'device_vulnerability_stats': device_vulnerability_stats,
         'overall_vuln_stats': overall_severity_stats_dict
     }
     
     return render(request, 'subscription_devices.html', context)
-
-
 
 def devices_in_resource_group(request, resource_group_id):
     """
