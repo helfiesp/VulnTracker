@@ -1154,7 +1154,7 @@ def devices_in_subscription(request, subscription_id):
     return render(request, 'subscription_devices.html', context)
 
 
-    def devices_in_resource_group(request, resource_group_id):
+def devices_in_resource_group(request, resource_group_id):
     """
     View function to show all devices within a specific resource group.
     """
