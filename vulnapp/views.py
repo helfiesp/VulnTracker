@@ -388,10 +388,17 @@ def cve_list_for_machine(request, computer_dns_name):
         example_reference = machine_references.first()
 
     # Modify the queryset to count the number of CVEs for each severity
-    severity_statistics = cves.values('severity').annotate(total_count=Count('id'))
+    severity_statistics = cves.values('severity').annotate(total_count=Count('severity'))
 
-    # Converting the QuerySet to a dictionary for easy use in templates or further processing
-    severity_stats_dict = {entry['severity']: entry['total_count'] for entry in severity_statistics}
+    # Combine all entries of each severity level into a single dictionary element
+    severity_stats_dict = {}
+    for entry in severity_statistics:
+        severity = entry['severity']
+        total_count = entry['total_count']
+        if severity in severity_stats_dict:
+            severity_stats_dict[severity] += total_count
+        else:
+            severity_stats_dict[severity] = total_count
 
 
     # Device info
