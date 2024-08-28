@@ -233,74 +233,46 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var ctx = document.getElementById('severityPieChart').getContext('2d');
-    
-    // Data passed from Django to JavaScript
-    var severityStats = JSON.parse('{{ severity_stats_dict|escapejs }}');
-    
-    // Extracting the keys (severity levels) and values (counts)
-    var labels = Object.keys(severityStats);
-    var data = Object.values(severityStats);
-    
-    // Define colors for each severity level
-    var backgroundColors = labels.map(function(severity) {
-        switch (severity) {
-            case 'Critical':
-                return '#D32F2F'; // Red
-            case 'High':
-                return '#FF5722'; // Orange
-            case 'Medium':
-                return '#FFC107'; // Yellow
-            case 'Low':
-                return '#8BC34A'; // Teal
-            default:
-                return '#00BCD4'; // Blue
-        }
-    });
-
-    var severityPieChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: labels.map(function(label, index) {
-                return label + ": " + data[index];
-            }),
-            datasets: [{
-                data: data,
-                backgroundColor: backgroundColors,
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'left', // Move the legend to the left
-                    labels: {
-                        font: {
-                            size: 14 // Adjust label size
-                        }
-                    }
-                },
-                tooltip: {
-                    enabled: false // Disable tooltips since we show the data on the chart
-                }
+    document.addEventListener('DOMContentLoaded', function() {
+        var ctx = document.getElementById('severityPieChart').getContext('2d');
+        
+        // Data from the Django context
+        var severityLabels = {{ severity_stats_dict.keys|safe }};
+        var severityData = {{ severity_stats_dict.values|safe }};
+        
+        var severityPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: severityLabels,
+                datasets: [{
+                    data: severityData,
+                    backgroundColor: ['#36a2eb', '#ff6384', '#ffce56', '#4bc0c0'], // Add more colors as needed
+                    hoverOffset: 4
+                }]
             },
-            layout: {
-                padding: {
-                    left: 0,
-                    right: 20, // Adjust padding to create space for the legend
-                    top: 0,
-                    bottom: 0
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'left',
+                        labels: {
+                            font: {
+                                size: 14 // Adjust label size
+                            }
+                        }
+                    },
+                    tooltip: {
+                        enabled: true // Enable tooltips for better user experience
+                    }
                 }
             }
-        }
-    });
+        });
 
-    // Optionally, you can adjust the canvas size directly via CSS or here in the script
-    document.getElementById('severityPieChart').style.width = '50%';
-    document.getElementById('severityPieChart').style.height = '50%';
+        // Resize the canvas to 50% of its original size
+        document.getElementById('severityPieChart').style.width = '50%';
+        document.getElementById('severityPieChart').style.height = '50%';
+
 });
 </script>
 
