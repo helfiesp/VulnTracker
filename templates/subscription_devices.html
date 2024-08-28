@@ -88,34 +88,64 @@
     </div>
 </div>
 
+
+class Device(models.Model):
+    device_id = models.CharField(max_length=255, unique=True)
+    display_name = models.CharField(max_length=255, null=True, blank=True)
+    operating_system = models.CharField(max_length=100, null=True, blank=True)
+    operating_system_version = models.CharField(max_length=100, null=True, blank=True)
+    device_type = models.CharField(max_length=100, null=True, blank=True)
+    last_sync_date_time = models.DateTimeField(null=True, blank=True)
+    compliance_state = models.CharField(max_length=100, null=True, blank=True)
+    is_managed = models.BooleanField(default=False, null=True)  # Set default value
+    is_compliant = models.BooleanField(default=False, null=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    subscription = models.ForeignKey('Subscription', on_delete=models.CASCADE, related_name='devices', null=True, blank=True)
+    resource_group = models.ForeignKey('ResourceGroup', on_delete=models.CASCADE, related_name='devices', null=True, blank=True)
+
+    vulnerabilities = models.ManyToManyField('Vulnerability', through='MachineReference', related_name='devices')
+
+    def __str__(self):
+        return self.display_name or self.device_id
+
+
   {% if machines %}
-  {{ machines }}
   <table style="width:100%">
     <thead>
-      <tr>
-        <th>Computer DNS Name</th>
-        <th>OS Platform</th>
-        <th>Device Info</th>
-        <th>Detection time</th>
-        <th>Last detected</th>
-        <th>Comments</th>
-        <!-- Add more headers if needed -->
-      </tr>
-    </thead>
-    <tbody>
-      {% for machine in machines %}
-        <tr>
-          {% if machine.computer_dns_name %}
-            <td>
-              <a href="{% url 'cve-list-for-machine' computer_dns_name=machine.computer_dns_name %}">{{ machine.computer_dns_name }}</a>
-            </td>
-          {% else %}
-            <td>None</td>
-          {% endif %}
-          <td>{{ machine.os_platform }}</td>
-          <td>{{ machine.device_info }}</td>
-          <td>{{ machine.detection_time }}</td>
-          <td>{{ machine.last_detected }}</td>
+            <tr>
+                <th>Device ID</th>
+                <th>Display Name</th>
+                <th>Operating System</th>
+                <th>OS Version</th>
+                <th>Device Type</th>
+                <th>Last Sync Date</th>
+                <th>Compliance State</th>
+                <th>Is Managed</th>
+                <th>Is Compliant</th>
+                <th>Last Updated</th>
+                <th>Comments</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for device in devices %}
+            <tr>
+                <td>{{ device.device_id }}</td>
+                <td>
+                    {% if device.display_name %}
+                        <a href="{% url 'cve-list-for-machine' computer_dns_name=device.display_name %}">{{ device.display_name }}</a>
+                    {% else %}
+                        None
+                    {% endif %}
+                </td>
+                <td>{{ device.operating_system }}</td>
+                <td>{{ device.operating_system_version }}</td>
+                <td>{{ device.device_type }}</td>
+                <td>{{ device.last_sync_date_time|date:"Y-m-d H:i" }}</td>
+                <td>{{ device.compliance_state }}</td>
+                <td>{{ device.is_managed|yesno:"Yes,No" }}</td>
+                <td>{{ device.is_compliant|yesno:"Yes,No" }}</td>
+                <td>{{ device.last_updated|date:"Y-m-d H:i" }}</td>
         <td>
             <div class="comment-form">
                 <form action="{% url 'add_comment' %}" method="post">
