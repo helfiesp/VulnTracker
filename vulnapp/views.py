@@ -1134,7 +1134,8 @@ def device_list(request):
     devices = Device.objects.all()  # Fetch all devices from the database
     device_length = len(devices)
     return render(request, 'device_list.html', {'devices': devices, 'count':device_length})
-    
+
+
 def devices_in_subscription(request, subscription_id):
     """
     View function to show all devices within a specific subscription
@@ -1146,13 +1147,29 @@ def devices_in_subscription(request, subscription_id):
     # Fetch all devices related to the subscription
     devices = Device.objects.filter(subscription=subscription)
 
-    # Fetch vulnerability count for each device using MachineReference
-    device_vulnerability_stats = MachineReference.objects.filter(device__in=devices)\
-        .values('device__device_id', 'device__display_name')\
-        .annotate(vuln_count=Count('vulnerability'))
+    # List to hold machine names (display names of devices)
+    machine_names = [device.display_name for device in devices if device.display_name]
 
-    # Create a dictionary to easily access the count by device ID
-    device_vulnerability_dict = {item['device__device_id']: item['vuln_count'] for item in device_vulnerability_stats}
+    # Dictionary to hold vulnerability data for each device
+    device_vulnerability_stats = {}
+    
+    # Iterate through machine names and fetch vulnerabilities
+    for machine_name in machine_names:
+        # Fetch MachineReference objects for the current machine
+        machine_references = MachineReference.objects.filter(computer_dns_name__icontains=machine_name)
+        
+        # Fetch vulnerabilities associated with these machine references
+        cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct().order_by('-cvssV3')
+
+        # Optionally fetch additional vulnerabilities from an API and update the queryset
+        token = fetch_auth_token()
+        if token:
+            api_cves = fetch_vulnerabilities_for_machine_from_api(machine_name, token)
+            if api_cves:
+                cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct().order_by('-cvssV3')
+
+        # Store the vulnerability count for the current machine
+        device_vulnerability_stats[machine_name] = cves.count()
 
     # Fetch overall statistics of vulnerabilities across all devices in the subscription
     overall_vuln_stats = (
@@ -1175,11 +1192,12 @@ def devices_in_subscription(request, subscription_id):
         'subscription': subscription,
         'devices': devices,
         'device_count': devices.count(),
-        'device_vulnerability_dict': device_vulnerability_dict,
+        'device_vulnerability_stats': device_vulnerability_stats,
         'overall_vuln_stats': overall_severity_stats_dict
     }
     
     return render(request, 'subscription_devices.html', context)
+
 
 def devices_in_resource_group(request, resource_group_id):
     """
