@@ -1224,7 +1224,7 @@ def devices_in_subscription(request, subscription_id):
         'device_count': devices.count(),
         'device_vulnerability_stats': device_vulnerability_stats,
         'total_vulnerabilities': total_vulnerabilities,
-        'severity_stats_dict': severity_stats_dict,
+        'severity_stats': json.dumps(severity_stats_dict),
     }
     
     return render(request, 'subscription_devices.html', context)
