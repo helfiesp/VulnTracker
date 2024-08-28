@@ -314,11 +314,9 @@ def machine_list(request, cve_id):
         machine.comment_content = comments[0].content if comments.exists() else ""
         # Fetch the corresponding device information
         # Fetch all devices matching the display name, case-insensitively
-        device_info_queryset = Device.objects.filter(display_name=str(machine.computer_dns_name)).get()
-
-        if device_info_queryset:
-            machine.device_info = device_info_queryset
-        else:
+        try:
+            machine.device_info = Device.objects.filter(display_name=str(machine.computer_dns_name)).get()
+        except DoesNotExist:
             machine.device_info = None
 
 
