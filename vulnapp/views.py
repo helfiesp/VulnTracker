@@ -1135,7 +1135,6 @@ def device_list(request):
     device_length = len(devices)
     return render(request, 'device_list.html', {'devices': devices, 'count':device_length})
 
-
 def devices_in_subscription(request, subscription_id):
     """
     View function to show all devices within a specific subscription
@@ -1144,18 +1143,36 @@ def devices_in_subscription(request, subscription_id):
     # Fetch the subscription object
     subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
     
+    # Fetch all devices related to the subscription
+    devices = Device.objects.filter(subscription=subscription)
+
     # Get today's date
     today = timezone.now().date()
 
-    # Fetch all devices related to the subscription and annotate with vulnerability count
-    devices = Device.objects.filter(subscription=subscription).annotate(
-        vuln_count=Count('machine_references', filter=Q(machine_references__last_updated__date=today))
-    )
+    # List to hold devices with their vulnerability count
+    device_vulnerability_stats = []
+
+    for device in devices:
+        # Fetch MachineReference objects for the current device
+        vuln_data = MachineReference.objects.filter(computer_dns_name__icontains=device.display_name)
+
+        if vuln_data.filter(last_updated__date=today).exists():
+            # If data exists for today, use local data and count vulnerabilities
+            vuln_count = vuln_data.count()
+        else:
+            vuln_count = None 
+
+        # Append the device with its vulnerability count
+        device_vulnerability_stats.append({
+            'device': device,
+            'vuln_count': vuln_count
+        })
 
     context = {
         'subscription': subscription,
         'devices': devices,
         'device_count': devices.count(),
+        'device_vulnerability_stats': device_vulnerability_stats,
     }
     
     return render(request, 'subscription_devices.html', context)

@@ -106,19 +106,21 @@
             </tr>
         </thead>
         <tbody>
-            {% for device in devices %}
+            {% for item in device_vulnerability_stats %}
             <tr>
                 <td>
-                    {% if device.display_name %}
-                        <a href="{% url 'cve-list-for-machine' computer_dns_name=device.display_name %}">{{ device.display_name }}</a>
+                <td>
+                    {% if item.device.display_name %}
+                        <a href="{% url 'cve-list-for-machine' computer_dns_name=item.device.display_name %}">{{ item.device.display_name }}</a>
                     {% else %}
                         None
                     {% endif %}
                 </td>
-                <td>{{ device.operating_system }}</td>
-                <td>{{ device.device_type }}</td>
-                <td>{{ device.last_updated|date:"Y-m-d H:i" }}</td>
-                <td>{{ device.vuln_count }}</td>
+                <td>{{ item.device.operating_system }}</td>
+                <td>{{ item.device.operating_system_version }}</td>
+                <td>{{ item.device.device_type }}</td>
+                <td>{{ item.device.last_updated|date:"Y-m-d H:i" }}</td>
+                <td>{{ item.vuln_count }}</td>
         <td>
             <div class="comment-form">
                 <form action="{% url 'add_comment' %}" method="post">
