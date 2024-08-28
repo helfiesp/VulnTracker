@@ -374,13 +374,16 @@ def cve_list_for_machine(request, computer_dns_name):
     machine_references = MachineReference.objects.filter(computer_dns_name__icontains=computer_dns_name)
     software_list = Software.objects.filter(software_hosts__computer_dns_name__icontains=computer_dns_name).distinct()
     
+    # Initial CVE queryset sorted by CVSS score in descending order
     cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct().order_by('-cvssV3')
     
     token = fetch_auth_token()
     if token:
         api_cves = fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token)
         if api_cves:
-            cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct()
+            # Update cves queryset after fetching from API, still maintaining the order by CVSS score
+            cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct().order_by('-cvssV3')
+
 
     # Extract device info and machine-specific data from one entry in machine_references
     example_reference = None
@@ -409,7 +412,6 @@ def cve_list_for_machine(request, computer_dns_name):
         'software_list': software_list,
         'machine_id': computer_dns_name,
         'severity_stats': json.dumps(severity_stats_dict),
-        'sev_stats_raw':severity_statistics,
         'machine_reference': example_reference,
         'device_info': device_info_queryset
     }
