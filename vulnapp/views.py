@@ -394,6 +394,9 @@ def cve_list_for_machine(request, computer_dns_name):
     severity_stats_dict = {entry['severity']: entry['total_count'] for entry in severity_statistics}
 
 
+    # Device info
+    device_info_queryset = Device.objects.filter(display_name=str(computer_dns_name)).get()
+
     context = {
         'cves': cves,
         'software_list': software_list,
