@@ -313,15 +313,12 @@ def machine_list(request, cve_id):
         machine.comment_content = comments[0].content if comments.exists() else ""
         # Fetch the corresponding device information
         # Fetch all devices matching the display name, case-insensitively
-        device_info_queryset = Device.objects.filter(display_name__iexact=machine.computer_dns_name.lower())
+        device_info_queryset = Device.objects.filter(display_name=str(machine.computer_dns_name)).get()
 
-        # Check if any devices were found
-        if device_info_queryset.exists():
-            # If there are multiple devices, you may need to decide how to handle this situation
-            # For example, you can select the first one, or log an error
-            machine.device_info = device_info_queryset.first()
+        if device_info_queryset:
+            machine.device_info = device_info_queryset
         else:
-            machine.device_info = None  # Handle the case where no device is found
+            machine.device_info = None
 
 
     # Existing filter logic for OS Platforms and RBAC Group Names
