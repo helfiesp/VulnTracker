@@ -1156,7 +1156,7 @@ def devices_in_subscription(request, subscription_id):
 
     for machine_name in machine_names:
         # Fetch MachineReference objects for the current machine name
-        vuln_data = MachineReference.objects.filter(computer_dns_name__icontains=machine_name, last_updated__date=today)
+        vuln_data = MachineReference.objects.filter(computer_dns_name__icontains=machine_name)
         
         if vuln_data.exists():
             # If data exists for today, use local data
