@@ -96,7 +96,6 @@
   <table style="width:100%">
     <thead>
             <tr>
-                <th>Device ID</th>
                 <th>Display Name</th>
                 <th>Operating System</th>
                 <th>Device Type</th>
@@ -108,7 +107,6 @@
         <tbody>
             {% for device in devices %}
             <tr>
-                <td>{{ device.device_id }}</td>
                 <td>
                     {% if device.display_name %}
                         <a href="{% url 'cve-list-for-machine' computer_dns_name=device.display_name %}">{{ device.display_name }}</a>
