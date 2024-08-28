@@ -59,6 +59,6 @@ def smart_truncate(text, length=300):
     return truncated_text + '...'
 
 @register.filter
-def filter_device_info(text, device_info):
+def filter_device_info(device_info):
     device_info = device_info.split(" (")[0]
     return device_info
