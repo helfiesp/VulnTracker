@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/filters.css' %}">
+
+    <main class="main-content">
+    <div class="filter-section">
+        <div class="filter-header">
+            <h2>Devices in {{ subscription|filter_device_info }}</h2>
+            
+        </div>
+        <div class="filter-controls">
+            <!-- OS Platform Filter Dropdown -->
+            <div class="sort-filter">
+              <select id="os-platform-select">
+                  <option value="">Select OS Platform</option>
+                  {% for os_platform in os_platforms %}
+                      <option value="{{ os_platform }}" {% if os_platform == selected_os_platform %}selected{% endif %}>{{ os_platform }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+
+            <!-- RBAC Group Name Filter Dropdown -->
+            <div class="sort-filter">
+                <select id="rbac-group-name-select">
+                    <option value="">Select RBAC Group Name</option>
+                    {% for rbac_group_name in rbac_group_names %}
+                        <option value="{{ rbac_group_name }}" {% if rbac_group_name == selected_rbac_group_name %}selected{% endif %}>{{ rbac_group_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+                <div class="search-filter">
+                    <input type="search" id="search-input" placeholder="Search vulnerabilities...">
+                </div>
+
+              <div class="sort-filter">
+                <select id="machine-type-select">
+                    <option value="">Select Type</option>
+                    <option value="server" {% if selected_machine_type == 'server' %}selected{% endif %}>Servers</option>
+                    <option value="client" {% if selected_machine_type == 'client' %}selected{% endif %}>Clients</option>
+                </select>
+            </div>
+
+            <div class="sort-filter">
+       
+            <select id="sort-select">
+                <option value="cvss_score_desc" {% if current_sort == 'cvss_score_desc' %}selected{% endif %}>Highest CVSS Score</option>
+                <option value="cvss_score_asc" {% if current_sort == 'cvss_score_asc' %}selected{% endif %}>Lowest CVSS Score</option>
+                <option value="date_desc" {% if current_sort == 'date_desc' %}selected{% endif %}>Newest First</option>
+                <option value="date_asc" {% if current_sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
+            </select>
+            </div>
+            </div>
+        </div>
+
+        {% if is_fetching_from_api %}
+  <div id="loading-message">
+    Fetching data from the API, please wait...
+  </div>
+  <script>
+    // Refresh the page after 10 seconds to check if the data has been fetched
+    setTimeout(function() {
+      window.location.reload();
+    }, 10000);  // 10000 milliseconds = 10 seconds
+  </script>
+{% else %}
+
+<div class="single-charts-container">
+<div class="left-chart-box">
+    <h2>Subscription Information</h2>
+ <div class="statistic-square">
+        <p id="vulnerability-description">
+            {{ cve.description }}
+        </p>
+        <button class="view-more-btn" onclick="toggleVulnDescription(this)">View More</button>
+    </div>
+    </div>
+    <div class="right-chart-box">
+        <h2>Affected endpoints</h2>
+        <div class="statistic-square-chart">
+            <canvas id="endpointsPieChart"></canvas>
+        </div>
+    </div>
+</div>
+
+  {% if machines %}
+  <table style="width:100%">
+    <thead>
+      <tr>
+        <th>Computer DNS Name</th>
+        <th>OS Platform</th>
+        <th>Device Info</th>
+        <th>Detection time</th>
+        <th>Last detected</th>
+        <th>Comments</th>
+        <!-- Add more headers if needed -->
+      </tr>
+    </thead>
+    <tbody>
+      {% for machine in machines %}
+        <tr>
+          {% if machine.computer_dns_name %}
+            <td>
+              <a href="{% url 'cve-list-for-machine' computer_dns_name=machine.computer_dns_name %}">{{ machine.computer_dns_name }}</a>
+            </td>
+          {% else %}
+            <td>None</td>
+          {% endif %}
+          <td>{{ machine.os_platform }}</td>
+          <td>{{ machine.device_info }}</td>
+          <td>{{ machine.detection_time }}</td>
+          <td>{{ machine.last_detected }}</td>
+        <td>
+            <div class="comment-form">
+                <form action="{% url 'add_comment' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="result_id" value="{{ cve.id }}__{{ machine.machine_id }}">
+                    <input type="hidden" name="comment_type" value="cve-machine">
+
+                    <div class="comment-form-controls">
+                        <textarea name="comment_content">{{ machine.comment_content }}</textarea>
+                        <button type="submit">Post Comment</button>
+                    </div>
+                </form>
+            </div>
+        </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No machines found for this CVE.</p>
+{% endif %}
+{% endif %}
+
+<script>
+    var truncated = true;
+    var maxLength = 300;
+    var originalText = '';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var description = document.getElementById('vulnerability-description');
+        originalText = description.innerText;
+
+        // Initially truncate the text
+        description.innerText = truncateText(originalText, maxLength);
+    });
+
+    function truncateText(text, length) {
+        if (text.length <= length) return text;
+
+        var truncatedText = text.slice(0, length);
+        var lastPunctuationIndex = Math.max(
+            truncatedText.lastIndexOf('.'),
+            truncatedText.lastIndexOf('!'),
+            truncatedText.lastIndexOf('?')
+        );
+
+        if (lastPunctuationIndex > -1) {
+            return truncatedText.slice(0, lastPunctuationIndex + 1);
+        } else {
+            return truncatedText + '...';
+        }
+    }
+
+    function toggleVulnDescription(button) {
+        var description = document.getElementById('vulnerability-description');
+        if (truncated) {
+            description.innerText = originalText;
+            button.textContent = "View Less";
+        } else {
+            description.innerText = truncateText(originalText, maxLength);
+            button.textContent = "View More";
+        }
+        truncated = !truncated;
+    }
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to update the query parameters
+    function updateQueryParams(param, value) {
+        let currentUrl = new URL(window.location);
+        let searchParams = currentUrl.searchParams;
+
+        // Update or delete the parameter
+        if (value) {
+            searchParams.set(param, value);
+        } else {
+            searchParams.delete(param);
+        }
+
+        // Return the updated URL
+        return currentUrl.toString();
+    }
+
+    // Listener for the OS Platform filter
+    const osPlatformSelect = document.getElementById('os-platform-select');
+    osPlatformSelect.addEventListener('change', function() {
+        const selectedValue = this.options[this.selectedIndex].value;
+        window.location.href = updateQueryParams('os_platform', selectedValue);
+    });
+
+    // Listener for the RBAC Group Name filter
+    const rbacGroupNameSelect = document.getElementById('rbac-group-name-select');
+    rbacGroupNameSelect.addEventListener('change', function() {
+        const selectedValue = this.options[this.selectedIndex].value;
+        window.location.href = updateQueryParams('rbac_group_name', selectedValue);
+    });
+
+    const machineTypeSelect = document.getElementById('machine-type-select');
+    machineTypeSelect.addEventListener('change', function() {
+        window.location.href = updateQueryParams('machine_type', this.value);
+    });
+
+
+});
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('endpointsPieChart').getContext('2d');
+    var serverCount = {{ server_count }};
+    var clientCount = {{ client_count }};
+    
+    var endpointsPieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Servers: ' + serverCount, 'Clients: ' + clientCount],
+            datasets: [{
+                data: [serverCount, clientCount],
+                backgroundColor: ['#36a2eb', '#ff6384'], // Colors for the slices
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // Allows for manual control over size
+            plugins: {
+                legend: {
+                    position: 'left',
+                    labels: {
+                        font: {
+                            size: 14 // Adjust label size
+                        }
+                    }
+                },
+                tooltip: {
+                    enabled: false // Disable tooltips since we're showing the data on the chart
+                }
+            }
+        }
+    });
+
+    // Resize the canvas to 50% of its original size
+    document.getElementById('endpointsPieChart').style.width = '50%';
+    document.getElementById('endpointsPieChart').style.height = '50%';
+});
+</script>
+
+{% endblock %}
+
+
+
+

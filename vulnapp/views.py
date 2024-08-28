@@ -24,7 +24,7 @@ from django.http import HttpResponseRedirect
 from django.db.models.functions import ExtractYear
 from django.db.models import Count, Q, Sum
 from django.urls import reverse, NoReverseMatch
-from .models import Device, CVE, Comment, PublicIP, CMDB, Ticket, NessusData, Vulnerability, MachineReference, HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, Software, SoftwareHosts, ScanStatus, ShodanScanResult
+from .models import Subscription, ResourceGroup, Device, CVE, Comment, PublicIP, CMDB, Ticket, NessusData, Vulnerability, MachineReference, HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, Software, SoftwareHosts, ScanStatus, ShodanScanResult
 from vulnapp import secrets
 
 def index(request):
@@ -1134,3 +1134,39 @@ def device_list(request):
     devices = Device.objects.all()  # Fetch all devices from the database
     device_length = len(devices)
     return render(request, 'device_list.html', {'devices': devices, 'count':device_length})
+
+
+def devices_in_subscription(request, subscription_id):
+    """
+    View function to show all devices within a specific subscription.
+    """
+    # Fetch the subscription object
+    subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
+    
+    # Fetch all devices related to the subscription
+    machines = Device.objects.filter(subscription=subscription)
+    
+    context = {
+        'subscription': subscription,
+        'machines': machines
+    }
+    
+    return render(request, 'subscription_devices.html', context)
+
+
+    def devices_in_resource_group(request, resource_group_id):
+    """
+    View function to show all devices within a specific resource group.
+    """
+    # Fetch the resource group object
+    resource_group = get_object_or_404(ResourceGroup, resource_group_id=resource_group_id)
+    
+    # Fetch all devices related to the resource group
+    devices = Device.objects.filter(resource_group=resource_group)
+    
+    context = {
+        'resource_group': resource_group,
+        'devices': devices
+    }
+    
+    return render(request, 'devices_in_resource_group.html', context)

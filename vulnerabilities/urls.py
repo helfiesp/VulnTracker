@@ -41,6 +41,8 @@ urlpatterns = [
     path('defender/machines/<str:computer_dns_name>/cves/', views.cve_list_for_machine, name='cve-list-for-machine'),
 
     path('devices/', views.device_list, name='device_list'),
+    path('devices/subscription/<str:subscription_id>/', views.devices_in_subscription, name='devices_in_subscription'),
+    path('devices/resource_group/<str:resource_group_id>/', views.devices_in_resource_group, name='devices_in_resource_group'),
 
 
 ]
