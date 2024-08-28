@@ -1144,11 +1144,11 @@ def devices_in_subscription(request, subscription_id):
     subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
     
     # Fetch all devices related to the subscription
-    machines = Device.objects.filter(subscription=subscription)
+    devices = Device.objects.filter(subscription=subscription)
     
     context = {
         'subscription': subscription,
-        'machines': machines
+        'devices': devices
     }
     
     return render(request, 'subscription_devices.html', context)
