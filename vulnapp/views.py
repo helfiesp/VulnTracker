@@ -1232,17 +1232,77 @@ def devices_in_subscription(request, subscription_id):
 
 def devices_in_resource_group(request, resource_group_id):
     """
-    View function to show all devices within a specific resource group.
+    View function to show all devices within a specific subscription
+    and provide statistics on vulnerabilities per device, including comments and total statistics.
     """
-    # Fetch the resource group object
+    # Fetch the subscription object
     resource_group = get_object_or_404(ResourceGroup, resource_group_id=resource_group_id)
     
-    # Fetch all devices related to the resource group
-    devices = Device.objects.filter(resource_group=resource_group)
-    
+    # Fetch all devices related to the subscription
+    devices = Device.objects.filter(subscription=subscription)
+
+    # Get today's date
+    today = timezone.now().date()
+
+    # List to hold devices with their vulnerability count and comments
+    device_vulnerability_stats = []
+
+    # Get ContentType for Device model for generic relation in Comment
+    device_content_type = ContentType.objects.get_for_model(Device)
+
+    # Initialize total vulnerabilities count and dictionary for severity statistics
+    total_vulnerabilities = 0
+    severity_stats_dict = {}
+
+    for device in devices:
+        # Fetch MachineReference objects for the current device
+        vuln_data = MachineReference.objects.filter(computer_dns_name__icontains=device.display_name)
+
+        if vuln_data.filter(last_updated__date=today).exists():
+            # If data exists for today, use local data and count vulnerabilities
+            vuln_count = vuln_data.count()
+            total_vulnerabilities += vuln_count
+        else:
+            vuln_count = "N/A"  # Indicating data needs to be fetched from the API or is not available
+
+        # Generate unique identifier for the device to fetch comments
+        unique_id = device.device_id
+
+        # Fetch comments for the device
+        comments = Comment.objects.filter(
+            content_type=device_content_type,
+            object_id=unique_id
+        ).order_by('-created_at')
+
+        # Check if there are any comments and retrieve the latest one if exists
+        latest_comment = comments[0].content if comments.exists() else ""
+
+        # Append the device with its vulnerability count and the latest comment
+        device_vulnerability_stats.append({
+            'device': device,
+            'vuln_count': vuln_count,
+            'latest_comment': latest_comment,
+        })
+
+        # Fetch severity statistics for the vulnerabilities associated with this device
+        severity_statistics = vuln_data.values('vulnerability__severity').annotate(total_count=Count('vulnerability__severity'))
+
+        # Combine all entries of each severity level into a single dictionary element
+        for entry in severity_statistics:
+            severity = entry['vulnerability__severity']
+            total_count = entry['total_count']
+            if severity in severity_stats_dict:
+                severity_stats_dict[severity] += total_count
+            else:
+                severity_stats_dict[severity] = total_count
+
     context = {
         'resource_group': resource_group,
-        'devices': devices
+        'devices': devices,
+        'device_count': devices.count(),
+        'device_vulnerability_stats': device_vulnerability_stats,
+        'total_vulnerabilities': total_vulnerabilities,
+        'severity_stats': json.dumps(severity_stats_dict),
     }
     
-    return render(request, 'devices_in_resource_group.html', context)
+    return render(request, 'resource_group_devices.html', context)

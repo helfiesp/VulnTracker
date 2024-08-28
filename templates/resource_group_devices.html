@@ -9,7 +9,7 @@
     <main class="main-content">
     <div class="filter-section">
         <div class="filter-header">
-            <h2>{{ subscription|filter_device_info }}</h2>
+            <h2>{{ resource_group|filter_device_info }}</h2>
             
         </div>
         <div class="filter-controls">
@@ -72,10 +72,10 @@
 
 <div class="single-charts-container">
 <div class="left-chart-box">
-    <h2>Subscription Information</h2>
+    <h2>Resource Group Information</h2>
  <div class="statistic-square">
         <p id="vulnerability-description">
-            <b>Subscription:</b> {{ subscription|filter_device_info }}<br>
+            <b>Subscription:</b> {{ resource_group|filter_device_info }}<br>
             <b>Devices:</b> {{ device_count }}<br>
         </p>
 
