@@ -1150,60 +1150,16 @@ def devices_in_subscription(request, subscription_id):
     # List to hold machine names (display names of devices)
     machine_names = [device.display_name for device in devices if device.display_name]
 
-    # Dictionary to hold vulnerability data for each device
-    device_vulnerability_stats = {}
-    
-    # Get today's date
-    today = timezone.now().date()
-
-    # Iterate through machine names and fetch vulnerabilities
-    for machine_name in machine_names:
-        # Fetch MachineReference objects for the current machine
-        machine_references = MachineReference.objects.filter(computer_dns_name__icontains=machine_name)
-        
-        # Check if there is any MachineReference updated today
-        if machine_references.filter(last_updated__date=today).exists():
-            # Fetch vulnerabilities associated with these machine references from local database
-            cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct().order_by('-cvssV3')
-        else:
-            # Fetch data from the API if there is no MachineReference updated today
-            token = fetch_auth_token()
-            if token:
-                api_cves = fetch_vulnerabilities_for_machine_from_api(machine_name, token)
-                if api_cves:
-                    # Update the queryset after fetching from API
-                    cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct().order_by('-cvssV3')
-                else:
-                    cves = []
-            else:
-                cves = []
-
-        # Store the vulnerability count for the current machine
-        device_vulnerability_stats[machine_name] = len(cves)
-
-    # Fetch overall statistics of vulnerabilities across all devices in the subscription
-    overall_vuln_stats = (
-        Vulnerability.objects.filter(devices__subscription=subscription)
-        .values('severity')
-        .annotate(total_count=Count('severity'))
-    )
-
-    # Combine all entries of each severity level into a single dictionary element
-    overall_severity_stats_dict = {}
-    for entry in overall_vuln_stats:
-        severity = entry['severity']
-        total_count = entry['total_count']
-        if severity in overall_severity_stats_dict:
-            overall_severity_stats_dict[severity] += total_count
-        else:
-            overall_severity_stats_dict[severity] = total_count
+    machine_references_data = []
+    for machines in machine_names:
+        machine_references_data.appaned(MachineReference.objects.filter(computer_dns_name__icontains=machines))
 
     context = {
         'subscription': subscription,
         'devices': devices,
         'device_count': devices.count(),
-        'device_vulnerability_stats': device_vulnerability_stats,
-        'overall_vuln_stats': overall_severity_stats_dict
+        'device_vulnerability_stats': machine_references_data,
+        'overall_vuln_stats': machine_references_data
     }
     
     return render(request, 'subscription_devices.html', context)
