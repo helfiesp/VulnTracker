@@ -404,9 +404,12 @@ def cve_list_for_machine(request, computer_dns_name):
 
     # Device info
     try:
-        device_info_queryset = Device.objects.filter(display_name=str(computer_dns_name)).get()
+        try:
+            device_info_queryset = Device.objects.filter(display_name=str(computer_dns_name)).get()
+        except:
+            device_info_queryset = Device.objects.filter(display_name=str(computer_dns_name).upper()).get()
     except:
-        device_info_queryset = Device.objects.filter(display_name=str(computer_dns_name).upper()).get()
+        device_info_queryset = None
 
     context = {
         'cves': cves,
