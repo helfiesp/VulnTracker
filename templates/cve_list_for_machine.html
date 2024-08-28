@@ -44,7 +44,10 @@
  <div class="statistic-square">
         <p id="vulnerability-description">
             <b>Name:</b> {{ machine_reference.computer_dns_name}}<br>
-            <b>OS:</b> {{ machine_reference.os_platform}}<br><br>
+            <b>OS:</b> {{ machine_reference.os_platform}}<br>
+            <b>Subscription: </b>{{ device_info.subscription }}<br>
+            <b>Resource Group: </b>{{ device_info.subscription }}<br>
+            <b>Security Champion: </b>N/A<br>
 
             {% if machine_reference.device %}
             <b>Device type</b>: {{ machine_reference.device.device_type }}

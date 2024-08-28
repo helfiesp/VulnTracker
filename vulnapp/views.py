@@ -395,12 +395,16 @@ def cve_list_for_machine(request, computer_dns_name):
     # Converting the QuerySet to a dictionary for easy use in templates or further processing
     severity_stats_dict = {entry['severity']: entry['count'] for entry in severity_statistics}
 
+
+    # Device info
+    device_info_queryset = Device.objects.filter(display_name=computer_dns_name)
     context = {
         'cves': cves,
         'software_list': software_list,
         'machine_id': computer_dns_name,
         'severity_stats': json.dumps(severity_stats_dict),
-        'machine_reference': example_reference, 
+        'machine_reference': example_reference,
+        'device_info': device_info_queryset
     }
     return render(request, 'cve_list_for_machine.html', context)
 

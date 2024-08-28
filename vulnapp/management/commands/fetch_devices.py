@@ -77,7 +77,7 @@ class Command(BaseCommand):
                     for vm in vms:
                         # Extracting VM details
                         vm_id = vm.get('id', None)
-                        vm_name = vm.get('name', None)
+                        vm_name = vm.get('name', None).lower()
                         os_type = vm.get('properties', {}).get('storageProfile', {}).get('osDisk', {}).get('osType', None)
                         os_version = vm.get('properties', {}).get('osProfile', {}).get('windowsConfiguration', {}).get('additionalUnattendContent', [{}])[0].get('content', None)
                         compliance_state = vm.get('properties', {}).get('provisioningState', None)
