@@ -19,6 +19,7 @@ from django.db.models.functions import Lower
 import requests
 from django.db import transaction
 import re
+from django.db.models import Sum
 from django.http import HttpResponseRedirect
 from django.db.models.functions import ExtractYear
 from django.db.models import Count, Q, Sum
@@ -386,11 +387,11 @@ def cve_list_for_machine(request, computer_dns_name):
     if machine_references.exists():
         example_reference = machine_references.first()
 
-    # Create the statistics dictionary
-    severity_statistics = cves.values('severity').annotate(count=Count('severity'))
+    # Modify the queryset to sum the 'count' field for each severity
+    severity_statistics = cves.values('severity').annotate(total_count=Sum('count'))
 
     # Converting the QuerySet to a dictionary for easy use in templates or further processing
-    severity_stats_dict = {entry['severity']: entry['count'] for entry in severity_statistics}
+    severity_stats_dict = {entry['severity']: entry['total_count'] for entry in severity_statistics}
 
     # Device info
     device_info_queryset = Device.objects.filter(display_name=str(computer_dns_name)).get()
