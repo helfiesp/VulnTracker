@@ -80,7 +80,6 @@
         </p>
 
         <canvas id="resourceGroupBarChart" width="400" height="200"></canvas>
-</div>
 
 
 
@@ -233,42 +232,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-
     document.addEventListener('DOMContentLoaded', function() {
-        var ctx = document.getElementById('severityPieChart').getContext('2d');
-        
-        // Data passed from Django to JavaScript
+        // Severity Pie Chart Setup (Existing Code)
+        var ctxPie = document.getElementById('severityPieChart').getContext('2d');
         var severityStats = JSON.parse('{{ severity_stats|escapejs }}');
-        
-        // Extracting the keys (severity levels) and values (counts)
-        var labels = Object.keys(severityStats);
-        var data = Object.values(severityStats);
-        
-        // Define colors for each severity level
-        var backgroundColors = labels.map(function(severity) {
+        var labelsPie = Object.keys(severityStats);
+        var dataPie = Object.values(severityStats);
+        var backgroundColorsPie = labelsPie.map(function(severity) {
             switch (severity) {
-                case 'Critical':
-                    return '#D32F2F'; // Red
-                case 'High':
-                    return '#FF5722'; // Orange
-                case 'Medium':
-                    return '#FFC107'; // Yellow
-                case 'Low':
-                    return '#8BC34A'; // Green
-                default:
-                    return '#00BCD4'; // Blue
+                case 'Critical': return '#D32F2F';
+                case 'High': return '#FF5722';
+                case 'Medium': return '#FFC107';
+                case 'Low': return '#8BC34A';
+                default: return '#00BCD4';
             }
         });
 
-        var severityPieChart = new Chart(ctx, {
+        var severityPieChart = new Chart(ctxPie, {
             type: 'pie',
             data: {
-                labels: labels.map(function(label, index) {
-                    return label + ": " + data[index];
-                }),
+                labels: labelsPie.map(function(label, index) { return label + ": " + dataPie[index]; }),
                 datasets: [{
-                    data: data,
-                    backgroundColor: backgroundColors,
+                    data: dataPie,
+                    backgroundColor: backgroundColorsPie,
                     hoverOffset: 4
                 }]
             },
@@ -277,28 +263,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'left', // Move the legend to the left
-                        labels: {
-                            font: {
-                                size: 14 // Adjust label size
-                            }
-                        }
+                        position: 'left',
+                        labels: { font: { size: 14 } }
                     },
-                    tooltip: {
-                        enabled: false // Disable tooltips since we show the data on the chart
-                    }
+                    tooltip: { enabled: false }
                 },
                 layout: {
-                    padding: {
-                        left: 0,
-                        right: 20, // Adjust padding to create space for the legend
-                        top: 0,
-                        bottom: 0
-                    }
+                    padding: { left: 0, right: 20, top: 0, bottom: 0 }
                 }
             }
         });
-                // Resource Group Bar Chart Setup (New Code)
+
+        // Resource Group Bar Chart Setup (New Code)
         var ctxBar = document.getElementById('resourceGroupBarChart').getContext('2d');
         var resourceGroupStats = JSON.parse('{{ resource_group_device_stats|escapejs }}');
         var labelsBar = Object.keys(resourceGroupStats);
@@ -307,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var resourceGroupBarChart = new Chart(ctxBar, {
             type: 'bar',
             data: {
-                labels: labelsBar,
+                labels: labelsBar,  // Keep labels for hover tooltips
                 datasets: [{
                     label: 'Number of Devices',
                     data: dataBar,
@@ -320,6 +296,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
+                    x: {
+                        display: false  // Hide X-axis labels
+                    },
                     y: {
                         beginAtZero: true,
                         ticks: {
@@ -329,17 +308,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 plugins: {
                     legend: {
-                        display: false
+                        display: false  // Hide legend
                     },
                     tooltip: {
-                        enabled: true
+                        enabled: true  // Enable tooltips for hover
+                    }
+                },
+                onClick: function(event, elements) {
+                    if (elements.length > 0) {
+                        var elementIndex = elements[0].index;  // Get the index of the clicked bar
+                        var resourceGroupName = labelsBar[elementIndex];  // Get the name of the resource group
+                        window.location.href = "{% url 'devices_in_resource_group' '' %}" + resourceGroupName;  // Redirect to URL with resource group name
                     }
                 }
             }
         });
     });
-
-
 </script>
 
 {% endblock %}
