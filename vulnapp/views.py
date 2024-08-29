@@ -1230,16 +1230,16 @@ def devices_in_subscription(request, subscription_id):
     return render(request, 'subscription_devices.html', context)
 
 
-def devices_in_resource_group(request, resource_group_id):
+def devices_in_resource_group(request, resource_group_name):
     """
     View function to show all devices within a specific subscription
     and provide statistics on vulnerabilities per device, including comments and total statistics.
     """
     # Fetch the subscription object
-    resource_group = get_object_or_404(ResourceGroup, resource_group_id=resource_group_id)
+    resource_group = get_object_or_404(ResourceGroup, name=resource_group_name)
     
     # Fetch all devices related to the subscription
-    devices = Device.objects.filter(subscription=subscription)
+    devices = Device.objects.filter(resource_group=resource_group)
 
     # Get today's date
     today = timezone.now().date()
