@@ -76,7 +76,7 @@
  <div class="statistic-square">
         <p id="vulnerability-description">
 
-            <b>Subscription: </b><a href="{% url 'devices_in_subscription' subscription_id=device_info.subscription.subscription_id %}">{{ resource_group.subscription|filter_device_info }}</a><br>
+            <b>Subscription: </b><a href="{% url 'devices_in_subscription' subscription_id=resource_group.subscription.subscription_id %}">{{ resource_group.subscription|filter_device_info }}</a><br>
             <b>Resource Group:</b> {{ resource_group|filter_device_info }}<br>
             <b>Devices:</b> {{ device_count }}<br>
         </p>
