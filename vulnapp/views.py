@@ -1156,6 +1156,7 @@ def devices_in_subscription(request, subscription_id):
     """
     View function to show all devices within a specific subscription
     and provide statistics on vulnerabilities per device, including comments and total statistics.
+    Additionally, it provides the count of devices per resource group.
     """
     # Fetch the subscription object
     subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
@@ -1175,6 +1176,9 @@ def devices_in_subscription(request, subscription_id):
     # Initialize total vulnerabilities count and dictionary for severity statistics
     total_vulnerabilities = 0
     severity_stats_dict = {}
+
+    # Dictionary to hold resource group counts
+    resource_group_device_count = {}
 
     for device in devices:
         # Fetch MachineReference objects for the current device
@@ -1218,6 +1222,16 @@ def devices_in_subscription(request, subscription_id):
             else:
                 severity_stats_dict[severity] = total_count
 
+    # Fetch all resource groups related to the subscription
+    resource_groups = ResourceGroup.objects.filter(subscription=subscription)
+
+    # Iterate through each resource group to count the devices
+    for rg in resource_groups:
+        resource_group_device_count[rg.name] = Device.objects.filter(resource_group=rg).count()
+
+    # Debugging print statement
+    print("Resource Group Device Count:", resource_group_device_count)  # This will print to console/logs
+
     context = {
         'subscription': subscription,
         'devices': devices,
@@ -1225,9 +1239,11 @@ def devices_in_subscription(request, subscription_id):
         'device_vulnerability_stats': device_vulnerability_stats,
         'total_vulnerabilities': total_vulnerabilities,
         'severity_stats': json.dumps(severity_stats_dict),
+        'resource_group_device_count': resource_group_device_count,  # Add this to the context
     }
     
     return render(request, 'subscription_devices.html', context)
+
 
 
 def devices_in_resource_group(request, resource_group_name):

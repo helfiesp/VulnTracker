@@ -77,13 +77,27 @@
         <p id="vulnerability-description">
             <b>Subscription:</b> {{ subscription|filter_device_info }}<br>
             <b>Total devicecount:</b> {{ device_count }}<br>
-                <ul>
-        {% for rg_name, device_count in resource_group_device_count.items %}
-            <li><b>{{ rg_name }}:</b> {{ device_count }} devices</li>
-        {% endfor %}
-    </ul>
-
         </p>
+
+        <div class="resource-group-stats">
+    <h3>Resource Group Device Counts:</h3>
+    {% if resource_group_device_count %}
+        <ul>
+            {% for rg_name, device_count in resource_group_device_count.items %}
+                <li><b>{{ rg_name }}:</b> {{ device_count }} devices</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No resource groups or devices found.</p>
+    {% endif %}
+</div>
+
+<!-- Debugging output -->
+{% for key, value in resource_group_device_count.items %}
+    <p>Resource Group: {{ key }}, Device Count: {{ value }}</p>
+{% endfor %}
+
+
 
     </div>
     </div>
