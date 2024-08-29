@@ -93,9 +93,6 @@
 </div>
 
 
-<!-- Placeholder for AJAX results -->
-<div id="machine-results"></div>
-
   {% if devices %}
   <table style="width:100%">
     <thead>
@@ -234,7 +231,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 
-
     document.addEventListener('DOMContentLoaded', function() {
         // Severity Pie Chart Setup (Updated Code)
         var ctxPie = document.getElementById('severityPieChart').getContext('2d');
@@ -282,40 +278,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 layout: {
                     padding: { left: 0, right: 20, top: 0, bottom: 0 }
-                },
-                onClick: function(event, elements) {
-                    if (elements.length > 0) {
-                        var elementIndex = elements[0].index;  // Get the index of the clicked pie segment
-                        var severity = labelsPie[elementIndex];  // Get the severity from the labels
-                        var subscriptionId = '{{ subscription.subscription_id }}';  // Get the subscription ID from the template
-
-                        // AJAX request to fetch machines by severity
-                        fetch(`/devices/subscription/${subscriptionId}/fetch_machines/${severity}/`)
-                            .then(response => response.json())
-                            .then(data => {
-                                // Clear previous results
-                                var resultsDiv = document.getElementById('machine-results');
-                                resultsDiv.innerHTML = '';
-
-                                // Display the fetched machines
-                                if (data.length > 0) {
-                                    var table = '<table border="1"><tr><th>Machine ID</th><th>Computer DNS Name</th><th>OS Platform</th><th>Detection Time</th></tr>';
-                                    data.forEach(function(machine) {
-                                        table += `<tr>
-                                                    <td>${machine.machine_id}</td>
-                                                    <td>${machine.computer_dns_name}</td>
-                                                    <td>${machine.os_platform}</td>
-                                                    <td>${machine.detection_time}</td>
-                                                  </tr>`;
-                                    });
-                                    table += '</table>';
-                                    resultsDiv.innerHTML = table;
-                                } else {
-                                    resultsDiv.innerHTML = '<p>No machines found for this severity level.</p>';
-                                }
-                            })
-                            .catch(error => console.error('Error fetching machines:', error));
-                    }
                 }
             }
         });
