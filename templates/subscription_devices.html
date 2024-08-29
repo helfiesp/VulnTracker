@@ -207,8 +207,9 @@ document.addEventListener('DOMContentLoaded', function() {
         var severityPieChart = new Chart(ctxPie, {
             type: 'pie',
             data: {
-                labels: labels.map(function(label, index) {
-                    return label + ": " + data[index];}
+                labels: labelsPie.map(function(label, index) {
+                    return label + ": " + data[index];
+                }),,
                 datasets: [{
                     data: dataPie,
                     backgroundColor: backgroundColorsPie,
