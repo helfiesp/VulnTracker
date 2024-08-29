@@ -1263,7 +1263,7 @@ def devices_in_resource_group(request, resource_group_name):
             vuln_count = vuln_data.count()
             total_vulnerabilities += vuln_count
         else:
-            vuln_count = vuln_data
+            vuln_count = 0
         # Generate unique identifier for the device to fetch comments
         unique_id = device.device_id
 
