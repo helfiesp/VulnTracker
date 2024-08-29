@@ -1227,10 +1227,10 @@ def devices_in_subscription(request, subscription_id):
 
     # Iterate through each resource group to count the devices
     for rg in resource_groups:
-        resource_group_device_count[rg.name] = Device.objects.filter(resource_group=rg).count()
+        device_count = Device.objects.filter(resource_group=rg).count()
+        if device_count > 0:  # Only include resource groups with devices
+            resource_group_device_count[rg.name] = device_count
 
-    # Debugging print statement
-    print("Resource Group Device Count:", resource_group_device_count)  # This will print to console/logs
 
     context = {
         'subscription': subscription,
@@ -1239,10 +1239,11 @@ def devices_in_subscription(request, subscription_id):
         'device_vulnerability_stats': device_vulnerability_stats,
         'total_vulnerabilities': total_vulnerabilities,
         'severity_stats': json.dumps(severity_stats_dict),
-        'resource_group_device_count': resource_group_device_count,  # Add this to the context
+        'resource_group_device_stats': json.dumps(resource_group_device_count),  # Add this to the context
     }
     
     return render(request, 'subscription_devices.html', context)
+
 
 
 

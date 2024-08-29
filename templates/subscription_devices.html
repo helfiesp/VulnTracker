@@ -79,19 +79,7 @@
             <b>Total devicecount:</b> {{ device_count }}<br>
         </p>
 
-        <div class="resource-group-stats">
-    <h3>Resource Group Device Counts:</h3>
-    {% if resource_group_device_count %}
-        <ul>
-            {% for rg_name, device_count in resource_group_device_count.items %}
-                {% if device_count %}
-                <li><b>{{ rg_name }}:</b> {{ device_count }} devices</li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No resource groups or devices found.</p>
-    {% endif %}
+        <canvas id="resourceGroupBarChart" width="400" height="200"></canvas>
 </div>
 
 
@@ -310,11 +298,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+                // Resource Group Bar Chart Setup (New Code)
+        var ctxBar = document.getElementById('resourceGroupBarChart').getContext('2d');
+        var resourceGroupStats = JSON.parse('{{ resource_group_device_stats|escapejs }}');
+        var labelsBar = Object.keys(resourceGroupStats);
+        var dataBar = Object.values(resourceGroupStats);
 
-        // Optionally, you can adjust the canvas size directly via CSS or here in the script
-        document.getElementById('severityPieChart').style.width = '50%';
-        document.getElementById('severityPieChart').style.height = '50%';
+        var resourceGroupBarChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: labelsBar,
+                datasets: [{
+                    label: 'Number of Devices',
+                    data: dataBar,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1  // Ensure the step size is appropriate for your data
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                }
+            }
+        });
     });
+
+
 </script>
 
 {% endblock %}
