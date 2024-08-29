@@ -1237,7 +1237,7 @@ def devices_in_resource_group(request, resource_group_name):
     """
     # Fetch the subscription object
     resource_group = get_object_or_404(ResourceGroup, name=resource_group_name)
-    subscription = Subscription.objects.filter(subscription_id=resource_group.subscription).first()
+    subscription = Subscription.objects.get(subscription_id=resource_group.subscription)
 
     # Fetch all devices related to the subscription
     devices = Device.objects.filter(resource_group=resource_group)
