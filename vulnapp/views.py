@@ -1302,6 +1302,7 @@ def devices_in_resource_group(request, resource_group_name):
         'device_vulnerability_stats': device_vulnerability_stats,
         'total_vulnerabilities': total_vulnerabilities,
         'severity_stats': json.dumps(severity_stats_dict),
+        'subscription': resource_group.subscription,
     }
     
     return render(request, 'resource_group_devices.html', context)
