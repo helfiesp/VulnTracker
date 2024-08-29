@@ -75,7 +75,9 @@
     <h2>Resource Group Information</h2>
  <div class="statistic-square">
         <p id="vulnerability-description">
-            <a href="{% url 'devices_in_subscription' subscription_id=subscription.subscription_id %}">TEST</a>
+            <a href="{% url 'devices_in_subscription' subscription.subscription_id %}">TEST</a>
+
+
             <b>Subscription: </b>{{ subscription }}</a><br>
             <b>Resource Group:</b> {{ resource_group|filter_device_info }}<br>
             <b>Devices:</b> {{ device_count }}<br>
