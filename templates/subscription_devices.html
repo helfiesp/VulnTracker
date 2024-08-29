@@ -76,7 +76,13 @@
  <div class="statistic-square">
         <p id="vulnerability-description">
             <b>Subscription:</b> {{ subscription|filter_device_info }}<br>
-            <b>Devices:</b> {{ device_count }}<br>
+            <b>Total devicecount:</b> {{ device_count }}<br>
+                <ul>
+        {% for rg_name, device_count in resource_group_device_count.items %}
+            <li><b>{{ rg_name }}:</b> {{ device_count }} devices</li>
+        {% endfor %}
+    </ul>
+
         </p>
 
     </div>
