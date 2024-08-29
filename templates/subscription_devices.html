@@ -230,8 +230,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+
     document.addEventListener('DOMContentLoaded', function() {
-        // Severity Pie Chart Setup (Existing Code)
+        // Severity Pie Chart Setup (Updated Code)
         var ctxPie = document.getElementById('severityPieChart').getContext('2d');
         var severityStats = JSON.parse('{{ severity_stats|escapejs }}');
         var labelsPie = Object.keys(severityStats);
@@ -249,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var severityPieChart = new Chart(ctxPie, {
             type: 'pie',
             data: {
-                labels: labelsPie.map(function(label, index) { return label + ": " + dataPie[index]; }),
+                labels: labelsPie,
                 datasets: [{
                     data: dataPie,
                     backgroundColor: backgroundColorsPie,
@@ -264,7 +265,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         position: 'left',
                         labels: { font: { size: 14 } }
                     },
-                    tooltip: { enabled: false }
+                    tooltip: {
+                        enabled: true, // Enable tooltips
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                var label = tooltipItem.label || '';
+                                var value = tooltipItem.raw || 0;
+                                return label + ': ' + value + ' vulnerabilities';
+                            }
+                        }
+                    }
                 },
                 layout: {
                     padding: { left: 0, right: 20, top: 0, bottom: 0 }
