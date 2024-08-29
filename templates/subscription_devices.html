@@ -84,7 +84,9 @@
     {% if resource_group_device_count %}
         <ul>
             {% for rg_name, device_count in resource_group_device_count.items %}
+                {% if device_count %}
                 <li><b>{{ rg_name }}:</b> {{ device_count }} devices</li>
+                {% endif %}
             {% endfor %}
         </ul>
     {% else %}
@@ -92,10 +94,6 @@
     {% endif %}
 </div>
 
-<!-- Debugging output -->
-{% for key, value in resource_group_device_count.items %}
-    <p>Resource Group: {{ key }}, Device Count: {{ value }}</p>
-{% endfor %}
 
 
 
