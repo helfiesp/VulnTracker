@@ -318,7 +318,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (elements.length > 0) {
                         var elementIndex = elements[0].index;  // Get the index of the clicked bar
                         var resourceGroupName = labelsBar[elementIndex];  // Get the name of the resource group
-                        window.location.href = "{% url 'devices_in_resource_group' '' %}" + resourceGroupName;  // Redirect to URL with resource group name
+                        // Construct the URL directly in JavaScript
+                        var url = "{% url 'devices_in_resource_group' 'dummy' %}".replace('dummy', resourceGroupName);
+                        window.location.href = url;  // Redirect to URL with resource group name
                     }
                 }
             }
