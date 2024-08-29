@@ -74,13 +74,12 @@
 <div class="left-chart-box">
     <h2>Subscription Information</h2>
  <div class="statistic-square">
-        <p id="vulnerability-description">
-            <b>Subscription:</b> {{ subscription|filter_device_info }}<br>
-            <b>Total devicecount:</b> {{ device_count }}<br>
-        </p>
 
-        <canvas id="resourceGroupBarChart" width="400" height="200"></canvas>
 
+
+        <div class="statistic-square-chart">
+            <canvas id="resourceGroupBarChart"></canvas>
+        </div>
 
 
 
