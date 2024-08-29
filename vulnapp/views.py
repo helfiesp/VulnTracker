@@ -1237,7 +1237,6 @@ def devices_in_resource_group(request, resource_group_name):
     """
     # Fetch the subscription object
     resource_group = get_object_or_404(ResourceGroup, name=resource_group_name)
-    subscription = Subscription.objects.get(subscription_id=resource_group.subscription)
 
     # Fetch all devices related to the subscription
     devices = Device.objects.filter(resource_group=resource_group)
@@ -1303,7 +1302,7 @@ def devices_in_resource_group(request, resource_group_name):
         'device_vulnerability_stats': device_vulnerability_stats,
         'total_vulnerabilities': total_vulnerabilities,
         'severity_stats': json.dumps(severity_stats_dict),
-        'subscription': subscription,
+        'subscription': resource_group.subscription,
     }
     
     return render(request, 'resource_group_devices.html', context)
