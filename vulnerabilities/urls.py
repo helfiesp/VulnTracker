@@ -43,6 +43,7 @@ urlpatterns = [
     path('devices/', views.device_list, name='device_list'),
     path('devices/subscription/<str:subscription_id>/', views.devices_in_subscription, name='devices_in_subscription'),
     path('devices/resource_group/<str:resource_group_name>/', views.devices_in_resource_group, name='devices_in_resource_group'),
+    path('devices/subscription/<str:subscription_id>/fetch_machines/<str:severity>/', views.fetch_machines_by_severity, name='fetch_machines_by_severity'),
 
 
 ]

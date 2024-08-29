@@ -1323,3 +1323,23 @@ def devices_in_resource_group(request, resource_group_name):
     }
     
     return render(request, 'resource_group_devices.html', context)
+
+
+def fetch_machines_by_severity(request, subscription_id, severity):
+    """
+    AJAX view to fetch machines (MachineReferences) with a given severity for a specific subscription.
+    """
+    # Fetch the subscription object
+    subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
+    
+    # Fetch all devices related to the subscription
+    devices = Device.objects.filter(subscription=subscription)
+    
+    # Fetch all MachineReference objects with the selected severity that are part of the subscription's devices
+    machine_references = MachineReference.objects.filter(
+        device__in=devices,
+        vulnerability__severity=severity
+    ).values('machine_id', 'computer_dns_name', 'os_platform', 'detection_time')
+
+    # Return the results as a JSON response
+    return JsonResponse(list(machine_references), safe=False)
