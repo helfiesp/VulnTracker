@@ -76,7 +76,8 @@
  <div class="statistic-square">
         <p id="vulnerability-description">
 {% if subscription and subscription.subscription_id %}
-    <a href="{% url 'devices_in_subscription' subscription.subscription_id %}">TEST</a>
+    {{ "<a href='{% url 'devices_in_subscription' subscription.subscription_id %}'>TEST</a>"|safe }}
+
 {% else %}
     <p>Subscription ID not found.</p>
 {% endif %}
