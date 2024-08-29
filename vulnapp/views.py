@@ -1263,7 +1263,7 @@ def devices_in_resource_group(request, resource_group_name):
             vuln_count = vuln_data.count()
             total_vulnerabilities += vuln_count
         else:
-            vuln_count = "N/A"  # Indicating data needs to be fetched from the API or is not available
+            vuln_count = vuln_data
 
         # Generate unique identifier for the device to fetch comments
         unique_id = device.device_id
