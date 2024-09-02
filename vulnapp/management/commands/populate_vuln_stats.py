@@ -19,9 +19,10 @@ class Command(BaseCommand):
             devices = Device.objects.filter(subscription=subscription)
 
             for device in devices:
-                print(device)
+
                 # Fetch all vulnerabilities related to the device
-                machine_references = MachineReference.objects.filter(device=device)
+                machine_references = MachineReference.objects.filter(computer_dns_name__icontains=device.display_name.lower())
+                print(machine_references)
 
                 for machine_ref in machine_references:
                     severity = machine_ref.vulnerability.severity
