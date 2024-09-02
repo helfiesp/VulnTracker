@@ -12,28 +12,28 @@ class Command(BaseCommand):
 
         # Iterate over all subscriptions
         for subscription in subscriptions:
-            # Initialize vulnerability count dictionary
-            subscription_vuln_count = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0}
-
+            
             # Fetch all devices related to the subscription
             devices = Device.objects.filter(subscription=subscription)
 
-            for device in devices:
+            if devices:
+                subscription_vuln_count = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0}
+                for device in devices:
 
-                # Fetch all vulnerabilities related to the device
-                machine_references = MachineReference.objects.filter(computer_dns_name__icontains=device.display_name.lower())
-                print(machine_references)
+                    # Fetch all vulnerabilities related to the device
+                    machine_references = MachineReference.objects.filter(computer_dns_name__icontains=device.display_name.lower())
 
-                for machine_ref in machine_references:
-                    severity = machine_ref.vulnerability.severity
-                    if severity in subscription_vuln_count:
-                        subscription_vuln_count[severity] += 1
-                    else:
-                        subscription_vuln_count[severity] = 1
 
-            # Update the subscription's vulnerability count
-            subscription.vulnerability_count = subscription_vuln_count
-            subscription.save()
-            if subscription_vuln_count:
-                self.stdout.write(self.style.SUCCESS(f'Successfully updated Subscription {subscription.display_name} with vulnerability counts {subscription_vuln_count}'))
+                    for machine_ref in machine_references:
+                        severity = machine_ref.vulnerability.severity
+                        if severity in subscription_vuln_count:
+                            subscription_vuln_count[severity] += 1
+                        else:
+                            subscription_vuln_count[severity] = 1
+
+                # Update the subscription's vulnerability count
+                subscription.vulnerability_count = subscription_vuln_count
+                subscription.save()
+                if subscription_vuln_count:
+                    self.stdout.write(self.style.SUCCESS(f'Successfully updated Subscription {subscription.display_name} with vulnerability counts {subscription_vuln_count}'))
 
