@@ -6,54 +6,42 @@ class Command(BaseCommand):
     help = 'Populates the vulnerability count field for subscriptions and resource groups'
 
     def handle(self, *args, **kwargs):
-        # Update vulnerability counts for each subscription
-        subscriptions = Subscription.objects.all()
-        for subscription in subscriptions:
-            # Get all devices for the subscription
-            devices = Device.objects.filter(subscription=subscription)
+        # Initialize dictionaries to store aggregated counts
+        subscription_vuln_counts = {}
+        resource_group_vuln_counts = {}
 
-            # Initialize the vulnerability count dictionary
-            vulnerability_count = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0}
+        # Fetch all devices
+        devices = Device.objects.all()
 
-            # Get the vulnerability counts grouped by severity
-            machine_references = MachineReference.objects.filter(device__in=devices)
-            severity_counts = machine_references.values('vulnerability__severity').annotate(count=Count('vulnerability__severity'))
+        for device in devices:
+            subscription = device.subscription
+            resource_group = device.resource_group
 
-            # Populate the vulnerability count dictionary
-            for severity in severity_counts:
-                severity_level = severity['vulnerability__severity']
-                count = severity['count']
-                if severity_level in vulnerability_count:
-                    vulnerability_count[severity_level] = count
+            # Initialize vulnerability count dictionaries if not already present
+            if subscription and subscription.pk not in subscription_vuln_counts:
+                subscription_vuln_counts[subscription.pk] = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0}
 
-            # Update the subscription with the calculated vulnerability count
-            subscription.vulnerability_count = vulnerability_count
-            subscription.save()
+            if resource_group and resource_group.pk not in resource_group_vuln_counts:
+                resource_group_vuln_counts[resource_group.pk] = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0}
 
-            self.stdout.write(self.style.SUCCESS(f'Successfully updated {subscription} with vulnerability counts'))
+            # Fetch vulnerabilities for the device
+            machine_references = MachineReference.objects.filter(device=device)
 
-        # Update vulnerability counts for each resource group
-        resource_groups = ResourceGroup.objects.all()
-        for resource_group in resource_groups:
-            # Get all devices for the resource group
-            devices = Device.objects.filter(resource_group=resource_group)
+            for machine_ref in machine_references:
+                severity = machine_ref.vulnerability.severity
+                # Increment counts based on severity
+                if subscription:
+                    subscription_vuln_counts[subscription.pk][severity] += 1
 
-            # Initialize the vulnerability count dictionary
-            vulnerability_count = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0}
+                if resource_group:
+                    resource_group_vuln_counts[resource_group.pk][severity] += 1
 
-            # Get the vulnerability counts grouped by severity
-            machine_references = MachineReference.objects.filter(device__in=devices)
-            severity_counts = machine_references.values('vulnerability__severity').annotate(count=Count('vulnerability__severity'))
+        # Update each subscription's vulnerability count
+        for sub_id, counts in subscription_vuln_counts.items():
+            Subscription.objects.filter(pk=sub_id).update(vulnerability_count=counts)
+            self.stdout.write(self.style.SUCCESS(f'Successfully updated Subscription {sub_id} with vulnerability counts {counts}'))
 
-            # Populate the vulnerability count dictionary
-            for severity in severity_counts:
-                severity_level = severity['vulnerability__severity']
-                count = severity['count']
-                if severity_level in vulnerability_count:
-                    vulnerability_count[severity_level] = count
-
-            # Update the resource group with the calculated vulnerability count
-            resource_group.vulnerability_count = vulnerability_count
-            resource_group.save()
-
-            self.stdout.write(self.style.SUCCESS(f'Successfully updated {resource_group} with vulnerability counts'))
+        # Update each resource group's vulnerability count
+        for rg_id, counts in resource_group_vuln_counts.items():
+            ResourceGroup.objects.filter(pk=rg_id).update(vulnerability_count=counts)
+            self.stdout.write(self.style.SUCCESS(f'Successfully updated Resource Group {rg_id} with vulnerability counts {counts}'))
