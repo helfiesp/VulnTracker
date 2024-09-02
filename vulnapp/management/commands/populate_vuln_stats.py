@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.db.models import Count
-from myapp.models import Subscription, Device, MachineReference, ResourceGroup
+from vulnapp.models import Subscription, Device, MachineReference, ResourceGroup
 
 class Command(BaseCommand):
     help = 'Populates the vulnerability count field for subscriptions and resource groups'
