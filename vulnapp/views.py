@@ -1361,8 +1361,11 @@ def display_all_subscriptions(request):
         device_count = Device.objects.filter(subscription=subscription).count()
 
         # Count vulnerabilities related to devices in the subscription
+        # First, fetch all devices under the current subscription
+        devices = Device.objects.filter(subscription=subscription)
+        # Then, filter MachineReferences that have these devices
         vulnerability_count = MachineReference.objects.filter(
-            device__subscription=subscription
+            device__in=devices
         ).count()
 
         # Count resource groups related to the subscription
