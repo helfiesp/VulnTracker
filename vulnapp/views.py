@@ -1344,7 +1344,6 @@ def fetch_machines_by_severity(request, subscription_id, severity):
     # Return the results as a JSON response
     return JsonResponse(list(machine_references), safe=False)
 
-
 def display_all_subscriptions(request):
     """
     View function to display all subscriptions with their respective
@@ -1357,18 +1356,16 @@ def display_all_subscriptions(request):
     subscription_details = []
 
     for subscription in subscriptions:
-        # Count devices related to the subscription
-        device_count = Device.objects.filter(subscription=subscription).count()
-
-        # Count vulnerabilities related to devices in the subscription
-        # First, fetch all devices under the current subscription
+        # Fetch all devices related to the subscription
         devices = Device.objects.filter(subscription=subscription)
-        # Then, filter MachineReferences that have these devices
-        vulnerability_count = MachineReference.objects.filter(
-            device__in=devices
-        ).count()
 
-        # Count resource groups related to the subscription
+        # Count the number of devices
+        device_count = devices.count()
+
+        # Count the number of vulnerabilities related to the subscription's devices
+        vulnerability_count = MachineReference.objects.filter(device__in=devices).count()
+
+        # Count the number of resource groups related to the subscription
         resource_group_count = ResourceGroup.objects.filter(subscription=subscription).count()
 
         # Add the details to the list
