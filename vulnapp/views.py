@@ -1347,7 +1347,7 @@ def fetch_machines_by_severity(request, subscription_id, severity):
 def display_all_subscriptions(request):
     """
     View function to display all subscriptions with their respective
-    number of devices, vulnerabilities, and resource groups.
+    number of vulnerabilities and resource groups.
     """
     # Fetch all subscriptions
     subscriptions = Subscription.objects.all()
@@ -1356,11 +1356,8 @@ def display_all_subscriptions(request):
     subscription_details = []
 
     for subscription in subscriptions:
-        # Fetch all devices related to the subscription
-        devices = Device.objects.filter(subscription=subscription)
-
-        # Count the number of devices
-        device_count = devices.count()
+        # Fetch the vulnerability count from the subscription's field
+        vulnerability_count = subscription.vulnerability_count
 
         # Count the number of resource groups related to the subscription
         resource_group_count = ResourceGroup.objects.filter(subscription=subscription).count()
@@ -1368,8 +1365,7 @@ def display_all_subscriptions(request):
         # Add the details to the list
         subscription_details.append({
             'subscription': subscription,
-            'device_count': device_count,
-            'vulnerability_count': subscription.vulnerability_count,
+            'vulnerability_count': vulnerability_count,
             'resource_group_count': resource_group_count,
         })
 
