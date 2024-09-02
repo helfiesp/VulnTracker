@@ -1362,9 +1362,6 @@ def display_all_subscriptions(request):
         # Count the number of devices
         device_count = devices.count()
 
-        # Count the number of vulnerabilities related to the subscription's devices
-
-
         # Count the number of resource groups related to the subscription
         resource_group_count = ResourceGroup.objects.filter(subscription=subscription).count()
 
@@ -1372,7 +1369,7 @@ def display_all_subscriptions(request):
         subscription_details.append({
             'subscription': subscription,
             'device_count': device_count,
-            'vulnerability_count': vulnerability_count,
+            'vulnerability_count': subscription.vulnerability_count,
             'resource_group_count': resource_group_count,
         })
 
