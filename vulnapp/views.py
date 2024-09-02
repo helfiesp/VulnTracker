@@ -1163,6 +1163,7 @@ def devices_in_subscription(request, subscription_id):
     
     # Fetch all devices related to the subscription
     devices = Device.objects.filter(subscription=subscription)
+    print(devices)
 
     # Get today's date
     today = timezone.now().date()
@@ -1182,7 +1183,6 @@ def devices_in_subscription(request, subscription_id):
 
     for device in devices:
         # Fetch MachineReference objects for the current device
-        print(device)
         vuln_data = MachineReference.objects.filter(computer_dns_name__icontains=device.display_name)
 
         if vuln_data.filter(last_updated__date=today).exists():
