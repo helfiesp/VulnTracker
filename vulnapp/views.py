@@ -1363,10 +1363,7 @@ def display_all_subscriptions(request):
         device_count = devices.count()
 
         # Count the number of vulnerabilities related to the subscription's devices
-        machine_references = MachineReference.objects.filter(
-            device__in=devices
-        ).values('machine_id', 'computer_dns_name', 'os_platform', 'detection_time')
-        print(machine_references)
+
 
         # Count the number of resource groups related to the subscription
         resource_group_count = ResourceGroup.objects.filter(subscription=subscription).count()

@@ -306,11 +306,14 @@ class Subscription(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # New field to store vulnerability counts by severity
+    vulnerability_count = models.JSONField(default=dict, blank=True)
+
     def __str__(self):
         return f"{self.display_name} ({self.subscription_id})"
 
 class ResourceGroup(models.Model):
-    resource_group_id = models.CharField(max_length=100, unique=True)  # This remains as is
+    resource_group_id = models.CharField(max_length=100, unique=True)
     subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE, related_name='resource_groups')
     name = models.CharField(max_length=255)
     location = models.CharField(max_length=100)
@@ -318,6 +321,9 @@ class ResourceGroup(models.Model):
     provisioning_state = models.CharField(max_length=50, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # New field to store vulnerability counts by severity
+    vulnerability_count = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.resource_group_id})"
