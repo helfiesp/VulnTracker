@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Subscriptions</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>All Subscriptions</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Subscription</th>
+                <th>Devices</th>
+                <th>Vulnerabilities</th>
+                <th>Resource Groups</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detail in subscription_details %}
+                <tr>
+                    <td>{{ detail.subscription.display_name }}</td>
+                    <td>{{ detail.device_count }}</td>
+                    <td>{{ detail.vulnerability_count }}</td>
+                    <td>{{ detail.resource_group_count }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

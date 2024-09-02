@@ -45,5 +45,8 @@ urlpatterns = [
     path('devices/resource_group/<str:resource_group_name>/', views.devices_in_resource_group, name='devices_in_resource_group'),
     path('devices/subscription/<str:subscription_id>/fetch_machines/<str:severity>/', views.fetch_machines_by_severity, name='fetch_machines_by_severity'),
 
+    path('subscriptions/', views.display_all_subscriptions, name='display_all_subscriptions'),
+
+
 
 ]
