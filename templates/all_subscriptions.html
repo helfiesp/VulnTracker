@@ -36,7 +36,13 @@
                 <tr>
                     <td>{{ detail.subscription.display_name }}</td>
                     <td>{{ detail.device_count }}</td>
-                    <td>{{ detail.vulnerability_count }}</td>
+                    <td>
+                        {% for key, value in detail.vulnerability_count.items %}
+                            {% if value != 0 %}
+                                {{ key }}: {{ value }}<br>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
                     <td>{{ detail.resource_group_count }}</td>
                 </tr>
             {% endfor %}
