@@ -21,7 +21,7 @@
             {% for detail in subscription_details %}
                 <tr>
                     <td><a href="{% url 'devices_in_subscription' subscription_id=detail.subscription.subscription_id %}">{{ detail.subscription.display_name }}</a></td>
-                    <td>Vulnerability count</td>
+                    <td>{{ detail.total_vulnerability_count }}</td>
                     <td>
                         {% for key, value in detail.vulnerability_count.items %}
                             {% if value != 0 %}
