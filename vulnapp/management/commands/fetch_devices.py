@@ -113,17 +113,17 @@ class Command(BaseCommand):
                         network_interface = self.fetch_network_interface_details(subscription.subscription_id, resource_group.name, vm_id, headers)
 
                         if network_interface:
-                        public_ip_assigned = False  # Assume no public IP by default
-                        # Iterate over the network interface's IP configurations
-                        ip_configurations = network_interface.get('properties', {}).get('ipConfigurations', [])
-                        
-                        for ip_config in ip_configurations:
-                            public_ip = ip_config.get('properties', {}).get('publicIPAddress', None)
-                            if public_ip:
-                                public_ip_details = self.fetch_public_ip(subscription.subscription_id, resource_group.name, public_ip['id'], headers)
-                                if public_ip_details:
-                                    public_ip_assigned = True  # VM is publicly exposed
-                                    self.stdout.write(self.style.WARNING(f"VM {vm_name} is publicly exposed with IP: {public_ip_details['properties']['ipAddress']}"))
+                            public_ip_assigned = False  # Assume no public IP by default
+                            # Iterate over the network interface's IP configurations
+                            ip_configurations = network_interface.get('properties', {}).get('ipConfigurations', [])
+                            
+                            for ip_config in ip_configurations:
+                                public_ip = ip_config.get('properties', {}).get('publicIPAddress', None)
+                                if public_ip:
+                                    public_ip_details = self.fetch_public_ip(subscription.subscription_id, resource_group.name, public_ip['id'], headers)
+                                    if public_ip_details:
+                                        public_ip_assigned = True  # VM is publicly exposed
+                                        self.stdout.write(self.style.WARNING(f"VM {vm_name} is publicly exposed with IP: {public_ip_details['properties']['ipAddress']}"))
 
                         # Log or update the VM record with public exposure status
                         if public_ip_assigned:
