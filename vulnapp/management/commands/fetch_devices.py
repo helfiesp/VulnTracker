@@ -130,8 +130,6 @@ class Command(BaseCommand):
                         if public_ip_assigned:
                             # Save or update this information to your Device model
                             self.stdout.write(self.style.WARNING(f"VM {vm_name} is publicly accessible."))
-                        else:
-                            self.stdout.write(self.style.SUCCESS(f"VM {vm_name} is not publicly accessible."))
 
                         # Debug output to verify VM details
                         self.stdout.write(f"Processing VM: {vm_name}, ID: {vm_id}, OS: {os_type}, OS Version: {os_version}")
