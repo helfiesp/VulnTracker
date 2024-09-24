@@ -1359,10 +1359,16 @@ def display_all_subscriptions(request):
         # Fetch the vulnerability count from the subscription's field
         vulnerability_count = subscription.vulnerability_count
 
+        # Skip this subscription if all severity levels are 0
+        if (vulnerability_count.get('Critical', 0) == 0 and
+            vulnerability_count.get('High', 0) == 0 and
+            vulnerability_count.get('Medium', 0) == 0 and
+            vulnerability_count.get('Low', 0) == 0):
+            continue  # Skip this subscription
+
         # Count the number of resource groups related to the subscription
         resource_group_count = ResourceGroup.objects.filter(subscription=subscription).count()
 
-        print(vulnerability_count)
         subscription_details.append({
             'subscription': subscription,
             'vulnerability_count': vulnerability_count,
