@@ -36,8 +36,6 @@ class Command(BaseCommand):
 
         if response.status_code == 200:
             vms = response.json().get("value", [])
-            if len(vms):
-                self.stdout.write(self.style.SUCCESS(f"Found {len(vms)} VMs in resource group {resource_group_name} under subscription {subscription_id}."))
             return vms
         elif response.status_code == 404:
             return []  # Return an empty list if no VMs are found
@@ -131,8 +129,6 @@ class Command(BaseCommand):
                             # Save or update this information to your Device model
                             self.stdout.write(self.style.WARNING(f"VM {vm_name} is publicly accessible."))
 
-                        # Debug output to verify VM details
-                        self.stdout.write(f"Processing VM: {vm_name}, ID: {vm_id}, OS: {os_type}, OS Version: {os_version}")
 
                         if not vm_id or not vm_name:
                             self.stdout.write(self.style.ERROR(f"VM details are incomplete: {vm}"))
