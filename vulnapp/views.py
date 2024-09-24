@@ -1362,12 +1362,12 @@ def display_all_subscriptions(request):
         # Count the number of resource groups related to the subscription
         resource_group_count = ResourceGroup.objects.filter(subscription=subscription).count()
 
-        if vulnerability_count:
-            subscription_details.append({
-                'subscription': subscription,
-                'vulnerability_count': vulnerability_count,
-                'resource_group_count': resource_group_count,
-            })
+        print(vulnerability_count)
+        subscription_details.append({
+            'subscription': subscription,
+            'vulnerability_count': vulnerability_count,
+            'resource_group_count': resource_group_count,
+        })
 
     context = {
         'subscription_details': subscription_details
