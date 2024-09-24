@@ -44,6 +44,32 @@ class Command(BaseCommand):
         else:
             return []
 
+    def fetch_network_interface_details(self, subscription_id, resource_group_name, vm_name, headers):
+        """Fetches network interface details for a VM."""
+        # Updated API version for NICs
+        api_version = "2023-09-01"  # Use a supported API version
+        url = f"https://management.azure.com/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/Microsoft.Network/networkInterfaces?api-version={api_version}"
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            network_interfaces = response.json().get("value", [])
+            for nic in network_interfaces:
+                # Check if NIC belongs to the VM
+                if nic.get('virtualMachine', {}).get('id', '').lower() == vm_name.lower():
+                    return nic  # Return the network interface details for the VM
+        return None  # No network interface found
+
+    def fetch_public_ip(self, subscription_id, resource_group_name, public_ip_id, headers):
+        """Fetches details of the public IP address."""
+        api_version = "2023-09-01"  # Use a supported API version
+        url = f"https://management.azure.com{public_ip_id}?api-version={api_version}"
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            public_ip_details = response.json()
+            return public_ip_details
+        return None
+
     def handle(self, *args, **options):
         """Main method to handle fetching and storing device details."""
         scan_status = ScanStatus.objects.create(scan_type='Azure Device Fetch', status='in_progress', details='{}')
@@ -83,12 +109,36 @@ class Command(BaseCommand):
                         compliance_state = vm.get('properties', {}).get('provisioningState', None)
                         last_sync = vm.get('properties', {}).get('instanceView', {}).get('statuses', [{}])[0].get('time', None)
                         
+                        # Fetch network interface details
+                        network_interface = self.fetch_network_interface_details(subscription.subscription_id, resource_group.name, vm_id, headers)
+
+                        if network_interface:
+                        public_ip_assigned = False  # Assume no public IP by default
+                        # Iterate over the network interface's IP configurations
+                        ip_configurations = network_interface.get('properties', {}).get('ipConfigurations', [])
+                        
+                        for ip_config in ip_configurations:
+                            public_ip = ip_config.get('properties', {}).get('publicIPAddress', None)
+                            if public_ip:
+                                public_ip_details = self.fetch_public_ip(subscription.subscription_id, resource_group.name, public_ip['id'], headers)
+                                if public_ip_details:
+                                    public_ip_assigned = True  # VM is publicly exposed
+                                    self.stdout.write(self.style.WARNING(f"VM {vm_name} is publicly exposed with IP: {public_ip_details['properties']['ipAddress']}"))
+
+                        # Log or update the VM record with public exposure status
+                        if public_ip_assigned:
+                            # Save or update this information to your Device model
+                            self.stdout.write(self.style.WARNING(f"VM {vm_name} is publicly accessible."))
+                        else:
+                            self.stdout.write(self.style.SUCCESS(f"VM {vm_name} is not publicly accessible."))
+
                         # Debug output to verify VM details
                         self.stdout.write(f"Processing VM: {vm_name}, ID: {vm_id}, OS: {os_type}, OS Version: {os_version}")
 
                         if not vm_id or not vm_name:
                             self.stdout.write(self.style.ERROR(f"VM details are incomplete: {vm}"))
                             continue  # Skip this VM if critical details are missing
+
 
                         # Check if the device already exists
                         device = Device.objects.filter(device_id=vm_id).first()
