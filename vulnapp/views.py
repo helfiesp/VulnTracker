@@ -1163,7 +1163,6 @@ def devices_in_subscription(request, subscription_id):
     
     # Fetch all devices related to the subscription
     devices = Device.objects.filter(subscription=subscription)
-    print(devices)
 
     # Get today's date
     today = timezone.now().date()
@@ -1363,12 +1362,12 @@ def display_all_subscriptions(request):
         # Count the number of resource groups related to the subscription
         resource_group_count = ResourceGroup.objects.filter(subscription=subscription).count()
 
-        # Add the details to the list
-        subscription_details.append({
-            'subscription': subscription,
-            'vulnerability_count': vulnerability_count,
-            'resource_group_count': resource_group_count,
-        })
+        if vulnerability_count:
+            subscription_details.append({
+                'subscription': subscription,
+                'vulnerability_count': vulnerability_count,
+                'resource_group_count': resource_group_count,
+            })
 
     context = {
         'subscription_details': subscription_details
