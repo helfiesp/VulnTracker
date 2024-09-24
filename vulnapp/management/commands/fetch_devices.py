@@ -112,6 +112,7 @@ class Command(BaseCommand):
                         # Fetch network interface details
                         network_interface = self.fetch_network_interface_details(subscription.subscription_id, resource_group.name, vm_id, headers)
 
+                        public_ip_assigned = False
                         if network_interface:
                             public_ip_assigned = False  # Assume no public IP by default
                             # Iterate over the network interface's IP configurations
