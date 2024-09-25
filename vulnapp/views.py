@@ -267,11 +267,11 @@ def save_machine_references_from_api(cve, machine_data_list):
         for machine_data in machine_data_list:
             MachineReference.objects.create(
                 vulnerability=cve,
-                machine_id=machine_data['id'],
-                computer_dns_name=machine_data.get('computerDnsName'),
-                os_platform=machine_data.get('osPlatform'),
+                machine_id=machine_id,
+                computer_dns_name=machine_data['computerDnsName'].replace(".psr.local", "").lower(),
+                os_platform=machine_data['osPlatform'],
                 rbac_group_name=machine_data.get('rbacGroupName', ''),
-                rbac_group_id=machine_data.get('rbacGroupId', None),
+                rbac_group_id=machine_data.get('rbacGroupId', 0),
                 detection_time=parse(machine_data.get('detectionTime')) if machine_data.get('detectionTime') else None,
             )
 
@@ -283,17 +283,13 @@ def machine_list(request, cve_id):
     """
     cve = get_object_or_404(Vulnerability, id=cve_id)
     machines = cve.machine_references.all()
-    is_fetching_from_api = False  # Default to False
 
-    if not machines.exists():
-        token = fetch_auth_token()
-        if token:
-            is_fetching_from_api = True
-            api_machines = fetch_machine_references_for_cve_from_api(cve_id, token)
-            if api_machines:
-                save_machine_references_from_api(cve, api_machines)
-                machines = cve.machine_references.all() 
-                is_fetching_from_api = False 
+    token = fetch_auth_token()
+
+    api_machines = fetch_machine_references_for_cve_from_api(cve_id, token)
+    if api_machines:
+        save_machine_references_from_api(cve, api_machines)
+        machines = cve.machine_references.all() 
 
     machine_content_type = ContentType.objects.get_for_model(MachineReference)
 
