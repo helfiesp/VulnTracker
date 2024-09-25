@@ -267,7 +267,7 @@ def save_machine_references_from_api(cve, machine_data_list):
         for machine_data in machine_data_list:
             MachineReference.objects.create(
                 vulnerability=cve,
-                machine_id=machine_id,
+                machine_id=machine_data['id'],
                 computer_dns_name=machine_data['computerDnsName'].replace(".psr.local", "").lower(),
                 os_platform=machine_data['osPlatform'],
                 rbac_group_name=machine_data.get('rbacGroupName', ''),
