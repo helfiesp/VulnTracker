@@ -265,18 +265,16 @@ def save_machine_references_from_api(cve, machine_data_list):
     """Process and save machine data fetched from the API."""
     with transaction.atomic():
         for machine_data in machine_data_list:
-            MachineReference.objects.update_or_create(
-                machine_id=machine_data['id'],  # Assuming machine_id is unique within the context of cve
-                vulnerability=cve,  # Include cve in the lookup to make it more unique
-                defaults={
-                    'computer_dns_name': machine_data['computerDnsName'].replace(".psr.local", "").lower(),
-                    'os_platform': machine_data['osPlatform'],
-                    'rbac_group_name': machine_data.get('rbacGroupName', ''),
-                    'rbac_group_id': machine_data.get('rbacGroupId', 0),
-                    'detection_time': parse_datetime(machine_data.get('detectionTime')) if machine_data.get('detectionTime') else None,
-                }
+            MachineReference.objects.create(
+                vulnerability=cve,
+                machine_id=machine_data['id'],
+                computer_dns_name=machine_data.get('computerDnsName'),
+                os_platform=machine_data.get('osPlatform'),
+                rbac_group_name=machine_data.get('rbacGroupName', ''),
+                rbac_group_id=machine_data.get('rbacGroupId', None),
+                detection_time=parse(machine_data.get('detectionTime')) if machine_data.get('detectionTime') else None,
             )
-            
+
 def machine_list(request, cve_id):
 
     """
@@ -285,13 +283,17 @@ def machine_list(request, cve_id):
     """
     cve = get_object_or_404(Vulnerability, id=cve_id)
     machines = cve.machine_references.all()
+    is_fetching_from_api = False  # Default to False
 
-    token = fetch_auth_token()
-
-    api_machines = fetch_machine_references_for_cve_from_api(cve_id, token)
-    if api_machines:
-        save_machine_references_from_api(cve, api_machines)
-        machines = cve.machine_references.all() 
+    if not machines.exists():
+        token = fetch_auth_token()
+        if token:
+            is_fetching_from_api = True
+            api_machines = fetch_machine_references_for_cve_from_api(cve_id, token)
+            if api_machines:
+                save_machine_references_from_api(cve, api_machines)
+                machines = cve.machine_references.all() 
+                is_fetching_from_api = False 
 
     machine_content_type = ContentType.objects.get_for_model(MachineReference)
 
@@ -304,7 +306,6 @@ def machine_list(request, cve_id):
 
 
     for machine in machines:
-        print(machine)
         unique_id = generate_unique_comment_id(cve_id, machine.machine_id)
         comments = Comment.objects.filter(
             content_type=machine_content_type,
