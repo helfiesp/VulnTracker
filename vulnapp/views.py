@@ -266,9 +266,9 @@ def save_machine_references_from_api(cve, machine_data_list):
     with transaction.atomic():
         for machine_data in machine_data_list:
             MachineReference.objects.update_or_create(
-                machine_id=machine_data['id'],  # Assuming machine_id is unique
+                machine_id=machine_data['id'],  # Assuming machine_id is unique within the context of cve
+                vulnerability=cve,  # Include cve in the lookup to make it more unique
                 defaults={
-                    'vulnerability': cve,
                     'computer_dns_name': machine_data['computerDnsName'].replace(".psr.local", "").lower(),
                     'os_platform': machine_data['osPlatform'],
                     'rbac_group_name': machine_data.get('rbacGroupName', ''),
@@ -276,6 +276,7 @@ def save_machine_references_from_api(cve, machine_data_list):
                     'detection_time': parse_datetime(machine_data.get('detectionTime')) if machine_data.get('detectionTime') else None,
                 }
             )
+            
 def machine_list(request, cve_id):
 
     """
