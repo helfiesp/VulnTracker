@@ -265,16 +265,17 @@ def save_machine_references_from_api(cve, machine_data_list):
     """Process and save machine data fetched from the API."""
     with transaction.atomic():
         for machine_data in machine_data_list:
-            MachineReference.objects.create(
-                vulnerability=cve,
-                machine_id=machine_data['id'],
-                computer_dns_name=machine_data['computerDnsName'].replace(".psr.local", "").lower(),
-                os_platform=machine_data['osPlatform'],
-                rbac_group_name=machine_data.get('rbacGroupName', ''),
-                rbac_group_id=machine_data.get('rbacGroupId', 0),
-                detection_time=parse(machine_data.get('detectionTime')) if machine_data.get('detectionTime') else None,
+            MachineReference.objects.update_or_create(
+                machine_id=machine_data['id'],  # Assuming machine_id is unique
+                defaults={
+                    'vulnerability': cve,
+                    'computer_dns_name': machine_data['computerDnsName'].replace(".psr.local", "").lower(),
+                    'os_platform': machine_data['osPlatform'],
+                    'rbac_group_name': machine_data.get('rbacGroupName', ''),
+                    'rbac_group_id': machine_data.get('rbacGroupId', 0),
+                    'detection_time': parse_datetime(machine_data.get('detectionTime')) if machine_data.get('detectionTime') else None,
+                }
             )
-
 def machine_list(request, cve_id):
 
     """
