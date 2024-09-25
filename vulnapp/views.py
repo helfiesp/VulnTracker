@@ -306,6 +306,7 @@ def machine_list(request, cve_id):
 
 
     for machine in machines:
+        print(machine)
         unique_id = generate_unique_comment_id(cve_id, machine.machine_id)
         comments = Comment.objects.filter(
             content_type=machine_content_type,
