@@ -427,17 +427,27 @@ def cve_list_for_machine(request, computer_dns_name):
     """
     machine_references = MachineReference.objects.filter(computer_dns_name__icontains=computer_dns_name)
     software_list = Software.objects.filter(software_hosts__computer_dns_name__icontains=computer_dns_name).distinct()
-    
+
     # Initial CVE queryset sorted by CVSS score in descending order
     cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct().order_by('-cvssV3')
-    
+
+    # Fetch associated comments for each CVE
+    for cve in cves:
+        # Fetch the latest comment for each CVE (adjust based on your actual model structure)
+        latest_comment = Comment.objects.filter(
+            content_type=ContentType.objects.get_for_model(Vulnerability),
+            object_id=cve.id
+        ).order_by('-created_at').first()
+
+        # Attach the latest comment content to the CVE object (if it exists)
+        cve.latest_comment = latest_comment.content if latest_comment else ''
+
     token = fetch_auth_token()
     if token:
         api_cves = fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token)
         if api_cves:
             # Update cves queryset after fetching from API, still maintaining the order by CVSS score
             cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct().order_by('-cvssV3')
-
 
     # Extract device info and machine-specific data from one entry in machine_references
     example_reference = None
@@ -457,7 +467,6 @@ def cve_list_for_machine(request, computer_dns_name):
         else:
             severity_stats_dict[severity] = total_count
 
-
     # Device info
     try:
         try:
@@ -476,6 +485,7 @@ def cve_list_for_machine(request, computer_dns_name):
         'device_info': device_info_queryset
     }
     return render(request, 'cve_list_for_machine.html', context)
+
 
 
 # HAVEIBEENPWNED SECTION START
