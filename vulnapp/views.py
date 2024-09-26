@@ -184,7 +184,7 @@ def defender_vulnerabilities(request):
     # Sort by cvssV3 (descending) first, then by exposedMachines (descending)
     vulnerabilities = vulnerabilities.order_by('-cvssV3', '-exposedMachines')
 
-    stats_vulnerabilities, stats_exposed_machines = generate_vuln_stats(vulnerabilities)
+    total_vulnerabilities, total_exposed_machines = generate_vuln_stats(vulnerabilities)
     stats = {
         'vulnerabilities': stats_vulnerabilities,
         'exposed_machines': stats_exposed_machines,
