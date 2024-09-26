@@ -1030,22 +1030,17 @@ def add_comment(request):
         object_id = request.POST.get('result_id')
 
     elif comment_type == 'subscription-device-vuln':
-        # Handle comments for Subscription-Device-Vulnerability combination using MachineReference
+        # Handle comments for Subscription-Device-Vulnerability combination
         subscription_id = request.POST.get('subscription_id')
         device_id = request.POST.get('device_id')
         vuln_id = request.POST.get('vuln_id')
 
-        # Fetch the MachineReference entry using the device and vulnerability
-        machine_ref = get_object_or_404(
-            MachineReference,
-            device__device_id=device_id,
-            vulnerability__name=vuln_id,
-            device__subscription__subscription_id=subscription_id
-        )
+        # Fetch the device and vulnerability objects based on the subscription, device, and vuln IDs
+        device = get_object_or_404(Device, device_id=device_id, subscription__subscription_id=subscription_id)
 
-        # Prepare the content type and object_id for the generic relation
+        vuln = get_object_or_404(Vulnerability, name=vuln_id)  # Assuming the vuln_id corresponds to the CVE name
         content_type = ContentType.objects.get_for_model(MachineReference)
-        object_id = machine_ref.id  # Use the MachineReference ID
+        object_id = "{}-{}-{}".format(str(device_id), str(subscription_id), str(vuln_id))
 
     else:
         # Log or handle unsupported comment types
