@@ -150,11 +150,12 @@ document.addEventListener('DOMContentLoaded', function() {
     subscriptionStats.forEach(function(subscriptionStat, index) {
         var subscriptionId = subscriptionStat.subscription_id;
         var severityStats = subscriptionStat.severity_stats;
+        var subscriptionUrl = subscriptionStat.subscription_url;  // Use the URL from the JSON data
 
         // Create a new canvas for each subscription pie chart
         var canvasId = 'severityPieChart-' + subscriptionId;
         var chartContainer = document.createElement('div');
-        chartContainer.innerHTML = `<h3>Subscription: ${subscriptionId}</h3><canvas id="${canvasId}"></canvas>`;
+        chartContainer.innerHTML = `<h3>Subscription: <a href="${subscriptionUrl}">${subscriptionId}</a></h3><canvas id="${canvasId}"></canvas>`;
         document.getElementById('subscription-charts-container').appendChild(chartContainer);
 
         var ctxPie = document.getElementById(canvasId).getContext('2d');

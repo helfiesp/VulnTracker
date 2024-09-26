@@ -239,19 +239,26 @@ def defender_vulnerabilities_stats(request):
         sub_stats = VulnerabilitySubStats.objects.filter(date_added=stats.date_added) if stats else []
 
     if stats:
-        # Prepare subscription stats data
+        # Prepare subscription stats data, but only include subscriptions with non-zero values
         subscription_stats_list = []
         for sub_stat in sub_stats:
-            # Ensure that stats_vulnerabilities is a dictionary and properly formatted
-            subscription_stats_list.append({
-                'subscription_id': sub_stat.subscription_id,
-                'severity_stats': sub_stat.stats_vulnerabilities  # No need for json.loads here
-            })
+            severity_stats = sub_stat.stats_vulnerabilities
+
+            # Check if all values are 0, if so, skip this subscription
+            if any(severity_stats.get(key, 0) > 0 for key in ['Critical', 'High', 'Medium', 'Low']):
+                # Generate the URL for the devices_in_subscription view
+                subscription_url = reverse('devices_in_subscription', args=[sub_stat.subscription_id])
+
+                subscription_stats_list.append({
+                    'subscription_id': sub_stat.subscription_id,
+                    'severity_stats': severity_stats,  # No need for json.loads here
+                    'subscription_url': subscription_url  # Add the URL to the JSON data
+                })
         
         context = {
             'stats': {
                 'vulnerabilities': stats.stats_vulnerabilities,
-                'exposed_machines': stats.stats_exposed_machines,
+                'exposed_machines': stats.exposed_machines,
             },
             'available_dates': all_stats.values_list('date_added', flat=True),
             'selected_date': stats.date_added,
