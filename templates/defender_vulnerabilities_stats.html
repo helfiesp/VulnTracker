@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var chartContainer = document.createElement('div');
         chartContainer.className = "chart-container";  // Add class to ensure styling
         chartContainer.innerHTML = `
-            <h3>Subscription: <a href="/devices/subscription/${subscriptionId}">${subscriptionName}</a></h3>
+            <h3><a href="/devices/subscription/${subscriptionId}">${subscriptionName}</a></h3>
             <canvas id="${canvasId}" style="max-width: 100%; height: auto;"></canvas>
         `;
         document.getElementById('subscription-charts-container').appendChild(chartContainer);
