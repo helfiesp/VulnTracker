@@ -68,10 +68,12 @@
         </div>
     </div>
 
-    <!-- Subscription-level vulnerability severity pie chart -->
+    <!-- Subscription-level vulnerability severity pie charts -->
     <div class="chart-container">
         <h2>Subscription Vulnerability Statistics</h2>
-        <canvas id="severityPieChart"></canvas>
+        <div id="subscription-charts-container">
+            <!-- Pie charts will be dynamically created here -->
+        </div>
     </div>
 </main>
 
@@ -140,54 +142,66 @@ const exposedMachinesChart = new Chart(document.getElementById('exposedMachinesC
     }
 });
 
-// Severity Pie Chart Setup
+// Render subscription severity pie charts
 document.addEventListener('DOMContentLoaded', function() {
-    var ctxPie = document.getElementById('severityPieChart').getContext('2d');
     var subscriptionStats = JSON.parse('{{ subscription_stats|escapejs }}');
-    var severityStats = subscriptionStats.length > 0 ? subscriptionStats[0].severity_stats : {}; // Assuming one subscription for simplicity
-    var labelsPie = Object.keys(severityStats);
-    var dataPie = Object.values(severityStats);
-    var backgroundColorsPie = labelsPie.map(function(severity) {
-        switch (severity) {
-            case 'Critical': return '#D32F2F';
-            case 'High': return '#FF5722';
-            case 'Medium': return '#FFC107';
-            case 'Low': return '#8BC34A';
-            default: return '#00BCD4';
-        }
-    });
 
-    var severityPieChart = new Chart(ctxPie, {
-        type: 'pie',
-        data: {
-            labels: labelsPie.map(function(label, index) {
-                return label + ": " + dataPie[index];
-            }),
-            datasets: [{
-                data: dataPie,
-                backgroundColor: backgroundColorsPie,
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'left',
-                    labels: { font: { size: 14 } }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            var label = tooltipItem.label || '';
-                            var value = tooltipItem.raw || 0;
-                            return label + ': ' + value + ' vulnerabilities';
+    // Iterate over each subscription's stats and create a pie chart for each
+    subscriptionStats.forEach(function(subscriptionStat, index) {
+        var subscriptionId = subscriptionStat.subscription_id;
+        var severityStats = subscriptionStat.severity_stats;
+
+        // Create a new canvas for each subscription pie chart
+        var canvasId = 'severityPieChart-' + subscriptionId;
+        var chartContainer = document.createElement('div');
+        chartContainer.innerHTML = `<h3>Subscription: ${subscriptionId}</h3><canvas id="${canvasId}"></canvas>`;
+        document.getElementById('subscription-charts-container').appendChild(chartContainer);
+
+        var ctxPie = document.getElementById(canvasId).getContext('2d');
+        var labelsPie = Object.keys(severityStats);
+        var dataPie = Object.values(severityStats);
+        var backgroundColorsPie = labelsPie.map(function(severity) {
+            switch (severity) {
+                case 'Critical': return '#D32F2F';
+                case 'High': return '#FF5722';
+                case 'Medium': return '#FFC107';
+                case 'Low': return '#8BC34A';
+                default: return '#00BCD4';
+            }
+        });
+
+        new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: labelsPie.map(function(label, index) {
+                    return label + ": " + dataPie[index];
+                }),
+                datasets: [{
+                    data: dataPie,
+                    backgroundColor: backgroundColorsPie,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'left',
+                        labels: { font: { size: 14 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                var label = tooltipItem.label || '';
+                                var value = tooltipItem.raw || 0;
+                                return label + ': ' + value + ' vulnerabilities';
+                            }
                         }
                     }
                 }
             }
-        }
+        });
     });
 });
 </script>

@@ -238,8 +238,15 @@ def defender_vulnerabilities_stats(request):
         stats = all_stats.first()
         sub_stats = VulnerabilitySubStats.objects.filter(date_added=stats.date_added) if stats else []
 
-    print(sub_stats.first())
     if stats:
+        # Prepare subscription stats data
+        subscription_stats_list = []
+        for sub_stat in sub_stats:
+            subscription_stats_list.append({
+                'subscription_id': sub_stat.subscription_id,
+                'severity_stats': sub_stat.stats_vulnerabilities
+            })
+        
         context = {
             'stats': {
                 'vulnerabilities': stats.stats_vulnerabilities,
@@ -247,10 +254,7 @@ def defender_vulnerabilities_stats(request):
             },
             'available_dates': all_stats.values_list('date_added', flat=True),
             'selected_date': stats.date_added,
-            'subscription_stats': json.dumps([{
-                'subscription_id': sub_stat.subscription_id,
-                'severity_stats': sub_stat.stats_vulnerabilities
-            } for sub_stat in sub_stats])
+            'subscription_stats': json.dumps(subscription_stats_list)
         }
     else:
         # Handle the case where no stats are available
