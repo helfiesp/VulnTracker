@@ -65,15 +65,27 @@ class VulnerabilityStats(models.Model):
     date_added = models.DateField(auto_now_add=True)
     stats_vulnerabilities = models.JSONField()
     stats_exposed_machines = models.JSONField()
+    subscription_vulnerabilities = models.JSONField()  # New field to store subscription-level stats
 
     class Meta:
-        # Ensure there is only one entry per day
         constraints = [
             UniqueConstraint(fields=['date_added'], name='unique_stats_per_day')
         ]
 
     def __str__(self):
         return f"Stats for {self.date_added}"
+
+class VulnerabilitySubStats(models.Model):
+    """
+    Model to store vulnerability statistics for each subscription.
+    The stats are stored in a JSON field, organized by severity levels (e.g., Critical, High, Medium, Low).
+    """
+    subscription_id = models.CharField(max_length=255)
+    date_added = models.DateField(auto_now_add=True)
+    stats_vulnerabilities = models.JSONField()  # Stores JSON data for vulnerabilities by severity
+
+    def __str__(self):
+        return f"Vulnerability stats for subscription {self.subscription_id} on {self.date_added}"
 
 
 class MachineReference(models.Model):
