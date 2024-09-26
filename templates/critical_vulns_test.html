@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Critical Vulnerabilities</title>
+</head>
+<body>
+    <h1>List of Critical Vulnerabilities</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Vulnerability ID</th>
+                <th>Vulnerability Name</th>
+                <th>Description</th>
+                <th>Machines Affected</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in vulnerabilities_list %}
+            <tr>
+                <td>{{ item.vulnerability.id }}</td>
+                <td>{{ item.vulnerability.name }}</td>
+                <td>{{ item.vulnerability.description }}</td>
+                <td>{{ item.machine_count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

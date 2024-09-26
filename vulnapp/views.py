@@ -1446,3 +1446,28 @@ def display_all_subscriptions(request):
     }
 
     return render(request, 'all_subscriptions.html', context)
+
+
+def critical_vulnerabilities_view(request):
+    # Fetch all critical vulnerabilities
+    critical_vulnerabilities = Vulnerability.objects.filter(severity='Critical')
+
+    # List to hold vulnerability details along with the count of machine references
+    vulnerabilities_list = []
+
+    # Iterate over each critical vulnerability and get the count of its references in MachineReference
+    for vulnerability in critical_vulnerabilities:
+        machine_count = MachineReference.objects.filter(vulnerability=vulnerability).count()
+
+        # Append the vulnerability details along with the machine count to the list
+        vulnerabilities_list.append({
+            'vulnerability': vulnerability,
+            'machine_count': machine_count
+        })
+
+    # Render the vulnerabilities and their machine counts in a template
+    context = {
+        'vulnerabilities_list': vulnerabilities_list
+    }
+    
+    return render(request, 'critical_vulns_test.html', context)
