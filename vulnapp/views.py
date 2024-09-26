@@ -238,6 +238,7 @@ def defender_vulnerabilities_stats(request):
         stats = all_stats.first()
         sub_stats = VulnerabilitySubStats.objects.filter(date_added=stats.date_added) if stats else []
 
+    print(sub_stats.first())
     if stats:
         context = {
             'stats': {
