@@ -7,14 +7,32 @@ import os
 import json
 from django.db.models import Count, Sum
 from django.utils.timezone import now
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 class Command(BaseCommand):
     help = 'Imports vulnerability data from Microsoft Security Center API and updates vulnerability statistics.'
 
-    def parse_datetime(self, date_string):
-        if date_string:
-            return parse(date_string).date()
-        return None
+    def requests_retry_session(
+        self,
+        retries=3,
+        backoff_factor=0.3,
+        status_forcelist=(500, 502, 504),
+        session=None,
+    ):
+        session = session or requests.Session()
+        retry = Retry(
+            total=retries,
+            read=retries,
+            connect=retries,
+            backoff_factor=backoff_factor,
+            status_forcelist=status_forcelist,
+        )
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+        return session
 
     def fetch_auth_token(self):
         url = "https://login.microsoftonline.com/{}/oauth2/v2.0/token".format(os.environ["MICROSOFT_TENANT_ID"])
@@ -27,8 +45,10 @@ class Command(BaseCommand):
         headers = {
             "Content-Type": "application/x-www-form-urlencoded"
         }
-        response = requests.post(url, data=payload, headers=headers)
-
+        
+        # Use the retry session
+        response = self.requests_retry_session().post(url, data=payload, headers=headers)
+        
         if response.status_code == 200:
             print("Fetched auth token.")
             data = response.json()
@@ -51,7 +71,9 @@ class Command(BaseCommand):
 
             while True:
                 url = f"{base_url}?$top={page_size}&$skip={skip}"
-                response = requests.get(url, headers=headers)
+                
+                # Use the retry session for the API request
+                response = self.requests_retry_session().get(url, headers=headers)
 
                 if response.status_code == 200:
                     vulnerabilities = response.json()["value"]
@@ -106,6 +128,8 @@ class Command(BaseCommand):
             scan_status.status = 'error'
             scan_status.error_message = str(e)
             scan_status.save()
+
+
 
     def generate_and_save_vuln_stats(self):
         vulnerabilities = Vulnerability.objects.filter(exposedMachines__gt=0)
