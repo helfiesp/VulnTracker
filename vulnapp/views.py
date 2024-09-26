@@ -1021,7 +1021,6 @@ def add_comment(request):
         subscription_id = request.POST.get('subscription_id')
         device_id = request.POST.get('device_id')
         vuln_id = request.POST.get('vuln_id')
-        print(device_id)
 
         # Fetch the device and vulnerability objects based on the subscription, device, and vuln IDs
         device = get_object_or_404(Device, device_id=device_id, subscription__subscription_id=subscription_id)
@@ -1273,11 +1272,14 @@ def devices_in_subscription(request, subscription_id):
             object_id=unique_id
         ).order_by('-created_at')
 
-        # Append the device with its vulnerability count and comments
+        # Check if there are any comments and retrieve the latest one if exists
+        latest_comment = comments[0].content if comments.exists() else ""
+
+        # Append the device with its vulnerability count and the latest comment
         device_vulnerability_stats.append({
             'device': device,
             'vuln_count': vuln_count,
-            'comments': comments,
+            'latest_comment': latest_comment,
         })
 
         # Fetch severity statistics for the vulnerabilities associated with this device
@@ -1301,6 +1303,7 @@ def devices_in_subscription(request, subscription_id):
         if device_count > 0:  # Only include resource groups with devices
             resource_group_device_count[rg.name] = device_count
 
+
     context = {
         'subscription': subscription,
         'devices': devices,
@@ -1312,7 +1315,6 @@ def devices_in_subscription(request, subscription_id):
     }
     
     return render(request, 'subscription_devices.html', context)
-
 
 
 
