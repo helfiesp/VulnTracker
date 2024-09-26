@@ -72,20 +72,7 @@
     <div class="chart-container">
         <h2>Subscription Vulnerability Statistics</h2>
         <div id="subscription-charts-container">
-            <!-- Loop through subscriptions and create the charts -->
-            {% for subscription in subscription_stats %}
-            <div>
-                <h3>
-                    <b>Subscription: </b>
-                    {% if subscription.subscription_id %}
-                    <a href="{% url 'devices_in_subscription' subscription_id=subscription.subscription_id %}">
-                        {{ subscription.subscription_id }}
-                    </a>
-                    {% endif %}
-                </h3>
-                <canvas id="severityPieChart-{{ subscription.subscription_id }}"></canvas>
-            </div>
-            {% endfor %}
+            <!-- Pie charts will be dynamically created here -->
         </div>
     </div>
 </main>
@@ -134,7 +121,7 @@ const exposedMachinesData = {
     }]
 };
 
-// Initialize main vulnerability charts
+// Charts setup
 const vulnerabilityChart = new Chart(document.getElementById('vulnerabilityChart'), {
     type: 'bar',
     data: vulnerabilityData,
@@ -155,54 +142,69 @@ const exposedMachinesChart = new Chart(document.getElementById('exposedMachinesC
     }
 });
 
-// Render subscription severity pie charts (from pre-rendered data)
-{% for subscription in subscription_stats %}
-    var ctxPie_{{ subscription.subscription_id }} = document.getElementById('severityPieChart-{{ subscription.subscription_id }}').getContext('2d');
-    var labelsPie_{{ subscription.subscription_id }} = Object.keys({{ subscription.severity_stats|safe }});
-    var dataPie_{{ subscription.subscription_id }} = Object.values({{ subscription.severity_stats|safe }});
-    var backgroundColorsPie_{{ subscription.subscription_id }} = labelsPie_{{ subscription.subscription_id }}.map(function(severity) {
-        switch (severity) {
-            case 'Critical': return '#D32F2F';
-            case 'High': return '#FF5722';
-            case 'Medium': return '#FFC107';
-            case 'Low': return '#8BC34A';
-            default: return '#00BCD4';
-        }
-    });
+// Render subscription severity pie charts
+document.addEventListener('DOMContentLoaded', function() {
+    var subscriptionStats = JSON.parse('{{ subscription_stats|escapejs }}');
 
-    new Chart(ctxPie_{{ subscription.subscription_id }}, {
-        type: 'pie',
-        data: {
-            labels: labelsPie_{{ subscription.subscription_id }}.map(function(label, index) {
-                return label + ": " + dataPie_{{ subscription.subscription_id }}[index];
-            }),
-            datasets: [{
-                data: dataPie_{{ subscription.subscription_id }},
-                backgroundColor: backgroundColorsPie_{{ subscription.subscription_id }},
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'left',
-                    labels: { font: { size: 14 } }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            var label = tooltipItem.label || '';
-                            var value = tooltipItem.raw || 0;
-                            return label + ': ' + value + ' vulnerabilities';
+    // Iterate over each subscription's stats and create a pie chart for each
+    subscriptionStats.forEach(function(subscriptionStat, index) {
+        var subscriptionId = subscriptionStat.subscription_id;
+        var severityStats = subscriptionStat.severity_stats;
+        var subscriptionUrl = subscriptionStat.subscription_url;  // Use the URL from the JSON data
+
+        // Create a new canvas for each subscription pie chart
+        var canvasId = 'severityPieChart-' + subscriptionId;
+        var chartContainer = document.createElement('div');
+        chartContainer.innerHTML = `<h3>Subscription: <a href="${subscriptionUrl}">${subscriptionId}</a></h3><canvas id="${canvasId}"></canvas>`;
+        document.getElementById('subscription-charts-container').appendChild(chartContainer);
+
+        var ctxPie = document.getElementById(canvasId).getContext('2d');
+        var labelsPie = Object.keys(severityStats);
+        var dataPie = Object.values(severityStats);
+        var backgroundColorsPie = labelsPie.map(function(severity) {
+            switch (severity) {
+                case 'Critical': return '#D32F2F';
+                case 'High': return '#FF5722';
+                case 'Medium': return '#FFC107';
+                case 'Low': return '#8BC34A';
+                default: return '#00BCD4';
+            }
+        });
+
+        new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: labelsPie.map(function(label, index) {
+                    return label + ": " + dataPie[index];
+                }),
+                datasets: [{
+                    data: dataPie,
+                    backgroundColor: backgroundColorsPie,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'left',
+                        labels: { font: { size: 14 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                var label = tooltipItem.label || '';
+                                var value = tooltipItem.raw || 0;
+                                return label + ': ' + value + ' vulnerabilities';
+                            }
                         }
                     }
                 }
             }
-        }
+        });
     });
-{% endfor %}
+});
 </script>
 
 {% endblock %}
