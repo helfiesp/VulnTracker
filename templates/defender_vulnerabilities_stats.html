@@ -77,9 +77,11 @@
             <div>
                 <h3>
                     <b>Subscription: </b>
+                    {% if subscription.subscription_id %}
                     <a href="{% url 'devices_in_subscription' subscription_id=subscription.subscription_id %}">
                         {{ subscription.subscription_id }}
                     </a>
+                    {% endif %}
                 </h3>
                 <canvas id="severityPieChart-{{ subscription.subscription_id }}"></canvas>
             </div>

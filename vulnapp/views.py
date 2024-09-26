@@ -246,7 +246,6 @@ def defender_vulnerabilities_stats(request):
 
             # Check if all values are 0, if so, skip this subscription
             if any(severity_stats.get(key, 0) > 0 for key in ['Critical', 'High', 'Medium', 'Low']):
-                print(sub_stat.subscription_id)
                 subscription_stats_list.append({
                     'subscription_id': sub_stat.subscription_id,
                     'severity_stats': severity_stats  # No need for json.loads here
