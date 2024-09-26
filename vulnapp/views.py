@@ -1021,6 +1021,7 @@ def add_comment(request):
         subscription_id = request.POST.get('subscription_id')
         device_id = request.POST.get('device_id')
         vuln_id = request.POST.get('vuln_id')
+        print(device_id)
 
         # Fetch the device and vulnerability objects based on the subscription, device, and vuln IDs
         device = get_object_or_404(Device, device_id=device_id, subscription__subscription_id=subscription_id)
