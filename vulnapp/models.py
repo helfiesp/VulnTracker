@@ -60,6 +60,15 @@ class Vulnerability(models.Model):
     def __str__(self):
         return self.name
 
+class VulnerabilityStats(models.Model):
+    date_added = models.DateField(auto_now_add=True)
+    stats_vulnerabilities = models.JSONField()
+    stats_exposed_machines = models.JSONField()
+
+    def __str__(self):
+        return f"Stats for {self.date_added}"
+
+        
 class MachineReference(models.Model):
     # Optional ForeignKey to Device
     device = models.ForeignKey('Device', on_delete=models.CASCADE, related_name='machine_references', null=True, blank=True)
