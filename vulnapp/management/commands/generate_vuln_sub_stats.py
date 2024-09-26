@@ -28,9 +28,10 @@ class Command(BaseCommand):
                 'Low': 0,
             }
 
-            # Fetch vulnerability data related to the subscription using MachineReference
-            # (Assuming MachineReference links machines to vulnerabilities and subscriptions)
-            vuln_data = MachineReference.objects.filter(subscription=subscription)
+            # Fetch vulnerability data related to the subscription by joining through Device
+            vuln_data = MachineReference.objects.filter(
+                device__subscription=subscription
+            )
 
             # Get the count of vulnerabilities by severity for this subscription
             severity_statistics = vuln_data.values('vulnerability__severity').annotate(total_count=Count('vulnerability__severity'))
