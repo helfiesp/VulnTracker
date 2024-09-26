@@ -186,10 +186,10 @@ def defender_vulnerabilities(request):
 
     vuln_stats = generate_vuln_stats(vulnerabilities)
     stats = {
-        'vulnerabilities': stats_vulnerabilities[0],
-        'exposed_machines': stats_exposed_machines[1],
-        'Total_Vulnerabilities': total_vulnerabilities[2],
-        'Total_Exposed_Machines': total_exposed_machines[3]
+        'vulnerabilities': vuln_stats[0],
+        'exposed_machines': vuln_stats[1],
+        'Total_Vulnerabilities': vuln_stats[2],
+        'Total_Exposed_Machines': vuln_stats[3]
     }
 
     return render(request, 'defender_vulnerabilities.html', {'vulnerabilities': vulnerabilities, 'stats': stats})
