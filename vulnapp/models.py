@@ -108,7 +108,7 @@ class MachineReference(models.Model):
         return self.computer_dns_name
 
 class Device(models.Model):
-    device_id = models.CharField(max_length=255, øunique=True)
+    device_id = models.CharField(max_length=255, unique=True)
     display_name = models.CharField(max_length=255, null=True, blank=True)
     operating_system = models.CharField(max_length=100, null=True, blank=True)
     operating_system_version = models.CharField(max_length=100, null=True, blank=True)
