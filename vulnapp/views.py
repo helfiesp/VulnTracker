@@ -24,7 +24,7 @@ from django.http import HttpResponseRedirect
 from django.db.models.functions import ExtractYear
 from django.db.models import Count, Q, Sum
 from django.urls import reverse, NoReverseMatch
-from .models import Subscription, ResourceGroup, Device, CVE, Comment, PublicIP, CMDB, Ticket, NessusData, Vulnerability, MachineReference, HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, Software, SoftwareHosts, ScanStatus, ShodanScanResult
+from .models import VulnerabiltiyStats, Subscription, ResourceGroup, Device, CVE, Comment, PublicIP, CMDB, Ticket, NessusData, Vulnerability, MachineReference, HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, Software, SoftwareHosts, ScanStatus, ShodanScanResult
 from vulnapp import secrets
 
 def index(request):
