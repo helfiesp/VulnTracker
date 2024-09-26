@@ -8,49 +8,6 @@
 <link rel="stylesheet" href="{% static 'css/cve_table.css' %}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<style>
-    /* Flexbox container for subscription charts */
-    .subscription-charts-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .chart-container {
-        flex: 0 1 calc(33.333% - 20px); /* 3 charts per row, with 20px space */
-        margin: 10px;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .chart-container h3 {
-        text-align: center;
-        margin-bottom: 10px;
-    }
-
-    canvas {
-        width: 100% !important;  /* Ensures the charts are responsive */
-        max-width: 250px;        /* Limit the max width to optimize space */
-        height: auto !important;
-    }
-
-    @media (max-width: 900px) {
-        /* On smaller screens, 2 charts per row */
-        .chart-container {
-            flex: 0 1 calc(50% - 20px);
-        }
-    }
-
-    @media (max-width: 600px) {
-        /* On extra small screens, 1 chart per row */
-        .chart-container {
-            flex: 0 1 calc(100% - 20px);
-        }
-    }
-</style>
-
 <main class="main-content">
     <div class="filter-section">
         <div class="filter-header">
@@ -112,9 +69,9 @@
     </div>
 
     <!-- Subscription-level vulnerability severity pie charts -->
-    <div class="chart-container">
+    <div class="charts-container">
         <h2>Subscription Vulnerability Statistics</h2>
-        <div class="subscription-charts-container">
+        <div id="subscription-charts-container">
             <!-- Pie charts will be dynamically created here -->
         </div>
     </div>
@@ -164,7 +121,7 @@ const exposedMachinesData = {
     }]
 };
 
-// Initialize main vulnerability charts
+// Charts setup
 const vulnerabilityChart = new Chart(document.getElementById('vulnerabilityChart'), {
     type: 'bar',
     data: vulnerabilityData,
@@ -193,14 +150,13 @@ document.addEventListener('DOMContentLoaded', function() {
     subscriptionStats.forEach(function(subscriptionStat, index) {
         var subscriptionId = subscriptionStat.subscription_id;
         var severityStats = subscriptionStat.severity_stats;
-        var subscriptionUrl = subscriptionStat.subscription_url;
+        var subscriptionUrl = subscriptionStat.subscription_url;  // Use the URL from the JSON data
 
         // Create a new canvas for each subscription pie chart
         var canvasId = 'severityPieChart-' + subscriptionId;
         var chartContainer = document.createElement('div');
-        chartContainer.className = "chart-container";
         chartContainer.innerHTML = `<h3>Subscription: <a href="/devices/subscription/${subscriptionId}">${subscriptionId}</a></h3><canvas id="${canvasId}"></canvas>`;
-        document.querySelector('.subscription-charts-container').appendChild(chartContainer);
+        document.getElementById('subscription-charts-container').appendChild(chartContainer);
 
         var ctxPie = document.getElementById(canvasId).getContext('2d');
         var labelsPie = Object.keys(severityStats);
