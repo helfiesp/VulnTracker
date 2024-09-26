@@ -2,7 +2,7 @@ import json
 from django.core.management.base import BaseCommand
 from django.utils.timezone import now
 from django.db.models import Count
-from vulnapp.models import Subscription, MachineReference, VulnerabilitySubStats
+from vulnapp.models import Subscription, Device, MachineReference, VulnerabilitySubStats
 
 class Command(BaseCommand):
     help = 'Generate vulnerability statistics for all subscriptions and store in VulnerabilitySubStats.'
@@ -27,27 +27,30 @@ class Command(BaseCommand):
                 'Low': 0,
             }
 
-            # Fetch vulnerability data related to the subscription by joining through Device
-            vuln_data = MachineReference.objects.filter(
-                device__subscription=subscription
-            )
+            # Fetch all devices related to the subscription
+            devices = Device.objects.filter(subscription=subscription)
 
-            # Get the count of vulnerabilities by severity for this subscription
-            severity_statistics = vuln_data.values('vulnerability__severity').annotate(total_count=Count('vulnerability__severity'))
+            for device in devices:
+                # Fetch MachineReference objects for the current device
+                vuln_data = MachineReference.objects.filter(device=device)
 
-            # Populate the dictionary with counts of each severity
-            for entry in severity_statistics:
-                severity = entry['vulnerability__severity']
-                total_count = entry['total_count']
-                if severity in severity_stats_dict:
-                    severity_stats_dict[severity] = total_count
+                # Get the count of vulnerabilities by severity for this device
+                severity_statistics = vuln_data.values('vulnerability__severity').annotate(total_count=Count('vulnerability__severity'))
+
+                # Combine the counts from each device's vulnerabilities into the overall severity stats for the subscription
+                for entry in severity_statistics:
+                    severity = entry['vulnerability__severity']
+                    total_count = entry['total_count']
+                    if severity in severity_stats_dict:
+                        severity_stats_dict[severity] += total_count
+
             print(severity_stats_dict)
             # Store the results in the VulnerabilitySubStats model
-            # We no longer need to use json.dumps here as Django's JSONField handles serialization.
             VulnerabilitySubStats.objects.create(
                 subscription_id=subscription.subscription_id,
                 date_added=today,
                 stats_vulnerabilities=severity_stats_dict  # Directly storing the dictionary
             )
+
 
         self.stdout.write(self.style.SUCCESS("Completed generating vulnerability statistics for all subscriptions."))
