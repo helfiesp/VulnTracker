@@ -244,17 +244,21 @@ def defender_vulnerabilities_stats(request):
         for sub_stat in sub_stats:
             severity_stats = sub_stat.stats_vulnerabilities
 
-            # Check if all values are 0, if so, skip this subscription
-            if any(severity_stats.get(key, 0) > 0 for key in ['Critical', 'High', 'Medium', 'Low']):
+            # Fetch the subscription object based on subscription_id
+            subscription = Subscription.objects.filter(subscription_id=sub_stat.subscription_id).first()
+
+            # If the subscription is found and has non-zero vulnerability data
+            if subscription and any(severity_stats.get(key, 0) > 0 for key in ['Critical', 'High', 'Medium', 'Low']):
                 subscription_stats_list.append({
                     'subscription_id': sub_stat.subscription_id,
-                    'severity_stats': severity_stats  # No need for json.loads here
+                    'subscription_name': subscription.display_name,  # Add display_name
+                    'severity_stats': severity_stats
                 })
         
         context = {
             'stats': {
                 'vulnerabilities': stats.stats_vulnerabilities,
-                'exposed_machines': stats.stats_exposed_machines,
+                'exposed_machines': stats.exposed_machines,
             },
             'available_dates': all_stats.values_list('date_added', flat=True),
             'selected_date': stats.date_added,
@@ -273,6 +277,7 @@ def defender_vulnerabilities_stats(request):
         }
 
     return render(request, 'defender_vulnerabilities_stats.html', context)
+
 
 def generate_unique_comment_id(cve_id, machine_id):
     """

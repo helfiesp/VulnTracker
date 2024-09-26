@@ -149,6 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Iterate over each subscription's stats and create a pie chart for each
     subscriptionStats.forEach(function(subscriptionStat, index) {
         var subscriptionId = subscriptionStat.subscription_id;
+        var subscriptionName = subscriptionStat.subscription_name; // Get the display name
         var severityStats = subscriptionStat.severity_stats;
         var subscriptionUrl = subscriptionStat.subscription_url;
 
@@ -156,7 +157,10 @@ document.addEventListener('DOMContentLoaded', function() {
         var canvasId = 'severityPieChart-' + subscriptionId;
         var chartContainer = document.createElement('div');
         chartContainer.className = "chart-container";  // Add class to ensure styling
-        chartContainer.innerHTML = `<h3>Subscription: <a href="/devices/subscription/${subscriptionId}">${subscriptionId}</a></h3><canvas id="${canvasId}" style="max-width: 100%; height: auto;"></canvas>`;
+        chartContainer.innerHTML = `
+            <h3>Subscription: <a href="/devices/subscription/${subscriptionId}">${subscriptionName}</a></h3>
+            <canvas id="${canvasId}" style="max-width: 100%; height: auto;"></canvas>
+        `;
         document.getElementById('subscription-charts-container').appendChild(chartContainer);
 
         var ctxPie = document.getElementById(canvasId).getContext('2d');
