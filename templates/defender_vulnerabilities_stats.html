@@ -121,7 +121,7 @@ const exposedMachinesData = {
     }]
 };
 
-// Charts setup
+// Initialize main vulnerability charts
 const vulnerabilityChart = new Chart(document.getElementById('vulnerabilityChart'), {
     type: 'bar',
     data: vulnerabilityData,
@@ -150,13 +150,12 @@ document.addEventListener('DOMContentLoaded', function() {
     subscriptionStats.forEach(function(subscriptionStat, index) {
         var subscriptionId = subscriptionStat.subscription_id;
         var severityStats = subscriptionStat.severity_stats;
-        var subscriptionUrl = subscriptionStat.subscription_url;  // Use the URL from the JSON data
+        var subscriptionUrl = subscriptionStat.subscription_url;
 
         // Create a new canvas for each subscription pie chart with a container for maximum width control
         var canvasId = 'severityPieChart-' + subscriptionId;
         var chartContainer = document.createElement('div');
-        chartContainer.style.maxWidth = "250px";  // Set max width for the chart container
-        chartContainer.style.margin = "0 auto";   // Center the chart horizontally
+        chartContainer.className = "chart-container";  // Add class to ensure styling
         chartContainer.innerHTML = `<h3>Subscription: <a href="/devices/subscription/${subscriptionId}">${subscriptionId}</a></h3><canvas id="${canvasId}" style="max-width: 100%; height: auto;"></canvas>`;
         document.getElementById('subscription-charts-container').appendChild(chartContainer);
 

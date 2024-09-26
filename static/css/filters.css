@@ -156,3 +156,31 @@ canvas {
     width: 100% !important; /* Ensures the canvas fills the container width */
     height: auto !important; /* Maintains the aspect ratio of the canvas */
 }
+
+/* Ensure that the subscription charts are laid out in rows of three */
+#subscription-charts-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between; /* Ensures the charts are spread evenly */
+}
+
+#subscription-charts-container .chart-container {
+    flex: 1 1 calc(33.333% - 20px); /* Each chart container takes up roughly 33.33% minus margin */
+    max-width: calc(33.333% - 20px); /* Prevents the container from exceeding 33.33% of the parent's width */
+    margin: 10px; /* Adds space between the charts */
+    box-sizing: border-box; /* Ensures padding and margin are included in the total width */
+}
+
+/* If there are fewer than 3 charts in the last row, center them */
+#subscription-charts-container .chart-container:nth-last-child(1),
+#subscription-charts-container .chart-container:nth-last-child(2) {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Ensure the canvas inside the chart container is responsive */
+#subscription-charts-container canvas {
+    max-width: 100%; /* Ensure the canvas fills the container width */
+    height: auto; /* Maintain aspect ratio */
+    max-height: 250px; /* Set a max height for the canvas */
+}
