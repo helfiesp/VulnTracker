@@ -7,12 +7,16 @@ import os
 import json
 from django.db.models import Count, Sum
 from django.utils.timezone import now
-import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 class Command(BaseCommand):
     help = 'Imports vulnerability data from Microsoft Security Center API and updates vulnerability statistics.'
+
+    def parse_datetime(self, date_string):
+        if date_string:
+            return parse(date_string).date()
+        return None
 
     def requests_retry_session(
         self,
@@ -45,10 +49,8 @@ class Command(BaseCommand):
         headers = {
             "Content-Type": "application/x-www-form-urlencoded"
         }
-        
-        # Use the retry session
-        response = self.requests_retry_session().post(url, data=payload, headers=headers)
-        
+        response = requests.post(url, data=payload, headers=headers)
+
         if response.status_code == 200:
             print("Fetched auth token.")
             data = response.json()
@@ -128,8 +130,6 @@ class Command(BaseCommand):
             scan_status.status = 'error'
             scan_status.error_message = str(e)
             scan_status.save()
-
-
 
     def generate_and_save_vuln_stats(self):
         vulnerabilities = Vulnerability.objects.filter(exposedMachines__gt=0)
