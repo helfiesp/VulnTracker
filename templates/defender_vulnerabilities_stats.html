@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create a new canvas for each subscription pie chart
         var canvasId = 'severityPieChart-' + subscriptionId;
         var chartContainer = document.createElement('div');
-        chartContainer.innerHTML = `<h3>Subscription: <a href="${subscriptionId}</a></h3><canvas id="${canvasId}"></canvas>`;
+        chartContainer.innerHTML = `<h3>Subscription: <a href="/devices/subscriptions/${subscriptionId}">${subscriptionId}</a></h3><canvas id="${canvasId}"></canvas>`;
         document.getElementById('subscription-charts-container').appendChild(chartContainer);
 
         var ctxPie = document.getElementById(canvasId).getContext('2d');
