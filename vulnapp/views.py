@@ -1016,6 +1016,23 @@ def add_comment(request):
         content_type = ContentType.objects.get_for_model(ShodanScanResult)
         object_id = request.POST.get('result_id')
 
+    elif comment_type == 'subscription-device-vuln':
+        # Handle comments for Subscription-Device-Vulnerability combination
+        subscription_id = request.POST.get('subscription_id')
+        device_id = request.POST.get('device_id')
+        vuln_id = request.POST.get('vuln_id')
+
+        # Fetch the device and vulnerability objects based on the subscription, device, and vuln IDs
+        device = get_object_or_404(Device, device_id=device_id, subscription__subscription_id=subscription_id)
+        vuln = get_object_or_404(Vulnerability, name=vuln_id)  # Assuming the vuln_id corresponds to the CVE name
+
+        # Optionally, if there is a DeviceVulnerability model linking the device and vulnerability
+        device_vuln = get_object_or_404(DeviceVulnerability, device=device, vulnerability=vuln)
+
+        # Prepare the content type and object_id for the generic relation
+        content_type = ContentType.objects.get_for_model(DeviceVulnerability)  # or a model representing this relation
+        object_id = device_vuln.id  # Use the ID of the DeviceVulnerability entity or another appropriate ID
+
     else:
         # Log or handle unsupported comment types
         print(f"Unsupported comment type: {comment_type}")
@@ -1030,7 +1047,6 @@ def add_comment(request):
 
     print(f"Comment {'created' if created else 'updated'}: {comment}")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
 
 # CMDB
 def create_cmdb_entry(request):
@@ -1256,14 +1272,11 @@ def devices_in_subscription(request, subscription_id):
             object_id=unique_id
         ).order_by('-created_at')
 
-        # Check if there are any comments and retrieve the latest one if exists
-        latest_comment = comments[0].content if comments.exists() else ""
-
-        # Append the device with its vulnerability count and the latest comment
+        # Append the device with its vulnerability count and comments
         device_vulnerability_stats.append({
             'device': device,
             'vuln_count': vuln_count,
-            'latest_comment': latest_comment,
+            'comments': comments,
         })
 
         # Fetch severity statistics for the vulnerabilities associated with this device
@@ -1287,7 +1300,6 @@ def devices_in_subscription(request, subscription_id):
         if device_count > 0:  # Only include resource groups with devices
             resource_group_device_count[rg.name] = device_count
 
-
     context = {
         'subscription': subscription,
         'devices': devices,
@@ -1299,6 +1311,7 @@ def devices_in_subscription(request, subscription_id):
     }
     
     return render(request, 'subscription_devices.html', context)
+
 
 
 

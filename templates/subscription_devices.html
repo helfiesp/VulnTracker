@@ -76,24 +76,37 @@
                 <td>{{ item.device.device_type }}</td>
                 <td>{{ item.device.last_updated|date:"Y-m-d H:i" }}</td>
                 <td>{{ item.vuln_count }}</td>
-        <td>
-            <div class="comment-form">
-            <form action="{% url 'add_comment' %}" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="subscription_id" value="{{ subscription.subscription_id }}">
-                <input type="hidden" name="device_id" value="{{ item.device.device_id }}">
-                <input type="hidden" name="comment_type" value="subscription-device">
+                <td>
+                    <div class="comments-section">
+                        <!-- Loop through the comments for this device -->
+                        {% if item.comments %}
+                            <ul>
+                                {% for comment in item.comments %}
+                                    <li>{{ comment.content }} <em>({{ comment.created_at|date:"Y-m-d H:i" }})</em></li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No comments yet.</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Comment form -->
+                    <div class="comment-form">
+                        <form action="{% url 'add_comment' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="subscription_id" value="{{ subscription.subscription_id }}">
+                            <input type="hidden" name="device_id" value="{{ item.device.device_id }}">
+                            <input type="hidden" name="comment_type" value="subscription-device-vuln">
 
-                <div class="comment-form-controls">
-                    <textarea name="comment_content">{{ item.latest_comment }}</textarea>
-                    <button type="submit">Post Comment</button>
-                </div>
-            </form>
-        </div>
-        </td>
-        </tr>
-      {% endfor %}
-    </tbody>
+                            <div class="comment-form-controls">
+                                <textarea name="comment_content"></textarea>
+                                <button type="submit">Post Comment</button>
+                            </div>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
   </table>
 {% else %}
   <p>No machines found for this CVE.</p>
