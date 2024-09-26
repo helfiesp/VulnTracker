@@ -50,8 +50,6 @@
 <!-- Add a dropdown menu to select the date of stats -->
 <div class="date-selection">
     <label for="stats-date">Select Date:</label>
-    {{ available_dates }}
-    {{ selected_date }}
     <select id="stats-date" onchange="changeDate(this)">
         {% for date in available_dates %}
             <option value="{{ date }}" {% if date == selected_date %}selected{% endif %}>

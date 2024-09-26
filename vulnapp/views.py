@@ -230,7 +230,7 @@ def defender_vulnerabilities_stats(request):
     # Optionally filter by date if provided in request
     selected_date = request.GET.get('date', None)
     
-    print(selected_date)
+
     if selected_date:
         stats = all_stats.filter(date_added=selected_date).first()
     else:
@@ -238,8 +238,6 @@ def defender_vulnerabilities_stats(request):
         stats = all_stats.first()
     
     if stats:
-        print("STATS: {}".format(stats))
-        print("{}".format(all_stats.values_list('date_added', flat=True)))
         context = {
             'stats': {
                 'vulnerabilities': stats.stats_vulnerabilities,
@@ -260,7 +258,7 @@ def defender_vulnerabilities_stats(request):
         }
     
 
-    return render(request, 'defender_vulnerabilities_stats.html', )
+    return render(request, 'defender_vulnerabilities_stats.html', context)
 
 def generate_unique_comment_id(cve_id, machine_id):
     """
