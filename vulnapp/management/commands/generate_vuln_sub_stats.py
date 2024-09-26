@@ -30,21 +30,32 @@ class Command(BaseCommand):
             # Fetch all devices related to the subscription
             devices = Device.objects.filter(subscription=subscription)
 
-            for device in devices:
-                # Fetch MachineReference objects for the current device
-                vuln_data = MachineReference.objects.filter(device=device)
+            total_vulnerabilities = 0  # Initialize total vulnerabilities count for the subscription
 
-                # Get the count of vulnerabilities by severity for this device
+            for device in devices:
+                # Fetch MachineReference objects for the current device (based on the device's display name)
+                vuln_data = MachineReference.objects.filter(computer_dns_name__icontains=device.display_name)
+
+                if vuln_data.filter(last_updated__date=today).exists():
+                    # Count vulnerabilities for today
+                    vuln_count = vuln_data.count()
+                    total_vulnerabilities += vuln_count
+                else:
+                    # If no data is available for today
+                    vuln_count = 0  # Set to 0 if no vulnerabilities are found today
+
+                # Fetch severity statistics for the vulnerabilities associated with this device
                 severity_statistics = vuln_data.values('vulnerability__severity').annotate(total_count=Count('vulnerability__severity'))
 
-                # Combine the counts from each device's vulnerabilities into the overall severity stats for the subscription
+                # Combine all entries of each severity level into the subscription-level dictionary
                 for entry in severity_statistics:
                     severity = entry['vulnerability__severity']
                     total_count = entry['total_count']
                     if severity in severity_stats_dict:
                         severity_stats_dict[severity] += total_count
+                    else:
+                        severity_stats_dict[severity] = total_count
 
-            print(severity_stats_dict)
             # Store the results in the VulnerabilitySubStats model
             VulnerabilitySubStats.objects.create(
                 subscription_id=subscription.subscription_id,
@@ -52,5 +63,6 @@ class Command(BaseCommand):
                 stats_vulnerabilities=severity_stats_dict  # Directly storing the dictionary
             )
 
+            self.stdout.write(self.style.SUCCESS(f"Successfully generated vulnerability statistics for subscription {subscription.subscription_id} with {total_vulnerabilities} total vulnerabilities."))
 
         self.stdout.write(self.style.SUCCESS("Completed generating vulnerability statistics for all subscriptions."))
