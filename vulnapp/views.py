@@ -1037,6 +1037,8 @@ def add_comment(request):
 
         # Fetch the device and vulnerability objects based on the subscription, device, and vuln IDs
         device = get_object_or_404(Device, device_id=device_id, subscription__subscription_id=subscription_id)
+
+        print(device)
         vuln = get_object_or_404(Vulnerability, name=vuln_id)  # Assuming the vuln_id corresponds to the CVE name
 
         # Optionally, if there is a DeviceVulnerability model linking the device and vulnerability
