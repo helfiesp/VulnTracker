@@ -11,35 +11,7 @@
 <main class="main-content">
     <div class="filter-section">
         <div class="filter-header">
-            <h2>Defender Vulnerabilities</h2>
-        </div>
-        <div class="filter-controls">
-            <div class="date-filter">
-                <select id="date-filter-select">
-                    <option value="past_day" {% if current_date_filter == 'past_day' %}selected{% endif %}>Past Day</option>
-                    <option value="past_week" {% if current_date_filter == 'past_week' %}selected{% endif %}>Past Week</option>
-                    <option value="past_weekend" {% if current_date_filter == 'past_weekend' %}selected{% endif %}>Past Weekend</option>
-                    <option value="this_month" {% if current_date_filter == 'this_month' %}selected{% endif %}>This Month</option>
-                </select>
-            </div>
-
-            <div class="keyword-filter" style="margin-top:8px">
-                <input type="checkbox" id="filter-keywords" class="sr-only" {% if request.GET.publicExploit == 'true' %}checked{% endif %}>
-                <label for="filter-keywords" class="keyword-button">CISA Known exploited</label>
-            </div>
-
-            <div class="search-filter">
-                <input type="search" id="search-input" placeholder="Search vulnerabilities...">
-            </div>
-
-            <div class="sort-filter">
-                <select id="sort-select" onchange="filterAndSortVulnerabilities()">
-                    <option value="cvss_score_desc">Highest CVSS Score</option>
-                    <option value="cvss_score_asc">Lowest CVSS Score</option>
-                    <option value="exposed_desc">Most Exposed Machines</option>
-                    <option value="exposed_asc">Least Exposed Machines</option>
-                </select>
-            </div>
+            <h2>Defender Vulnerability Statistics</h2>
         </div>
     </div>
 
@@ -70,7 +42,7 @@
 
     <!-- Subscription-level vulnerability severity pie charts -->
     <div class="charts-container">
-        <h2>Subscription Vulnerability Statistics</h2>
+        <h2>Vulnerabilities by subscription</h2>
         <div id="subscription-charts-container">
             <!-- Pie charts will be dynamically created here -->
         </div>
@@ -158,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var chartContainer = document.createElement('div');
         chartContainer.className = "chart-container";  // Add class to ensure styling
         chartContainer.innerHTML = `
-            <h3><a href="/devices/subscription/${subscriptionId}">${subscriptionName}</a></h3>
+            <h4><a href="/devices/subscription/${subscriptionId}">${subscriptionName}</a></h4>
             <canvas id="${canvasId}" style="max-width: 100%; height: auto;"></canvas>
         `;
         document.getElementById('subscription-charts-container').appendChild(chartContainer);
