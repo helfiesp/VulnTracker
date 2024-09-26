@@ -226,6 +226,7 @@ def generate_vuln_stats(vulnerabilities):
 def defender_vulnerabilities_stats(request):
     # Fetch all stats ordered by date
     all_stats = VulnerabilityStats.objects.order_by('-date_added')
+    print(all_stats)
     
     # Optionally filter by date if provided in request
     selected_date = request.GET.get('date', None)
