@@ -151,7 +151,13 @@
     padding: 10px; /* Adds some spacing inside each chart container */
 }
 
-#BarChart canvas {
+.BarChart canvas {
+    max-height: 400px; /* Sets the maximum height for the canvas */
+    width: 100% !important; /* Ensures the canvas fills the container width */
+    height: auto !important; /* Maintains the aspect ratio of the canvas */
+}
+
+.PieChart canvas {
     max-height: 400px; /* Sets the maximum height for the canvas */
     width: 100% !important; /* Ensures the canvas fills the container width */
     height: auto !important; /* Maintains the aspect ratio of the canvas */
