@@ -1004,6 +1004,9 @@ def add_comment(request):
         subscription_id = request.POST.get('subscription_id')
         device_id = request.POST.get('device_id')
 
+        print("DEVICE: {}".format(device_id))
+        print("SUBSCRIPTION: {}".format(subscription_id))
+
         # Fetch the device object
         device = get_object_or_404(Device, device_id=device_id, subscription__subscription_id=subscription_id)
 
