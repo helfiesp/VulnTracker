@@ -188,6 +188,18 @@ def defender_vulnerabilities(request):
     # Sort by cvssV3 (descending) first, then by exposedMachines (descending)
     vulnerabilities = vulnerabilities.order_by('-cvssV3', '-exposedMachines')
 
+    stats_vulnerabilities, stats_exposed_machines = generate_vuln_stats(vulnerabilities)
+    stats = {
+        'vulnerabilities': stats_vulnerabilities,
+        'exposed_machines': stats_exposed_machines,
+        'Total_Vulnerabilities': total_vulnerabilities,
+        'Total_Exposed_Machines': total_exposed_machines
+    }
+
+    return render(request, 'defender_vulnerabilities.html', {'vulnerabilities': vulnerabilities, 'stats': stats})
+
+
+def generate_vuln_stats(vulnerabilities):
     # Calculate statistics
     vulnerabilities_stats = vulnerabilities.values('severity').annotate(total=Count('id')).order_by('severity')
     exposed_machines_stats = vulnerabilities.values('severity').annotate(exposed_total=Sum('exposedMachines')).order_by('severity')
@@ -213,15 +225,7 @@ def defender_vulnerabilities(request):
         if stat['severity'] in stats_exposed_machines:
             stats_exposed_machines[stat['severity']] = stat['exposed_total']
 
-    stats = {
-        'vulnerabilities': stats_vulnerabilities,
-        'exposed_machines': stats_exposed_machines,
-        'Total_Vulnerabilities': total_vulnerabilities,
-        'Total_Exposed_Machines': total_exposed_machines
-    }
-
-    return render(request, 'defender_vulnerabilities.html', {'vulnerabilities': vulnerabilities, 'stats': stats})
-
+    return stats_vulnerabilities, stats_exposed_machines
 
 def generate_unique_comment_id(cve_id, machine_id):
     """
