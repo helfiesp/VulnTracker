@@ -24,7 +24,7 @@ from django.http import HttpResponseRedirect
 from django.db.models.functions import ExtractYear
 from django.db.models import Count, Q, Sum
 from django.urls import reverse, NoReverseMatch
-from .models import Subscription, VulnerabilityStats, ResourceGroup, Device, CVE, Comment, PublicIP, CMDB, Ticket, NessusData, Vulnerability, MachineReference, HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, Software, SoftwareHosts, ScanStatus, ShodanScanResult
+from .models import Subscription, ResourceGroup, Device, CVE, Comment, PublicIP, CMDB, Ticket, NessusData, Vulnerability, MachineReference, HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, Software, SoftwareHosts, ScanStatus, ShodanScanResult
 from vulnapp import secrets
 
 def index(request):
@@ -184,16 +184,15 @@ def defender_vulnerabilities(request):
     # Sort by cvssV3 (descending) first, then by exposedMachines (descending)
     vulnerabilities = vulnerabilities.order_by('-cvssV3', '-exposedMachines')
 
-    total_vulnerabilities, total_exposed_machines = generate_vuln_stats(vulnerabilities)
+    vuln_stats = generate_vuln_stats(vulnerabilities)
     stats = {
-        'vulnerabilities': stats_vulnerabilities,
-        'exposed_machines': stats_exposed_machines,
-        'Total_Vulnerabilities': total_vulnerabilities,
-        'Total_Exposed_Machines': total_exposed_machines
+        'vulnerabilities': stats_vulnerabilities[0],
+        'exposed_machines': stats_exposed_machines[1],
+        'Total_Vulnerabilities': total_vulnerabilities[2],
+        'Total_Exposed_Machines': total_exposed_machines[3]
     }
 
     return render(request, 'defender_vulnerabilities.html', {'vulnerabilities': vulnerabilities, 'stats': stats})
-
 
 def generate_vuln_stats(vulnerabilities):
     # Calculate statistics
@@ -221,7 +220,7 @@ def generate_vuln_stats(vulnerabilities):
         if stat['severity'] in stats_exposed_machines:
             stats_exposed_machines[stat['severity']] = stat['exposed_total']
 
-    return stats_vulnerabilities, stats_exposed_machines
+    return total_vulnerabilities, total_exposed_machines, stats_vulnerabilities, stats_exposed_machines
 
 
 def defender_vulnerabilities_stats(request):
