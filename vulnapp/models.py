@@ -65,7 +65,6 @@ class VulnerabilityStats(models.Model):
     date_added = models.DateField(auto_now_add=True)
     stats_vulnerabilities = models.JSONField()
     stats_exposed_machines = models.JSONField()
-    subscription_vulnerabilities = models.JSONField()  # New field to store subscription-level stats
 
     class Meta:
         constraints = [
