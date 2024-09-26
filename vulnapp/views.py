@@ -24,7 +24,7 @@ from django.http import HttpResponseRedirect
 from django.db.models.functions import ExtractYear
 from django.db.models import Count, Q, Sum
 from django.urls import reverse, NoReverseMatch
-from .models import VulnerabilityStats, Subscription, ResourceGroup, Device, CVE, Comment, PublicIP, CMDB, Ticket, NessusData, Vulnerability, MachineReference, HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, Software, SoftwareHosts, ScanStatus, ShodanScanResult
+from .models import VulnerabilityStats, VulnerabilitySubStats, Subscription, ResourceGroup, Device, CVE, Comment, PublicIP, CMDB, Ticket, NessusData, Vulnerability, MachineReference, HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, Software, SoftwareHosts, ScanStatus, ShodanScanResult
 from vulnapp import secrets
 
 def index(request):
@@ -229,14 +229,15 @@ def defender_vulnerabilities_stats(request):
     
     # Optionally filter by date if provided in request
     selected_date = request.GET.get('date', None)
-    
 
     if selected_date:
         stats = all_stats.filter(date_added=selected_date).first()
+        sub_stats = VulnerabilitySubStats.objects.filter(date_added=selected_date)
     else:
         # Default to the latest stats if no date is selected
         stats = all_stats.first()
-    
+        sub_stats = VulnerabilitySubStats.objects.filter(date_added=stats.date_added) if stats else []
+
     if stats:
         context = {
             'stats': {
@@ -245,6 +246,10 @@ def defender_vulnerabilities_stats(request):
             },
             'available_dates': all_stats.values_list('date_added', flat=True),
             'selected_date': stats.date_added,
+            'subscription_stats': json.dumps([{
+                'subscription_id': sub_stat.subscription_id,
+                'severity_stats': sub_stat.stats_vulnerabilities
+            } for sub_stat in sub_stats])
         }
     else:
         # Handle the case where no stats are available
@@ -255,8 +260,8 @@ def defender_vulnerabilities_stats(request):
             },
             'available_dates': all_stats.values_list('date_added', flat=True),
             'selected_date': None,
+            'subscription_stats': json.dumps([])  # No subscription stats available
         }
-    
 
     return render(request, 'defender_vulnerabilities_stats.html', context)
 

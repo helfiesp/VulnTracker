@@ -7,11 +7,11 @@
 <link rel="stylesheet" href="{% static 'css/filters.css' %}">
 <link rel="stylesheet" href="{% static 'css/cve_table.css' %}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <main class="main-content">
+
+<main class="main-content">
     <div class="filter-section">
         <div class="filter-header">
             <h2>Defender Vulnerabilities</h2>
-            
         </div>
         <div class="filter-controls">
             <div class="date-filter">
@@ -23,53 +23,57 @@
                 </select>
             </div>
 
-                <div class="keyword-filter" style="margin-top:8px">
-
+            <div class="keyword-filter" style="margin-top:8px">
                 <input type="checkbox" id="filter-keywords" class="sr-only" {% if request.GET.publicExploit == 'true' %}checked{% endif %}>
                 <label for="filter-keywords" class="keyword-button">CISA Known exploited</label>
-                </div>
+            </div>
 
-                <div class="search-filter">
-                    <input type="search" id="search-input" placeholder="Search vulnerabilities...">
-                </div>
+            <div class="search-filter">
+                <input type="search" id="search-input" placeholder="Search vulnerabilities...">
+            </div>
 
             <div class="sort-filter">
-       
-            <select id="sort-select" onchange="filterAndSortVulnerabilities()">
-                <option value="cvss_score_desc">Highest CVSS Score</option>
-                <option value="cvss_score_asc">Lowest CVSS Score</option>
-                <option value="exposed_desc">Most Exposed Machines</option>
-                <option value="exposed_asc">Least Exposed Machines</option>
-                <!-- Keep other options as is -->
-            </select>
-            </div>
+                <select id="sort-select" onchange="filterAndSortVulnerabilities()">
+                    <option value="cvss_score_desc">Highest CVSS Score</option>
+                    <option value="cvss_score_asc">Lowest CVSS Score</option>
+                    <option value="exposed_desc">Most Exposed Machines</option>
+                    <option value="exposed_asc">Least Exposed Machines</option>
+                </select>
             </div>
         </div>
-
-
-<!-- Add a dropdown menu to select the date of stats -->
-<div class="date-selection">
-    <label for="stats-date">Select Date:</label>
-    <select id="stats-date" onchange="changeDate(this)">
-        {% for date in available_dates %}
-            <option value="{{ date }}" {% if date == selected_date %}selected{% endif %}>
-                {{ date }}
-            </option>
-        {% endfor %}
-    </select>
-</div>
-
-<div class="charts-container">
-    <div class="chart-container">
-        <h2>Unique vulnerabilities by criticality</h2>
-        <canvas id="vulnerabilityChart"></canvas>
     </div>
 
-    <div class="chart-container">
-        <h2>All vulnerabilities by criticality</h2>
-        <canvas id="exposedMachinesChart"></canvas>
+    <!-- Date selection dropdown -->
+    <div class="date-selection">
+        <label for="stats-date">Select Date:</label>
+        <select id="stats-date" onchange="changeDate(this)">
+            {% for date in available_dates %}
+                <option value="{{ date }}" {% if date == selected_date %}selected{% endif %}>
+                    {{ date }}
+                </option>
+            {% endfor %}
+        </select>
     </div>
-</div>
+
+    <!-- Charts for vulnerability and exposed machine statistics -->
+    <div class="charts-container">
+        <div class="chart-container">
+            <h2>Unique vulnerabilities by criticality</h2>
+            <canvas id="vulnerabilityChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h2>All vulnerabilities by criticality</h2>
+            <canvas id="exposedMachinesChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Subscription-level vulnerability severity pie chart -->
+    <div class="chart-container">
+        <h2>Subscription Vulnerability Statistics</h2>
+        <canvas id="severityPieChart"></canvas>
+    </div>
+</main>
 
 <script>
 // JavaScript to handle date selection change
@@ -78,15 +82,16 @@ function changeDate(select) {
     window.location.href = `?date=${selectedDate}`;
 }
 
+// Vulnerability and Exposed Machines Charts
 const severityColors = {
-    'Critical': 'rgba(200, 0, 0, 1)', // Dark red for Critical
-    'High': 'rgba(255, 99, 132, 1)', // Red for High
-    'Medium': 'rgba(255, 206, 86, 1)', // Yellow for Medium
-    'Low': 'rgba(75, 192, 192, 1)', // Green for Low
-    'Known_Exploited': 'rgba(139, 0, 0, 1)' // Dark red for Known Exploited
+    'Critical': 'rgba(200, 0, 0, 1)',
+    'High': 'rgba(255, 99, 132, 1)',
+    'Medium': 'rgba(255, 206, 86, 1)',
+    'Low': 'rgba(75, 192, 192, 1)',
+    'Known_Exploited': 'rgba(139, 0, 0, 1)'
 };
 
-// Assuming you have your stats data in JavaScript objects
+// Vulnerability by severity
 const vulnerabilityData = {
     labels: Object.keys({{ stats.vulnerabilities|safe }}),
     datasets: [{
@@ -100,6 +105,7 @@ const vulnerabilityData = {
     }]
 };
 
+// Exposed Machines by severity
 const exposedMachinesData = {
     labels: Object.keys({{ stats.exposed_machines|safe }}),
     datasets: [{
@@ -113,14 +119,13 @@ const exposedMachinesData = {
     }]
 };
 
+// Charts setup
 const vulnerabilityChart = new Chart(document.getElementById('vulnerabilityChart'), {
     type: 'bar',
     data: vulnerabilityData,
     options: {
         scales: {
-            y: {
-                beginAtZero: true
-            }
+            y: { beginAtZero: true }
         }
     }
 });
@@ -130,21 +135,61 @@ const exposedMachinesChart = new Chart(document.getElementById('exposedMachinesC
     data: exposedMachinesData,
     options: {
         scales: {
-            y: {
-                beginAtZero: true
-            }
+            y: { beginAtZero: true }
         }
     }
 });
+
+// Severity Pie Chart Setup
+document.addEventListener('DOMContentLoaded', function() {
+    var ctxPie = document.getElementById('severityPieChart').getContext('2d');
+    var subscriptionStats = JSON.parse('{{ subscription_stats|escapejs }}');
+    var severityStats = subscriptionStats.length > 0 ? subscriptionStats[0].severity_stats : {}; // Assuming one subscription for simplicity
+    var labelsPie = Object.keys(severityStats);
+    var dataPie = Object.values(severityStats);
+    var backgroundColorsPie = labelsPie.map(function(severity) {
+        switch (severity) {
+            case 'Critical': return '#D32F2F';
+            case 'High': return '#FF5722';
+            case 'Medium': return '#FFC107';
+            case 'Low': return '#8BC34A';
+            default: return '#00BCD4';
+        }
+    });
+
+    var severityPieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: labelsPie.map(function(label, index) {
+                return label + ": " + dataPie[index];
+            }),
+            datasets: [{
+                data: dataPie,
+                backgroundColor: backgroundColorsPie,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'left',
+                    labels: { font: { size: 14 } }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            var label = tooltipItem.label || '';
+                            var value = tooltipItem.raw || 0;
+                            return label + ': ' + value + ' vulnerabilities';
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
 </script>
 
-
-
-</main>
-
-
 {% endblock %}
-
-
-
-
