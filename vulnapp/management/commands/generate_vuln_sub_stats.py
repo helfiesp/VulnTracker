@@ -41,7 +41,7 @@ class Command(BaseCommand):
                 total_count = entry['total_count']
                 if severity in severity_stats_dict:
                     severity_stats_dict[severity] = total_count
-
+            print(severity_stats_dict)
             # Store the results in the VulnerabilitySubStats model
             # We no longer need to use json.dumps here as Django's JSONField handles serialization.
             VulnerabilitySubStats.objects.create(
@@ -49,7 +49,5 @@ class Command(BaseCommand):
                 date_added=today,
                 stats_vulnerabilities=severity_stats_dict  # Directly storing the dictionary
             )
-
-            self.stdout.write(self.style.SUCCESS(f"Successfully generated vulnerability statistics for subscription {subscription.subscription_id}."))
 
         self.stdout.write(self.style.SUCCESS("Completed generating vulnerability statistics for all subscriptions."))
