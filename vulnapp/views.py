@@ -242,9 +242,10 @@ def defender_vulnerabilities_stats(request):
         # Prepare subscription stats data
         subscription_stats_list = []
         for sub_stat in sub_stats:
+            # Ensure that stats_vulnerabilities is a dictionary and properly formatted
             subscription_stats_list.append({
                 'subscription_id': sub_stat.subscription_id,
-                'severity_stats': sub_stat.stats_vulnerabilities
+                'severity_stats': sub_stat.stats_vulnerabilities  # No need for json.loads here
             })
         
         context = {
@@ -254,7 +255,7 @@ def defender_vulnerabilities_stats(request):
             },
             'available_dates': all_stats.values_list('date_added', flat=True),
             'selected_date': stats.date_added,
-            'subscription_stats': json.dumps(subscription_stats_list)
+            'subscription_stats': json.dumps(subscription_stats_list)  # Pass as JSON to frontend
         }
     else:
         # Handle the case where no stats are available

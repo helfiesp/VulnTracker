@@ -11,10 +11,9 @@ class Command(BaseCommand):
         # Get today's date
         today = now().date()
 
-        # Check if today's stats have already been generated
-        if VulnerabilitySubStats.objects.filter(date_added=today).exists():
-            self.stdout.write(self.style.WARNING(f"Statistics for {today} have already been generated."))
-            return
+        # **Delete all existing data in VulnerabilitySubStats**
+        VulnerabilitySubStats.objects.all().delete()
+        self.stdout.write(self.style.WARNING(f"Deleted all existing VulnerabilitySubStats records."))
 
         # Fetch all subscriptions
         subscriptions = Subscription.objects.all()
@@ -44,10 +43,11 @@ class Command(BaseCommand):
                     severity_stats_dict[severity] = total_count
 
             # Store the results in the VulnerabilitySubStats model
+            # We no longer need to use json.dumps here as Django's JSONField handles serialization.
             VulnerabilitySubStats.objects.create(
                 subscription_id=subscription.subscription_id,
                 date_added=today,
-                stats_vulnerabilities=json.dumps(severity_stats_dict)
+                stats_vulnerabilities=severity_stats_dict  # Directly storing the dictionary
             )
 
             self.stdout.write(self.style.SUCCESS(f"Successfully generated vulnerability statistics for subscription {subscription.subscription_id}."))
