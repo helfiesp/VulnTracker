@@ -3,6 +3,7 @@ import json
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from tinymce.models import HTMLField
+from django.db.models import UniqueConstraint
 
 class Keyword(models.Model):
     # Stores keywords
@@ -65,10 +66,16 @@ class VulnerabilityStats(models.Model):
     stats_vulnerabilities = models.JSONField()
     stats_exposed_machines = models.JSONField()
 
+    class Meta:
+        # Ensure there is only one entry per day
+        constraints = [
+            UniqueConstraint(fields=['date_added'], name='unique_stats_per_day')
+        ]
+
     def __str__(self):
         return f"Stats for {self.date_added}"
 
-        
+
 class MachineReference(models.Model):
     # Optional ForeignKey to Device
     device = models.ForeignKey('Device', on_delete=models.CASCADE, related_name='machine_references', null=True, blank=True)
