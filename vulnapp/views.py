@@ -220,7 +220,7 @@ def generate_vuln_stats(vulnerabilities):
         if stat['severity'] in stats_exposed_machines:
             stats_exposed_machines[stat['severity']] = stat['exposed_total']
 
-    return total_vulnerabilities, total_exposed_machines, stats_vulnerabilities, stats_exposed_machines
+    return stats_vulnerabilities, stats_exposed_machines, total_vulnerabilities, total_exposed_machines
 
 
 def defender_vulnerabilities_stats(request):
