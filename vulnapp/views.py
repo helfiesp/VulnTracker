@@ -24,7 +24,7 @@ from django.http import HttpResponseRedirect
 from django.db.models.functions import ExtractYear
 from django.db.models import Count, Q, Sum
 from django.urls import reverse, NoReverseMatch
-from .models import Subscription, ResourceGroup, Device, CVE, Comment, PublicIP, CMDB, Ticket, NessusData, Vulnerability, MachineReference, HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, Software, SoftwareHosts, ScanStatus, ShodanScanResult
+from .models import Subscription, VulnerabilityStats, ResourceGroup, Device, CVE, Comment, PublicIP, CMDB, Ticket, NessusData, Vulnerability, MachineReference, HaveIBeenPwnedBreaches, HaveIBeenPwnedBreachedAccounts, Software, SoftwareHosts, ScanStatus, ShodanScanResult
 from vulnapp import secrets
 
 def index(request):
@@ -175,10 +175,6 @@ def delete_word(request, model_name, word_id):
         return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 def defender_vulnerabilities(request):
-    """
-    This is a helper function in order to sort out the vulnerabilities from defender before they are passed to the view function.
-    The function creates statistics and does some filtering for public exploit.
-    """
     public_exploit_filter = request.GET.get('publicExploit', 'false') == 'true'
     vulnerabilities = Vulnerability.objects.filter(exposedMachines__gt=0)
     
@@ -226,6 +222,43 @@ def generate_vuln_stats(vulnerabilities):
             stats_exposed_machines[stat['severity']] = stat['exposed_total']
 
     return stats_vulnerabilities, stats_exposed_machines
+
+
+def defender_vulnerabilities_stats(request):
+    # Fetch all stats ordered by date
+    all_stats = VulnerabilityStats.objects.order_by('-date_added')
+    
+    # Optionally filter by date if provided in request
+    selected_date = request.GET.get('date', None)
+    
+    if selected_date:
+        stats = all_stats.filter(date_added=selected_date).first()
+    else:
+        # Default to the latest stats if no date is selected
+        stats = all_stats.first()
+    
+    if stats:
+        context = {
+            'stats': {
+                'vulnerabilities': stats.stats_vulnerabilities,
+                'exposed_machines': stats.stats_exposed_machines,
+            },
+            'available_dates': all_stats.values_list('date_added', flat=True),
+            'selected_date': stats.date_added,
+        }
+    else:
+        # Handle the case where no stats are available
+        context = {
+            'stats': {
+                'vulnerabilities': {},
+                'exposed_machines': {},
+            },
+            'available_dates': all_stats.values_list('date_added', flat=True),
+            'selected_date': None,
+        }
+    
+
+    return render(request, 'defender_vulnerabilities_stats.html', )
 
 def generate_unique_comment_id(cve_id, machine_id):
     """

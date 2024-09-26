@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/filters.css' %}">
+<link rel="stylesheet" href="{% static 'css/cve_table.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <main class="main-content">
+    <div class="filter-section">
+        <div class="filter-header">
+            <h2>Defender Vulnerabilities</h2>
+            
+        </div>
+        <div class="filter-controls">
+            <div class="date-filter">
+                <select id="date-filter-select">
+                    <option value="past_day" {% if current_date_filter == 'past_day' %}selected{% endif %}>Past Day</option>
+                    <option value="past_week" {% if current_date_filter == 'past_week' %}selected{% endif %}>Past Week</option>
+                    <option value="past_weekend" {% if current_date_filter == 'past_weekend' %}selected{% endif %}>Past Weekend</option>
+                    <option value="this_month" {% if current_date_filter == 'this_month' %}selected{% endif %}>This Month</option>
+                </select>
+            </div>
+
+                <div class="keyword-filter" style="margin-top:8px">
+
+                <input type="checkbox" id="filter-keywords" class="sr-only" {% if request.GET.publicExploit == 'true' %}checked{% endif %}>
+                <label for="filter-keywords" class="keyword-button">CISA Known exploited</label>
+                </div>
+
+                <div class="search-filter">
+                    <input type="search" id="search-input" placeholder="Search vulnerabilities...">
+                </div>
+
+            <div class="sort-filter">
+       
+            <select id="sort-select" onchange="filterAndSortVulnerabilities()">
+                <option value="cvss_score_desc">Highest CVSS Score</option>
+                <option value="cvss_score_asc">Lowest CVSS Score</option>
+                <option value="exposed_desc">Most Exposed Machines</option>
+                <option value="exposed_asc">Least Exposed Machines</option>
+                <!-- Keep other options as is -->
+            </select>
+            </div>
+            </div>
+        </div>
+
+
+<!-- Add a dropdown menu to select the date of stats -->
+<div class="date-selection">
+    <label for="stats-date">Select Date:</label>
+    <select id="stats-date" onchange="changeDate(this)">
+        {% for date in available_dates %}
+            <option value="{{ date }}" {% if date == selected_date %}selected{% endif %}>
+                {{ date }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="charts-container">
+    <div class="chart-container">
+        <h2>Unique vulnerabilities by criticality</h2>
+        <canvas id="vulnerabilityChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h2>All vulnerabilities by criticality</h2>
+        <canvas id="exposedMachinesChart"></canvas>
+    </div>
+</div>
+
+<script>
+// JavaScript to handle date selection change
+function changeDate(select) {
+    const selectedDate = select.value;
+    window.location.href = `?date=${selectedDate}`;
+}
+
+const severityColors = {
+    'Critical': 'rgba(200, 0, 0, 1)', // Dark red for Critical
+    'High': 'rgba(255, 99, 132, 1)', // Red for High
+    'Medium': 'rgba(255, 206, 86, 1)', // Yellow for Medium
+    'Low': 'rgba(75, 192, 192, 1)', // Green for Low
+    'Known_Exploited': 'rgba(139, 0, 0, 1)' // Dark red for Known Exploited
+};
+
+// Assuming you have your stats data in JavaScript objects
+const vulnerabilityData = {
+    labels: Object.keys({{ stats.vulnerabilities|safe }}),
+    datasets: [{
+        label: 'Vulnerabilities by Severity',
+        data: Object.values({{ stats.vulnerabilities|safe }}),
+        backgroundColor: Object.keys({{ stats.vulnerabilities|safe }}).map(
+            label => severityColors[label] || 'rgba(54, 162, 235, 0.2)'
+        ),
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+    }]
+};
+
+const exposedMachinesData = {
+    labels: Object.keys({{ stats.exposed_machines|safe }}),
+    datasets: [{
+        label: 'Exposed Machines by Severity',
+        data: Object.values({{ stats.exposed_machines|safe }}),
+        backgroundColor: Object.keys({{ stats.exposed_machines|safe }}).map(
+            label => severityColors[label.replace(' ', '_')] || 'rgba(255, 99, 132, 0.2)'
+        ),
+        borderColor: 'rgba(255, 99, 132, 1)',
+        borderWidth: 1
+    }]
+};
+
+const vulnerabilityChart = new Chart(document.getElementById('vulnerabilityChart'), {
+    type: 'bar',
+    data: vulnerabilityData,
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+const exposedMachinesChart = new Chart(document.getElementById('exposedMachinesChart'), {
+    type: 'bar',
+    data: exposedMachinesData,
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
+
+
+</main>
+
+
+{% endblock %}
+
+
+
+
