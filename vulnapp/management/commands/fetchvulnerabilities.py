@@ -131,3 +131,34 @@ class Command(BaseCommand):
             scan_status.error_message = str(e)
             scan_status.save()
 
+    def generate_and_save_vuln_stats(self):
+        vulnerabilities = Vulnerability.objects.filter(exposedMachines__gt=0)
+
+        # Calculate statistics
+        vulnerabilities_stats = vulnerabilities.values('severity').annotate(total=Count('id')).order_by('severity')
+        exposed_machines_stats = vulnerabilities.values('severity').annotate(exposed_total=Sum('exposedMachines')).order_by('severity')
+        known_exploited_stats = vulnerabilities.filter(publicExploit=True).aggregate(
+            known_exploited_count=Count('id'), 
+            known_exploited_exposed_machines=Sum('exposedMachines')
+        )
+
+        # Initialize stats dictionaries
+        stats_vulnerabilities = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Known_Exploited': known_exploited_stats['known_exploited_count']}
+        stats_exposed_machines = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Known_Exploited': known_exploited_stats['known_exploited_exposed_machines']}
+
+        # Fill stats for vulnerabilities
+        for stat in vulnerabilities_stats:
+            if stat['severity'] in stats_vulnerabilities:
+                stats_vulnerabilities[stat['severity']] = stat['total']
+
+        # Fill stats for exposed machines
+        for stat in exposed_machines_stats:
+            if stat['severity'] in stats_exposed_machines:
+                stats_exposed_machines[stat['severity']] = stat['exposed_total']
+
+        # Create a new entry in the VulnerabilityStats model
+        VulnerabilityStats.objects.create(
+            date_added=now(),
+            stats_vulnerabilities=json.dumps(stats_vulnerabilities),
+            stats_exposed_machines=json.dumps(stats_exposed_machines)
+        )

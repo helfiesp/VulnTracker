@@ -1039,7 +1039,7 @@ def add_comment(request):
         device = get_object_or_404(Device, device_id=device_id, subscription__subscription_id=subscription_id)
 
         vuln = get_object_or_404(Vulnerability, name=vuln_id)  # Assuming the vuln_id corresponds to the CVE name
-        content_type = ContentType.objects.get_for_model(MachineReference)
+        content_type = ContentType.objects.get_for_model(MachineReference) 
         object_id = "{}-{}-{}".format(str(device_id), str(subscription_id), str(vuln_id))
 
     else:
