@@ -228,7 +228,16 @@ def defender_vulnerabilities_stats(request):
     all_stats = VulnerabilityStats.objects.order_by('-date_added')
     
     # Optionally filter by date if provided in request
-    selected_date = request.GET.get('date', None)
+    selected_date_str = request.GET.get('date', None)
+    selected_date = None
+
+    if selected_date_str:
+        try:
+            # Parse the date from the request and convert it to the correct format
+            selected_date = datetime.strptime(selected_date_str, "%b. %d, %Y").strftime("%Y-%m-%d")
+        except ValueError:
+            # Handle invalid date format, you can add a flash message or a default behavior here
+            selected_date = None
 
     if selected_date:
         stats = all_stats.filter(date_added=selected_date).first()
@@ -246,7 +255,6 @@ def defender_vulnerabilities_stats(request):
 
             # Fetch the subscription object based on subscription_id
             subscription = Subscription.objects.filter(subscription_id=sub_stat.subscription_id).first()
-
 
             # Check if all values are 0, if so, skip this subscription
             if any(severity_stats.get(key, 0) > 0 for key in ['Critical', 'High', 'Medium', 'Low']):
