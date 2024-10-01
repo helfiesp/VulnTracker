@@ -234,17 +234,12 @@ def defender_vulnerabilities_stats(request):
     selected_date = None
 
     if selected_date_str:
-        selected_date_str = selected_date_str.strip()  # Remove any extra whitespace
         try:
-            # Attempt parsing with the expected format
-            selected_date = datetime.strptime(selected_date_str, "%b. %d, %Y").strftime("%Y-%m-%d")
+            # Attempt parsing with the expected format (YYYY-MM-DD)
+            selected_date = datetime.strptime(selected_date_str, "%Y-%m-%d").date()
         except ValueError:
-            # Try alternative formats if parsing fails
-            try:
-                selected_date = datetime.strptime(selected_date_str, "%B %d, %Y").strftime("%Y-%m-%d")
-            except ValueError:
-                # Handle invalid date format, you can add a flash message or set a default behavior
-                selected_date = None
+            # Handle invalid date format
+            selected_date = None
 
     if selected_date:
         print("SELECTED")
@@ -279,7 +274,7 @@ def defender_vulnerabilities_stats(request):
                 'exposed_machines': stats.stats_exposed_machines,
             },
             'available_dates': all_stats.values_list('date_added', flat=True),
-            'selected_date': stats.date_added,
+            'selected_date': stats.date_added.strftime("%Y-%m-%d"),  # Send the formatted date to match the template dropdown value
             'subscription_stats': json.dumps(subscription_stats_list)  # Pass as JSON to frontend
         }
     else:
@@ -295,7 +290,7 @@ def defender_vulnerabilities_stats(request):
         }
 
     return render(request, 'defender_vulnerabilities_stats.html', context)
-
+    
 def generate_unique_comment_id(cve_id, machine_id):
     """
     Simply generates a custom id to identify a coment
