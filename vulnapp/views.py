@@ -230,6 +230,7 @@ def defender_vulnerabilities_stats(request):
     
     # Optionally filter by date if provided in request
     selected_date_str = request.GET.get('date', None)
+    print(selected_date_str)
     selected_date = None
 
     if selected_date_str:
