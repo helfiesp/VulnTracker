@@ -235,7 +235,7 @@ def defender_vulnerabilities_stats(request):
 
     if selected_date_str:
         try:
-            # Attempt parsing with the expected format (YYYY-MM-DD)
+            # Attempt parsing with the expected format (YYYY-MM-DD) and convert to a date object
             selected_date = datetime.strptime(selected_date_str, "%Y-%m-%d").date()
         except ValueError:
             # Handle invalid date format
@@ -243,6 +243,7 @@ def defender_vulnerabilities_stats(request):
 
     if selected_date:
         print("SELECTED")
+        # Use the date object directly for filtering
         stats = all_stats.filter(date_added=selected_date).first()
         sub_stats = VulnerabilitySubStats.objects.filter(date_added=selected_date)
     else:
