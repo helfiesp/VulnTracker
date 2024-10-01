@@ -244,7 +244,9 @@ def defender_vulnerabilities_stats(request):
     if selected_date:
         print("SELECTED")
         stats = all_stats.filter(date_added=selected_date).first()
+        print(stats)
         sub_stats = VulnerabilitySubStats.objects.filter(date_added=selected_date)
+        print(sub_stats)
     else:
         print("DEFAULT")
         # Default to the latest stats if no date is selected or parsing fails
@@ -290,7 +292,7 @@ def defender_vulnerabilities_stats(request):
         }
 
     return render(request, 'defender_vulnerabilities_stats.html', context)
-    
+
 def generate_unique_comment_id(cve_id, machine_id):
     """
     Simply generates a custom id to identify a coment
