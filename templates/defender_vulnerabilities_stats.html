@@ -42,10 +42,12 @@
 
     <!-- Subscription-level vulnerability severity pie charts -->
     <div class="charts-container">
+        {% if subscription_stats %}
         <h2>Vulnerabilities by subscription</h2>
         <div id="subscription-charts-container">
             <!-- Pie charts will be dynamically created here -->
         </div>
+        {% endif %}
     </div>
 </main>
 
