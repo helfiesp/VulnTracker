@@ -1027,6 +1027,17 @@ def add_comment(request):
         content_type = ContentType.objects.get_for_model(Device)
         object_id = device_id  # Use device_id as the unique identifier for the comment
 
+    elif comment_type == 'subscription':
+        # Handle comments for Subscription entities
+        subscription_id = request.POST.get('subscription_id')
+
+        # Fetch the subscription object
+        subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
+
+        # Prepare the content type and object_id for the generic relation
+        content_type = ContentType.objects.get_for_model(Subscription)
+        object_id = subscription_id
+    
     elif comment_type == 'software':
         # Handle comments for software entities
         content_type = ContentType.objects.get_for_model(SoftwareHosts)
@@ -1441,13 +1452,16 @@ def fetch_machines_by_severity(request, subscription_id, severity):
 def display_all_subscriptions(request):
     """
     View function to display all subscriptions with their respective
-    number of vulnerabilities and resource groups.
+    number of vulnerabilities, resource groups, and latest comments.
     """
     # Fetch all subscriptions
     subscriptions = Subscription.objects.all()
 
     # Prepare a list to hold subscription details
     subscription_details = []
+
+    # Get the content type for Subscription model to fetch related comments
+    subscription_content_type = ContentType.objects.get_for_model(Subscription)
 
     for subscription in subscriptions:
         # Fetch the vulnerability count from the subscription's field
@@ -1461,19 +1475,22 @@ def display_all_subscriptions(request):
             vulnerability_count.get('Low', 0)
         )
 
-        # Skip this subscription if the total vulnerability count is 0
-        #if total_vulnerability_count == 0:
-            #continue  # Skip this subscription
-
         # Count the number of resource groups related to the subscription
         resource_group_count = ResourceGroup.objects.filter(subscription=subscription).count()
 
-        # Add the subscription details to the list, including the total vulnerability count
+        # Fetch the latest comment for the subscription
+        latest_comment = Comment.objects.filter(
+            content_type=subscription_content_type,
+            object_id=subscription.subscription_id
+        ).order_by('-created_at').first()
+
+        # Add the subscription details to the list, including the total vulnerability count and the latest comment
         subscription_details.append({
             'subscription': subscription,
             'vulnerability_count': vulnerability_count,
             'total_vulnerability_count': total_vulnerability_count,
             'resource_group_count': resource_group_count,
+            'latest_comment': latest_comment.content if latest_comment else ''  # Add latest comment content if exists
         })
 
     # Sort subscription details by total_vulnerability_count in descending order
@@ -1484,7 +1501,6 @@ def display_all_subscriptions(request):
     }
 
     return render(request, 'all_subscriptions.html', context)
-
 
 def critical_vulnerabilities_view(request):
     # Fetch all critical vulnerabilities
