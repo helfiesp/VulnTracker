@@ -65,9 +65,12 @@ td:last-child, th:last-child {
 }
 
 .comment-form textarea {
+    padding: 10px;
+    margin-bottom: 0; /* Remove margin-bottom to align with the button */
     border: 1px solid #ccc;
     border-radius: 5px;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    width:500px;
 }
 
 .comment-form button[type="submit"] {
