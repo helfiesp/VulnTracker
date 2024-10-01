@@ -230,23 +230,29 @@ def defender_vulnerabilities_stats(request):
     
     # Optionally filter by date if provided in request
     selected_date_str = request.GET.get('date', None)
-    print(selected_date_str)
+    print("Selected Date (Raw):", selected_date_str)  # Debug statement
     selected_date = None
 
     if selected_date_str:
+        selected_date_str = selected_date_str.strip()  # Remove any extra whitespace
         try:
-            # Parse the date from the request and convert it to the correct format
+            # Attempt parsing with the expected format
             selected_date = datetime.strptime(selected_date_str, "%b. %d, %Y").strftime("%Y-%m-%d")
         except ValueError:
-            # Handle invalid date format, you can add a flash message or a default behavior here
-            selected_date = None
+            # Try alternative formats if parsing fails
+            try:
+                selected_date = datetime.strptime(selected_date_str, "%B %d, %Y").strftime("%Y-%m-%d")
+            except ValueError:
+                # Handle invalid date format, you can add a flash message or set a default behavior
+                selected_date = None
 
     if selected_date:
-        print("Selected Date:", selected_date)  # Debug statement
+        print("SELECTED")
         stats = all_stats.filter(date_added=selected_date).first()
         sub_stats = VulnerabilitySubStats.objects.filter(date_added=selected_date)
     else:
-        # Default to the latest stats if no date is selected
+        print("DEFAULT")
+        # Default to the latest stats if no date is selected or parsing fails
         stats = all_stats.first()
         sub_stats = VulnerabilitySubStats.objects.filter(date_added=stats.date_added) if stats else []
 
