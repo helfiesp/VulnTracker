@@ -1037,7 +1037,7 @@ def add_comment(request):
         # Prepare the content type and object_id for the generic relation
         content_type = ContentType.objects.get_for_model(Subscription)
         object_id = subscription_id
-    
+
     elif comment_type == 'software':
         # Handle comments for software entities
         content_type = ContentType.objects.get_for_model(SoftwareHosts)
@@ -1081,6 +1081,40 @@ def add_comment(request):
     print(f"Comment {'created' if created else 'updated'}: {comment}")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+@require_POST
+def update_all_comments(request):
+    """
+    View function to update all subscription comments at once.
+    """
+    subscription_content_type = ContentType.objects.get_for_model(Subscription)
+
+    # Iterate through each submitted subscription comment and update accordingly
+    for key, value in request.POST.items():
+        if key.startswith('comment_content_'):
+            # Extract the index from the key to find the corresponding subscription_id
+            index = key.split('_')[-1]
+            subscription_id = request.POST.get(f'subscription_id_{index}')
+            comment_content = value
+
+            if subscription_id:
+                # Fetch the subscription object to ensure it exists
+                subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
+
+                # Use the content type and subscription_id for the generic relation
+                content_type = subscription_content_type
+                object_id = subscription.subscription_id
+
+                # Create or update the comment for the subscription
+                Comment.objects.update_or_create(
+                    content_type=content_type,
+                    object_id=object_id,
+                    defaults={'content': comment_content}
+                )
+
+    # Redirect back to the subscriptions page after updating all comments
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    
 # CMDB
 def create_cmdb_entry(request):
     if request.method == 'POST':

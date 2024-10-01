@@ -25,6 +25,7 @@ urlpatterns = [
     path('cve/blacklist/', views.blacklist_view, name='blacklist'),
     path('cve/delete/<str:model_name>/<int:word_id>/', views.delete_word, name='delete_word'),
     path('add_comment/', views.add_comment, name='add_comment'),
+    path('update_all_comments/', views.update_all_comments, name='update_all_comments'),
 
     path('create_cmdb_entry/', views.create_cmdb_entry, name='create_cmdb_entry'),
     path('cmdb/', views.cmdb_view, name='cmdb'),

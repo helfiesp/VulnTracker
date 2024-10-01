@@ -4,53 +4,44 @@
 <link rel="stylesheet" href="{% static 'css/cve_table.css' %}">
 
 {% block content %}
-
-
-    <main class="main-content">
+<main class="main-content">
     <h1>All Subscriptions</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Subscription</th>
-                <th>Vulnerabilities</th>
-                <th>Vulnerabilities detail</th>
-                <th>Resource Groups</th>
-                <th>Product</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for detail in subscription_details %}
+    <form action="{% url 'update_all_comments' %}" method="post">
+        {% csrf_token %}
+        <table>
+            <thead>
                 <tr>
-                    <td><a href="{% url 'devices_in_subscription' subscription_id=detail.subscription.subscription_id %}">{{ detail.subscription.display_name }}</a></td>
-                    <td>{{ detail.total_vulnerability_count }}</td>
-                    <td>
-                        {% for key, value in detail.vulnerability_count.items %}
-                            {% if value != 0 %}
-                                {{ key }}: {{ value }}<br>
-                            {% endif %}
-                        {% endfor %}
-                    </td>
-                    <td>{{ detail.resource_group_count }}</td>
-                    <td>
-                        <div class="comment-form">
-                            <form action="{% url 'add_comment' %}" method="post">
-                                {% csrf_token %}
-                                <input type="hidden" name="subscription_id" value="{{ detail.subscription.subscription_id }}">
-                                <input type="hidden" name="comment_type" value="subscription">
-
-                                <div class="comment-form-controls">
-                                    <textarea name="comment_content" style="width: 300px;">{{ detail.latest_comment }}</textarea>
-                                    <button type="submit">Save</button>
-                                </div>
-                            </form>
-                        </div>
-                    </td>
-
+                    <th>Subscription</th>
+                    <th>Vulnerabilities</th>
+                    <th>Vulnerabilities detail</th>
+                    <th>Resource Groups</th>
+                    <th>Product</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for detail in subscription_details %}
+                    <tr>
+                        <td><a href="{% url 'devices_in_subscription' subscription_id=detail.subscription.subscription_id %}">{{ detail.subscription.display_name }}</a></td>
+                        <td>{{ detail.total_vulnerability_count }}</td>
+                        <td>
+                            {% for key, value in detail.vulnerability_count.items %}
+                                {% if value != 0 %}
+                                    {{ key }}: {{ value }}<br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ detail.resource_group_count }}</td>
+                        <td>
+                            <div class="comment-form-controls">
+                                <input type="hidden" name="subscription_id_{{ forloop.counter }}" value="{{ detail.subscription.subscription_id }}">
+                                <textarea name="comment_content_{{ forloop.counter }}" style="width: 300px;">{{ detail.latest_comment }}</textarea>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">Update All Comments</button>
+    </form>
 </main>
-
-
 {% endblock %}
