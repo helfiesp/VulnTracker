@@ -83,6 +83,14 @@ class VulnerabilitySubStats(models.Model):
     date_added = models.DateField(auto_now_add=True)
     stats_vulnerabilities = models.JSONField()  # Stores JSON data for vulnerabilities by severity
 
+
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['subscription_id', 'date_added'], name='unique_sub_stats_per_day')
+    ]
+
+
     def __str__(self):
         return f"Vulnerability stats for subscription {self.subscription_id} on {self.date_added}"
 
