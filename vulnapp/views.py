@@ -241,6 +241,7 @@ def defender_vulnerabilities_stats(request):
             selected_date = None
 
     if selected_date:
+        print("Selected Date:", selected_date)  # Debug statement
         stats = all_stats.filter(date_added=selected_date).first()
         sub_stats = VulnerabilitySubStats.objects.filter(date_added=selected_date)
     else:
