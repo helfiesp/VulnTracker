@@ -31,7 +31,7 @@
                         {% endfor %}
                     </td>
                     <td>{{ detail.resource_group_count }}</td>
-                    <td>
+                    <td style="width:100px">
                         <div class="comment-form">
                             <form action="{% url 'add_comment' %}" method="post">
                                 {% csrf_token %}
