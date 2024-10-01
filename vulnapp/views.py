@@ -228,16 +228,6 @@ def defender_vulnerabilities_stats(request):
     # Fetch all stats ordered by date
     all_stats = VulnerabilityStats.objects.order_by('-date_added')
     
-
-    count = 0
-    # Check the dates in VulnerabilitySubStats
-    for sub_stat in VulnerabilitySubStats.objects.all():
-        if "2024-10-01" != str(sub_stat.date_added):
-            print(sub_stat.date_added, type(sub_stat.date_added))
-        count += 1
-
-
-    print(count)
     # Optionally filter by date if provided in request
     selected_date_str = request.GET.get('date', None)
     print("Selected Date (Raw):", selected_date_str)  # Debug statement
@@ -1472,8 +1462,8 @@ def display_all_subscriptions(request):
         )
 
         # Skip this subscription if the total vulnerability count is 0
-        if total_vulnerability_count == 0:
-            continue  # Skip this subscription
+        #if total_vulnerability_count == 0:
+            #continue  # Skip this subscription
 
         # Count the number of resource groups related to the subscription
         resource_group_count = ResourceGroup.objects.filter(subscription=subscription).count()
