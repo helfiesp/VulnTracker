@@ -11,20 +11,21 @@
 <main class="main-content">
     <div class="filter-section">
         <div class="filter-header">
-            <h2>Defender Vulnerability Statistics</h2>
+            <h2>Defender Vulnerability</h2>
         </div>
     </div>
 
-<div class="date-selection">
-    <label for="stats-date">Select Date:</label>
-    <select id="stats-date" onchange="changeDate(this)">
-        {% for date in available_dates %}
-            <option value="{{ date|date:'Y-m-d' }}" {% if date == selected_date %}selected{% endif %}>
-                {{ date|date:'d/m/y' }}
-            </option>
-        {% endfor %}
-    </select>
-</div>
+    <!-- Date selection dropdown -->
+    <div class="date-selection">
+        <label for="stats-date">Select Date:</label>
+        <select id="stats-date" onchange="changeDate(this)">
+            {% for date in available_dates %}
+                <option value="{{ date }}" {% if date == selected_date %}selected{% endif %}>
+                    {{ date }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
 
     <!-- Charts for vulnerability and exposed machine statistics -->
     <div class="charts-container">

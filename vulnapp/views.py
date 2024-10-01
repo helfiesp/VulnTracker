@@ -234,16 +234,20 @@ def defender_vulnerabilities_stats(request):
     selected_date = None
 
     if selected_date_str:
+        selected_date_str = selected_date_str.strip()  # Remove any extra whitespace
         try:
-            # Attempt parsing with the expected format (YYYY-MM-DD) and convert to a date object
-            selected_date = datetime.strptime(selected_date_str, "%Y-%m-%d").date()
+            # Attempt parsing with the expected format
+            selected_date = datetime.strptime(selected_date_str, "%b. %d, %Y").strftime("%Y-%m-%d")
         except ValueError:
-            # Handle invalid date format
-            selected_date = None
+            # Try alternative formats if parsing fails
+            try:
+                selected_date = datetime.strptime(selected_date_str, "%B %d, %Y").strftime("%Y-%m-%d")
+            except ValueError:
+                # Handle invalid date format, you can add a flash message or set a default behavior
+                selected_date = None
 
     if selected_date:
         print("SELECTED")
-        # Use the date object directly for filtering
         stats = all_stats.filter(date_added=selected_date).first()
         sub_stats = VulnerabilitySubStats.objects.filter(date_added=selected_date)
     else:
@@ -275,7 +279,7 @@ def defender_vulnerabilities_stats(request):
                 'exposed_machines': stats.stats_exposed_machines,
             },
             'available_dates': all_stats.values_list('date_added', flat=True),
-            'selected_date': stats.date_added.strftime("%Y-%m-%d"),  # Send the formatted date to match the template dropdown value
+            'selected_date': stats.date_added,
             'subscription_stats': json.dumps(subscription_stats_list)  # Pass as JSON to frontend
         }
     else:
