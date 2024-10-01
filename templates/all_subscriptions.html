@@ -15,7 +15,7 @@
                 <th>Vulnerabilities</th>
                 <th>Vulnerabilities detail</th>
                 <th>Resource Groups</th>
-                <th style="width:100px">Comments</th>
+                <th>Comments</th>
             </tr>
         </thead>
         <tbody>
@@ -31,7 +31,7 @@
                         {% endfor %}
                     </td>
                     <td>{{ detail.resource_group_count }}</td>
-                    <td>
+                    <td style="width:400px">
                         <div class="comment-form">
                             <form action="{% url 'add_comment' %}" method="post">
                                 {% csrf_token %}
