@@ -232,7 +232,8 @@ def defender_vulnerabilities_stats(request):
     count = 0
     # Check the dates in VulnerabilitySubStats
     for sub_stat in VulnerabilitySubStats.objects.all():
-        print(sub_stat.date_added, type(sub_stat.date_added))
+        if "2024-10-01" != str(sub_stat.date_added):
+            print(sub_stat.date_added, type(sub_stat.date_added))
         count += 1
 
 
