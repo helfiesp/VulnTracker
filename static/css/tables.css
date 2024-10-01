@@ -59,13 +59,15 @@ td:last-child, th:last-child {
   padding-right: 16px;
 }
 
+/* Existing textarea styles */
 .comment-form .comment-form-controls {
     display: flex; /* Enable flexbox layout */
     gap: 10px; /* Add some space between the textarea and the button */
     align-items: center; /* Align items vertically in the center */
 }
 
-.comment-form textarea {
+.comment-form textarea,
+.comment-textarea {
     flex-grow: 1; /* Allow textarea to fill the available space */
     padding: 10px;
     margin-bottom: 0; /* Remove margin-bottom to align with the button */
@@ -75,7 +77,9 @@ td:last-child, th:last-child {
     resize: vertical;
 }
 
-.comment-form button[type="submit"] {
+/* Existing button styles */
+.comment-form button[type="submit"],
+.update-all-button {
     background-color: #007bff;
     color: white;
     border: none;
@@ -87,6 +91,17 @@ td:last-child, th:last-child {
     margin: 0;
     transition: background-color 0.3s;
 }
-.comment-form button[type="submit"]:hover {
+
+.comment-form button[type="submit"]:hover,
+.update-all-button:hover {
     background-color: #0056b3;
+}
+
+/* New CSS for positioning the "Update All Comments" button */
+.update-all-button-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px; /* Add some space between the button and the table */
+    position: relative;
+    top: -20px; /* Adjust the position to align with the top right of the table */
 }

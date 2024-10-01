@@ -6,7 +6,12 @@
 {% block content %}
 <main class="main-content">
     <h1>All Subscriptions</h1>
-    <form action="{% url 'update_all_comments' %}" method="post">
+
+    <div class="update-all-button-wrapper">
+        <button type="submit" form="update-all-comments-form" class="update-all-button">Update All Comments</button>
+    </div>
+
+    <form id="update-all-comments-form" action="{% url 'update_all_comments' %}" method="post">
         {% csrf_token %}
         <table>
             <thead>
@@ -34,14 +39,13 @@
                         <td>
                             <div class="comment-form-controls">
                                 <input type="hidden" name="subscription_id_{{ forloop.counter }}" value="{{ detail.subscription.subscription_id }}">
-                                <textarea name="comment_content_{{ forloop.counter }}" style="width: 300px;">{{ detail.latest_comment }}</textarea>
+                                <textarea name="comment_content_{{ forloop.counter }}" class="comment-textarea">{{ detail.latest_comment }}</textarea>
                             </div>
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-        <button type="submit">Update All Comments</button>
     </form>
 </main>
 {% endblock %}
