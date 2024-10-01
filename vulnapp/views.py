@@ -228,6 +228,15 @@ def defender_vulnerabilities_stats(request):
     # Fetch all stats ordered by date
     all_stats = VulnerabilityStats.objects.order_by('-date_added')
     
+        # Check the dates in VulnerabilityStats
+    for stat in VulnerabilityStats.objects.all():
+        print(stat.date_added, type(stat.date_added))
+
+    # Check the dates in VulnerabilitySubStats
+    for sub_stat in VulnerabilitySubStats.objects.all():
+        print(sub_stat.date_added, type(sub_stat.date_added))
+
+    
     # Optionally filter by date if provided in request
     selected_date_str = request.GET.get('date', None)
     print("Selected Date (Raw):", selected_date_str)  # Debug statement
