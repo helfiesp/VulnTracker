@@ -2,13 +2,14 @@ import os
 import requests
 from django.core.management.base import BaseCommand
 from requests.exceptions import RequestException
+from vulnapp import secrets
 
 class Command(BaseCommand):
     help = 'Fetch all data from Whitesource Mend API and print to console'
 
     def handle(self, *args, **options):
         # API key and endpoint configuration
-        api_key = os.getenv('WHITESOURCE_API_KEY')  # Set this environment variable
+        api_key = os.environ['WHITESOURCE_API_KEY']  # Set this environment variable
         base_url = 'https://api.mend.io/v2.0/'  # API base URL according to the documentation
 
         if not api_key:
