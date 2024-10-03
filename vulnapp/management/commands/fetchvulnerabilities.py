@@ -164,7 +164,7 @@ class Command(BaseCommand):
             stats_exposed_machines=json.dumps(stats_exposed_machines)
         )
 
-    def generate_and_save_sub_vuln_stats(self)
+    def generate_and_save_sub_vuln_stats(self):
         # Get today's date
         today = now().date()
 
