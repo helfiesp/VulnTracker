@@ -10,6 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # API key and endpoint configuration
         api_key = os.environ['WHITESOURCE_API_KEY']  # Set this environment variable
+        print(api_key)
         base_url = 'https://api.mend.io/v2.0/'  # API base URL according to the documentation
 
         if not api_key:
