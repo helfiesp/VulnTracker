@@ -10,7 +10,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # API key and endpoint configuration
         api_key = os.environ['WHITESOURCE_API_KEY']  # Set this environment variable
-        print(api_key)
         base_url = 'https://api.mend.io/v2.0/'  # API base URL according to the documentation
 
         if not api_key:
@@ -36,6 +35,9 @@ class Command(BaseCommand):
 
         except RequestException as e:
             self.stderr.write(self.style.ERROR(f'Failed to fetch data: {e}'))
+            self.stderr.write(self.style.ERROR(f'HTTP Status Code: {response.status_code}'))
+            self.stderr.write(self.style.ERROR(f'Response Text: {response.text}'))
+
 
 # Notes:
 # - You will need to add your API key in the environment as 'WHITESOURCE_API_KEY'.
