@@ -35,9 +35,6 @@ class Command(BaseCommand):
 
         except RequestException as e:
             self.stderr.write(self.style.ERROR(f'Failed to fetch data: {e}'))
-            self.stderr.write(self.style.ERROR(f'HTTP Status Code: {response.status_code}'))
-            self.stderr.write(self.style.ERROR(f'Response Text: {response.text}'))
-
 
 # Notes:
 # - You will need to add your API key in the environment as 'WHITESOURCE_API_KEY'.
