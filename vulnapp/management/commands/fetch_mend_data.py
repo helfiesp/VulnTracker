@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # API key and endpoint configuration
         api_key = os.environ['WHITESOURCE_API_KEY']  # Set this environment variable
-        base_url = 'https://api-app-eu.whitesourcesoftware.com/'  # API base URL according to the documentation
+        base_url = 'https://api-app-eu.whitesourcesoftware.com'  # API base URL according to the documentation
 
         if not api_key:
             self.stderr.write(self.style.ERROR('API key is not set. Set the WHITESOURCE_API_KEY environment variable.'))
@@ -23,7 +23,7 @@ class Command(BaseCommand):
         }
 
         # Define the initial endpoint to start fetching data
-        endpoint = f'{base_url}projects'
+        endpoint = f'{base_url}'
 
         try:
             response = requests.get(endpoint, headers=headers)
