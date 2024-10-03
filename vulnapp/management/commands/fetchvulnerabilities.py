@@ -190,8 +190,8 @@ class Command(BaseCommand):
                 vuln_data = MachineReference.objects.filter(computer_dns_name__icontains=device.display_name)
 
                 if vuln_data.filter(last_updated__date=today).exists():
-                    # Count vulnerabilities for today
-                    vuln_count = vuln_data.count()
+                    # Count vulnerabilities for toda
+ya                    vuln_count = vuln_data.count()
                     total_vulnerabilities += vuln_count
                 else:
                     # If no data is available for today
