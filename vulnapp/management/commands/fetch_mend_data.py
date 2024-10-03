@@ -16,7 +16,7 @@ class Command(BaseCommand):
             self.stderr.write(self.style.ERROR('User key not found. Please set the MEND_USER_KEY environment variable.'))
             return
 
-        url = 'https://api.mend.io/api/v2/authentication'
+        url = 'https://api-app-eu.whitesourcesoftware.com'
 
         payload = {
             "userKey": user_key
