@@ -191,7 +191,7 @@ class Command(BaseCommand):
 
                 if vuln_data.filter(last_updated__date=today).exists():
                     # Count vulnerabilities for toda
-ya                    vuln_count = vuln_data.count()
+                    vuln_count = vuln_data.count()
                     total_vulnerabilities += vuln_count
                 else:
                     # If no data is available for today

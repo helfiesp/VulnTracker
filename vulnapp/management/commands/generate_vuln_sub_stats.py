@@ -7,7 +7,7 @@ from vulnapp.models import Subscription, Device, MachineReference, Vulnerability
 class Command(BaseCommand):
     help = 'Generate vulnerability statistics for all subscriptions and store in VulnerabilitySubStats.'
 
-    def generate_and_save_vuln_stats()
+    def generate_and_save_sub_vuln_stats(self)
         # Get today's date
         today = now().date()
 
