@@ -437,6 +437,7 @@ def fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token):
     """Fetch all CVEs associated with a specific machine from the API, using its full domain name if available."""
     # First, fetch the machine details to get the FQDN
     machine_details = fetch_machine_details(computer_dns_name, token)
+    print(machine_details)
     
     if machine_details:
         # Try to get the full domain name (FQDN) if available
@@ -454,7 +455,7 @@ def fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token):
         return response.json().get("value", [])
     else:
         return None
-        
+
 
 def cve_list_for_machine(request, computer_dns_name):
     """
