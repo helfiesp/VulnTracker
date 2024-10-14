@@ -436,9 +436,7 @@ def fetch_machine_details(computer_dns_name, token):
 def fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token):
     """Fetch all CVEs associated with a specific machine from the API, using its full domain name if available."""
     # First, fetch the machine details to get the FQDN
-    machine_details = fetch_machine_details(computer_dns_name, token)
-    print(machine_details)
-    
+    machine_details = fetch_machine_details(computer_dns_name, token)    
     if machine_details:
         # Try to get the full domain name (FQDN) if available
         fqdn = machine_details.get("fullyQualifiedDomainName", computer_dns_name)
@@ -462,6 +460,7 @@ def cve_list_for_machine(request, computer_dns_name):
     View function to show all vulnerabilities for a specific host and provide statistics on CVE severity.
     """
     machine_references = MachineReference.objects.filter(computer_dns_name__icontains=computer_dns_name)
+    print(machine_references)
     software_list = Software.objects.filter(software_hosts__computer_dns_name__icontains=computer_dns_name).distinct()
 
     # Initial CVE queryset sorted by CVSS score in descending order
