@@ -421,18 +421,40 @@ def machine_list(request, cve_id):
     }
     return render(request, 'machine_list.html', context)
 
-
-def fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token):
-    """Fetch all CVEs associated with a specific machine from the API."""
+def fetch_machine_details(computer_dns_name, token):
+    """Fetch detailed information about a specific machine, including its FQDN if available."""
     headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
-    # The API endpoint as per Microsoft's documentation, adjust if necessary
-    url = f"https://api.securitycenter.microsoft.com/api/machines/{computer_dns_name}.z554micvdcaefg5wo1kg5lzptf.ax.internal.cloudapp.net/vulnerabilities"
+    # Endpoint to get machine details
+    url = f"https://api.securitycenter.microsoft.com/api/machines/{computer_dns_name}"
     
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        return response.json()["value"]
+        return response.json()
     else:
         return None
+
+def fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token):
+    """Fetch all CVEs associated with a specific machine from the API, using its full domain name if available."""
+    # First, fetch the machine details to get the FQDN
+    machine_details = fetch_machine_details(computer_dns_name, token)
+    
+    if machine_details:
+        # Try to get the full domain name (FQDN) if available
+        fqdn = machine_details.get("fullyQualifiedDomainName", computer_dns_name)
+    else:
+        # If fetching details fails, fall back to the basic DNS name
+        fqdn = computer_dns_name
+    
+    headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
+    # The API endpoint for vulnerabilities
+    url = f"https://api.securitycenter.microsoft.com/api/machines/{fqdn}/vulnerabilities"
+    
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json().get("value", [])
+    else:
+        return None
+        
 
 def cve_list_for_machine(request, computer_dns_name):
     """
