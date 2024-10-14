@@ -220,3 +220,4 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS("Completed generating vulnerability statistics for all subscriptions."))
 
+

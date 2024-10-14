@@ -86,8 +86,6 @@ class Command(BaseCommand):
                 to_create = []
 
                 for machine_data in machine_references_data:
-                    if "internal.cloudapp.net" in machine_data['computerDnsName']:
-                        continue
                     machine_id = machine_data['id']
                     if machine_id in seen_machine_ids:
                         continue
