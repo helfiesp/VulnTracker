@@ -426,7 +426,7 @@ def fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token):
     """Fetch all CVEs associated with a specific machine from the API."""
     headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
     # The API endpoint as per Microsoft's documentation, adjust if necessary
-    url = f"https://api.securitycenter.microsoft.com/api/machines/{computer_dns_name}/vulnerabilities"
+    url = f"https://api.securitycenter.microsoft.com/api/machines/{computer_dns_name}.z554micvdcaefg5wo1kg5lzptf.ax.internal.cloudapp.net/vulnerabilities"
     
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
@@ -458,7 +458,6 @@ def cve_list_for_machine(request, computer_dns_name):
     token = fetch_auth_token()
     if token:
         api_cves = fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token)
-        print(api_cves)
         if api_cves:
             # Update cves queryset after fetching from API, still maintaining the order by CVSS score
             cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct().order_by('-cvssV3')
