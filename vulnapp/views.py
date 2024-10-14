@@ -421,7 +421,7 @@ def machine_list(request, cve_id):
     }
     return render(request, 'machine_list.html', context)
 
- def fetch_machine_details(device_id, token):
+def fetch_machine_details(device_id, token):
     """Fetch detailed information about a specific machine using its deviceId."""
     headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
     # Endpoint to get machine details using deviceId
@@ -433,7 +433,7 @@ def machine_list(request, cve_id):
     else:
         print(f"Error fetching machine details: {response.status_code}, {response.text}")
         return None
-        
+
 def fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token):
     """Fetch all CVEs associated with a specific machine from the API, using its full domain name if available."""
     # First, fetch the machine details to get the FQDN
