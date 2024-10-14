@@ -434,10 +434,9 @@ def fetch_machine_details(device_id, token):
         print(f"Error fetching machine details: {response.status_code}, {response.text}")
         return None
 
-def fetch_vulnerabilities_for_machine_from_api(computer_dns_name):
+def fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token):
     """Fetch all CVEs associated with a specific machine from the API, using its full domain name if available."""
     # First, fetch the machine details to get the FQDN
-    token = fetch_auth_token()
     machine_details = fetch_machine_details(computer_dns_name, token)    
     if machine_details:
         # Try to get the full domain name (FQDN) if available
@@ -478,6 +477,8 @@ def cve_list_for_machine(request, computer_dns_name):
         # Attach the latest comment content to the CVE object (if it exists)
         cve.latest_comment = latest_comment.content if latest_comment else ''
 
+    token = fetch_auth_token()
+    print(token)
     if token:
         api_cves = fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token)
         print(api_cves)
