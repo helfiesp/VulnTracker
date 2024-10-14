@@ -421,18 +421,19 @@ def machine_list(request, cve_id):
     }
     return render(request, 'machine_list.html', context)
 
-def fetch_machine_details(computer_dns_name, token):
-    """Fetch detailed information about a specific machine, including its FQDN if available."""
+ def fetch_machine_details(device_id, token):
+    """Fetch detailed information about a specific machine using its deviceId."""
     headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
-    # Endpoint to get machine details
-    url = f"https://api.securitycenter.microsoft.com/api/machines/{computer_dns_name}"
+    # Endpoint to get machine details using deviceId
+    url = f"https://api.securitycenter.microsoft.com/api/machines/{device_id}"
     
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         return response.json()
     else:
+        print(f"Error fetching machine details: {response.status_code}, {response.text}")
         return None
-
+        
 def fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token):
     """Fetch all CVEs associated with a specific machine from the API, using its full domain name if available."""
     # First, fetch the machine details to get the FQDN
@@ -460,7 +461,6 @@ def cve_list_for_machine(request, computer_dns_name):
     View function to show all vulnerabilities for a specific host and provide statistics on CVE severity.
     """
     machine_references = MachineReference.objects.filter(computer_dns_name__icontains=computer_dns_name)
-    print(machine_references)
     software_list = Software.objects.filter(software_hosts__computer_dns_name__icontains=computer_dns_name).distinct()
 
     # Initial CVE queryset sorted by CVSS score in descending order
