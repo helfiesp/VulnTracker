@@ -482,6 +482,13 @@ def cve_list_for_machine(request, computer_dns_name):
         # Attach the latest comment content to the CVE object (if it exists)
         cve.latest_comment = latest_comment.content if latest_comment else ''
 
+    token = fetch_auth_token()
+    if token:
+        api_cves = fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token)
+        print(api_cves)
+        if api_cves:
+            # Update cves queryset after fetching from API, still maintaining the order by CVSS score
+            cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct().order_by('-cvssV3')
 
     # Extract device info and machine-specific data from one entry in machine_references
     example_reference = None
