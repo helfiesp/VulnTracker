@@ -421,45 +421,18 @@ def machine_list(request, cve_id):
     }
     return render(request, 'machine_list.html', context)
 
-def fetch_machine_details(device_id, token):
-    """Fetch detailed information about a specific machine using its deviceId."""
+
+def fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token):
+    """Fetch all CVEs associated with a specific machine from the API."""
     headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
-    # Endpoint to get machine details using deviceId
-    url = f"https://api.securitycenter.microsoft.com/api/machines/{device_id}"
+    # The API endpoint as per Microsoft's documentation, adjust if necessary
+    url = f"https://api.securitycenter.microsoft.com/api/machines/{computer_dns_name}/vulnerabilities"
     
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        return response.json()
+        return response.json()["value"]
     else:
-        print(f"Error fetching machine details: {response.status_code}, {response.text}")
         return None
-
-def fetch_vulnerabilities_for_machine_from_api(device_id, token):
-    """Fetch all CVEs associated with a specific machine from the API using its deviceId."""
-    # Fetch the machine details to get FQDN
-    machine_details = fetch_machine_details(device_id, token)
-    
-    if machine_details:
-        # Try to get the full domain name (FQDN) if available, else fallback to display name
-        fqdn = machine_details.get("fullyQualifiedDomainName", machine_details.get("computerDnsName", None))
-        if fqdn:
-            headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
-            url = f"https://api.securitycenter.microsoft.com/api/machines/{fqdn}/vulnerabilities"
-            
-            response = requests.get(url, headers=headers)
-            if response.status_code == 200:
-                return response.json().get("value", [])
-            else:
-                print(f"Error fetching vulnerabilities: {response.status_code}, {response.text}")
-                return None
-        else:
-            print("FQDN not found for the machine")
-            return None
-    else:
-        print("Machine details not found")
-        return None
-
-
 
 def cve_list_for_machine(request, computer_dns_name):
     """
@@ -485,7 +458,6 @@ def cve_list_for_machine(request, computer_dns_name):
     token = fetch_auth_token()
     if token:
         api_cves = fetch_vulnerabilities_for_machine_from_api(computer_dns_name, token)
-        print(api_cves)
         if api_cves:
             # Update cves queryset after fetching from API, still maintaining the order by CVSS score
             cves = Vulnerability.objects.filter(machine_references__in=machine_references).distinct().order_by('-cvssV3')
