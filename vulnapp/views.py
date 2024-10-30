@@ -1290,7 +1290,7 @@ def device_list(request):
 def devices_in_subscription(request, subscription_id):
     """
     Optimized view function to show all devices within a specific subscription
-    and provide statistics on vulnerabilities per device, including comments and total statistics.
+    and provide statistics on vulnerabilities per device.
     Additionally, it provides the count of devices per resource group.
     """
     # Fetch the subscription object
@@ -1299,16 +1299,8 @@ def devices_in_subscription(request, subscription_id):
     # Get today's date
     today = timezone.now().date()
 
-    # Get ContentType for Device model for generic relation in Comment
-    device_content_type = ContentType.objects.get_for_model(Device)
-
-    # Fetch all devices related to the subscription with prefetched comments and machine references
+    # Fetch all devices related to the subscription with prefetched machine references and vulnerabilities
     devices = Device.objects.filter(subscription=subscription).prefetch_related(
-        Prefetch(
-            'comment_set',
-            queryset=Comment.objects.filter(content_type=device_content_type).order_by('-created_at'),
-            to_attr='prefetched_comments'
-        ),
         Prefetch(
             'machine_references',
             queryset=MachineReference.objects.filter(last_updated__date=today).select_related('vulnerability'),
@@ -1331,15 +1323,10 @@ def devices_in_subscription(request, subscription_id):
         else:
             vuln_count = "N/A"
 
-        # Use prefetched comments
-        comments = device.prefetched_comments
-        latest_comment = comments[0].content if comments else ""
-
-        # Append the device with its vulnerability count and the latest comment
+        # Append the device with its vulnerability count
         device_vulnerability_stats.append({
             'device': device,
             'vuln_count': vuln_count,
-            'latest_comment': latest_comment,
         })
 
         # Calculate severity statistics
