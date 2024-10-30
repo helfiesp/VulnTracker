@@ -15,6 +15,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from datetime import timedelta
 import os
+from collections import defaultdict
 from datetime import datetime
 from django.db.models.functions import Lower
 import requests
