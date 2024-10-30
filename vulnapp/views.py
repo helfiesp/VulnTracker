@@ -1297,6 +1297,7 @@ def devices_in_subscription(request, subscription_id):
     and provide statistics on vulnerabilities per device, including comments and total statistics.
     Additionally, it provides the count of devices per resource group.
     """
+    print("HELLO")
     # Fetch the subscription object
     subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
     
