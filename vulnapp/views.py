@@ -1286,37 +1286,32 @@ def device_list(request):
     return render(request, 'device_list.html', {'devices': devices, 'count':device_length})
 
 def devices_in_subscription(request, subscription_id):
-    """
-    View function to show all devices within a specific subscription
-    and provide statistics on vulnerabilities per device, including comments and total statistics.
-    Additionally, it provides the count of devices per resource group.
-    """
-    # Fetch the subscription object
     subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
-    
-    # Fetch all devices related to the subscription
     devices = Device.objects.filter(subscription=subscription)
-
-    # Get today's date
     today = timezone.now().date()
-    print("hello2")
-    # List to hold devices with their vulnerability count and comments
+
+    # Initialize the data structures
     device_vulnerability_stats = []
-
-    # Get ContentType for Device model for generic relation in Comment
-    device_content_type = ContentType.objects.get_for_model(Device)
-
-    # Initialize total vulnerabilities count and dictionary for severity statistics
-    total_vulnerabilities = 0
     severity_stats_dict = {}
-
-    # Dictionary to hold resource group counts
     resource_group_device_count = {}
-    device_vulnerability_stats = []
+
+    # Fetch vulnerability counts for all devices once, mapped by display name
+    vuln_data_all = (
+        MachineReference.objects.filter(
+            computer_dns_name__in=[device.display_name for device in devices],
+            last_updated__date=today
+        )
+        .values('computer_dns_name')
+        .annotate(vuln_count=Count('id'))
+    )
+    vuln_count_map = {item['computer_dns_name']: item['vuln_count'] for item in vuln_data_all}
+
+    # Other prefetch and bulk query setups (e.g., comments, severity stats) can go here
+
+    # Now you can proceed with the main loop
     total_vulnerabilities = sum(vuln_count_map.values())
 
     for device in devices:
-        # Get vulnerability count from the precomputed map
         vuln_count = vuln_count_map.get(device.display_name, "N/A")
 
         # Get the latest comment if available
