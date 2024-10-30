@@ -1289,58 +1289,73 @@ def device_list(request):
 
 def devices_in_subscription(request, subscription_id):
     """
-    Optimized view function to show all devices within a specific subscription
-    and provide statistics on vulnerabilities per device.
+    View function to show all devices within a specific subscription
+    and provide statistics on vulnerabilities per device, including comments and total statistics.
     Additionally, it provides the count of devices per resource group.
     """
     # Fetch the subscription object
     subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
+    
+    # Fetch all devices related to the subscription
+    devices = Device.objects.filter(subscription=subscription)
 
     # Get today's date
     today = timezone.now().date()
 
-    # Fetch all devices related to the subscription with prefetched machine references and vulnerabilities
-    devices = Device.objects.filter(subscription=subscription).prefetch_related(
-        Prefetch(
-            'machine_references',
-            queryset=MachineReference.objects.filter(last_updated__date=today).select_related('vulnerability'),
-            to_attr='prefetched_machine_references'
-        )
-    )
+    # List to hold devices with their vulnerability count and comments
+    device_vulnerability_stats = []
+
+    # Get ContentType for Device model for generic relation in Comment
+    device_content_type = ContentType.objects.get_for_model(Device)
 
     # Initialize total vulnerabilities count and dictionary for severity statistics
     total_vulnerabilities = 0
-    severity_stats_dict = defaultdict(int)
-    device_vulnerability_stats = []
+    severity_stats_dict = {}
+
+    # Dictionary to hold resource group counts
+    resource_group_device_count = {}
 
     for device in devices:
-        # Use prefetched machine references
-        vuln_data = device.prefetched_machine_references
+        # Fetch MachineReference objects for the current device
+        vuln_data = MachineReference.objects.filter(computer_dns_name__icontains=device.display_name)
 
-        if vuln_data:
-            vuln_count = len(vuln_data)
+        if vuln_data.filter(last_updated__date=today).exists():
+            # If data exists for today, use local data and count vulnerabilities
+            vuln_count = vuln_data.count()
             total_vulnerabilities += vuln_count
         else:
-            vuln_count = "N/A"
+            vuln_count = "N/A"  # Indicating data needs to be fetched from the API or is not available
 
-        # Append the device with its vulnerability count
+        # Generate unique identifier for the device to fetch comments
+        unique_id = device.device_id
+
+        # Append the device with its vulnerability count and the latest comment
         device_vulnerability_stats.append({
             'device': device,
             'vuln_count': vuln_count,
         })
 
-        # Calculate severity statistics
-        for mr in vuln_data:
-            severity = mr.vulnerability.severity
-            severity_stats_dict[severity] += 1
+        # Fetch severity statistics for the vulnerabilities associated with this device
+        severity_statistics = vuln_data.values('vulnerability__severity').annotate(total_count=Count('vulnerability__severity'))
 
-    # Fetch resource groups with device counts in one query
-    resource_groups = ResourceGroup.objects.filter(subscription=subscription).annotate(
-        device_count=Count('devices')
-    ).filter(device_count__gt=0)
+        # Combine all entries of each severity level into a single dictionary element
+        for entry in severity_statistics:
+            severity = entry['vulnerability__severity']
+            total_count = entry['total_count']
+            if severity in severity_stats_dict:
+                severity_stats_dict[severity] += total_count
+            else:
+                severity_stats_dict[severity] = total_count
 
-    # Build resource group device count dictionary
-    resource_group_device_count = {rg.name: rg.device_count for rg in resource_groups}
+    # Fetch all resource groups related to the subscription
+    resource_groups = ResourceGroup.objects.filter(subscription=subscription)
+
+    # Iterate through each resource group to count the devices
+    for rg in resource_groups:
+        device_count = Device.objects.filter(resource_group=rg).count()
+        if device_count > 0:  # Only include resource groups with devices
+            resource_group_device_count[rg.name] = device_count
+
 
     context = {
         'subscription': subscription,
@@ -1349,9 +1364,9 @@ def devices_in_subscription(request, subscription_id):
         'device_vulnerability_stats': device_vulnerability_stats,
         'total_vulnerabilities': total_vulnerabilities,
         'severity_stats': json.dumps(severity_stats_dict),
-        'resource_group_device_stats': json.dumps(resource_group_device_count),
+        'resource_group_device_stats': json.dumps(resource_group_device_count),  # Add this to the context
     }
-
+    
     return render(request, 'subscription_devices.html', context)
 
 
