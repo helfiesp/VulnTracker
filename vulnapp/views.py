@@ -1291,7 +1291,6 @@ def devices_in_subscription(request, subscription_id):
     and provide statistics on vulnerabilities per device, including comments and total statistics.
     Additionally, it provides the count of devices per resource group.
     """
-    print("HELLO")
     # Fetch the subscription object
     subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
     
@@ -1300,7 +1299,7 @@ def devices_in_subscription(request, subscription_id):
 
     # Get today's date
     today = timezone.now().date()
-
+    print("hello2")
     # List to hold devices with their vulnerability count and comments
     device_vulnerability_stats = []
 
@@ -1313,7 +1312,7 @@ def devices_in_subscription(request, subscription_id):
 
     # Dictionary to hold resource group counts
     resource_group_device_count = {}
-
+    print("hello3")
     for device in devices:
         # Fetch MachineReference objects for the current device
         vuln_data = MachineReference.objects.filter(computer_dns_name__icontains=device.display_name)
@@ -1358,14 +1357,14 @@ def devices_in_subscription(request, subscription_id):
 
     # Fetch all resource groups related to the subscription
     resource_groups = ResourceGroup.objects.filter(subscription=subscription)
-
+    print("helo4")
     # Iterate through each resource group to count the devices
     for rg in resource_groups:
         device_count = Device.objects.filter(resource_group=rg).count()
         if device_count > 0:  # Only include resource groups with devices
             resource_group_device_count[rg.name] = device_count
 
-
+    print("hello5")
     context = {
         'subscription': subscription,
         'devices': devices,
