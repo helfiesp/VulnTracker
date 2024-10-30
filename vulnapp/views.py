@@ -455,6 +455,7 @@ def cve_list_for_machine(request, computer_dns_name):
         # Attach the latest comment content to the CVE object (if it exists)
         cve.latest_comment = latest_comment.content if latest_comment else ''
 
+
     # Extract device info and machine-specific data from one entry in machine_references
     example_reference = None
     if machine_references.exists():
