@@ -1287,69 +1287,73 @@ def device_list(request):
     return render(request, 'device_list.html', {'devices': devices, 'count':device_length})
 
 def devices_in_subscription(request, subscription_id):
+    """
+    Optimized view function to show all devices within a specific subscription
+    and provide statistics on vulnerabilities per device, including comments and total statistics.
+    Additionally, it provides the count of devices per resource group.
+    """
+    # Fetch the subscription object
     subscription = get_object_or_404(Subscription, subscription_id=subscription_id)
-    devices = Device.objects.filter(subscription=subscription)
+
+    # Get today's date
     today = timezone.now().date()
 
-    # Initialize the data structures
-    device_vulnerability_stats = []
-    severity_stats_dict = {}
-    resource_group_device_count = {}
+    # Get ContentType for Device model for generic relation in Comment
+    device_content_type = ContentType.objects.get_for_model(Device)
 
-    # Fetch vulnerability counts for all devices once, mapped by display name
-    vuln_data_all = (
-        MachineReference.objects.filter(
-            computer_dns_name__in=[device.display_name for device in devices],
-            last_updated__date=today
+    # Fetch all devices related to the subscription with prefetched comments and machine references
+    devices = Device.objects.filter(subscription=subscription).prefetch_related(
+        Prefetch(
+            'comment_set',
+            queryset=Comment.objects.filter(content_type=device_content_type).order_by('-created_at'),
+            to_attr='prefetched_comments'
+        ),
+        Prefetch(
+            'machine_references',
+            queryset=MachineReference.objects.filter(last_updated__date=today).select_related('vulnerability'),
+            to_attr='prefetched_machine_references'
         )
-        .values('computer_dns_name')
-        .annotate(vuln_count=Count('id'))
     )
-    vuln_count_map = {item['computer_dns_name']: item['vuln_count'] for item in vuln_data_all}
 
-    # Other prefetch and bulk query setups (e.g., comments, severity stats) can go here
-
-    # Now you can proceed with the main loop
-    total_vulnerabilities = sum(vuln_count_map.values())
-
-    # Set up prefetch for latest comments, ordered by created_at descending
-    comments = Comment.objects.filter(content_type=device_content_type).order_by('-created_at')
-    devices = devices.prefetch_related(
-        Prefetch('comment_set', queryset=comments, to_attr='latest_comments')
-    )
+    # Initialize total vulnerabilities count and dictionary for severity statistics
+    total_vulnerabilities = 0
+    severity_stats_dict = defaultdict(int)
+    device_vulnerability_stats = []
 
     for device in devices:
-        vuln_count = vuln_count_map.get(device.display_name, "N/A")
+        # Use prefetched machine references
+        vuln_data = device.prefetched_machine_references
 
-        # Get the latest comment if available
-        latest_comment = device.latest_comments[0].content if device.latest_comments else ""
+        if vuln_data:
+            vuln_count = len(vuln_data)
+            total_vulnerabilities += vuln_count
+        else:
+            vuln_count = "N/A"
 
+        # Use prefetched comments
+        comments = device.prefetched_comments
+        latest_comment = comments[0].content if comments else ""
 
-        # Prepare severity statistics for the current device
-        severity_statistics = severity_stats_map.get(device.display_name, {})
-
-        # Append the device info to the list
+        # Append the device with its vulnerability count and the latest comment
         device_vulnerability_stats.append({
             'device': device,
             'vuln_count': vuln_count,
             'latest_comment': latest_comment,
         })
 
-        # Add severity statistics to the global severity dictionary
-        for severity, total_count in severity_statistics.items():
-            if severity in severity_stats_dict:
-                severity_stats_dict[severity] += total_count
-            else:
-                severity_stats_dict[severity] = total_count
-        # Fetch all resource groups related to the subscription
-        resource_groups = ResourceGroup.objects.filter(subscription=subscription)
-        # Iterate through each resource group to count the devices
-        for rg in resource_groups:
-            device_count = Device.objects.filter(resource_group=rg).count()
-            if device_count > 0:  # Only include resource groups with devices
-                resource_group_device_count[rg.name] = device_count
+        # Calculate severity statistics
+        for mr in vuln_data:
+            severity = mr.vulnerability.severity
+            severity_stats_dict[severity] += 1
 
-    print("hello5")
+    # Fetch resource groups with device counts in one query
+    resource_groups = ResourceGroup.objects.filter(subscription=subscription).annotate(
+        device_count=Count('devices')
+    ).filter(device_count__gt=0)
+
+    # Build resource group device count dictionary
+    resource_group_device_count = {rg.name: rg.device_count for rg in resource_groups}
+
     context = {
         'subscription': subscription,
         'devices': devices,
@@ -1357,9 +1361,9 @@ def devices_in_subscription(request, subscription_id):
         'device_vulnerability_stats': device_vulnerability_stats,
         'total_vulnerabilities': total_vulnerabilities,
         'severity_stats': json.dumps(severity_stats_dict),
-        'resource_group_device_stats': json.dumps(resource_group_device_count),  # Add this to the context
+        'resource_group_device_stats': json.dumps(resource_group_device_count),
     }
-    
+
     return render(request, 'subscription_devices.html', context)
 
 
