@@ -20,6 +20,7 @@ from django.db.models.functions import Lower
 import requests
 from django.db import transaction
 import re
+from django.db.models import Prefetch
 from django.db.models import Sum
 from django.http import HttpResponseRedirect
 from django.db.models.functions import ExtractYear
@@ -1311,11 +1312,18 @@ def devices_in_subscription(request, subscription_id):
     # Now you can proceed with the main loop
     total_vulnerabilities = sum(vuln_count_map.values())
 
+    # Set up prefetch for latest comments, ordered by created_at descending
+    comments = Comment.objects.filter(content_type=device_content_type).order_by('-created_at')
+    devices = devices.prefetch_related(
+        Prefetch('comment_set', queryset=comments, to_attr='latest_comments')
+    )
+
     for device in devices:
         vuln_count = vuln_count_map.get(device.display_name, "N/A")
 
         # Get the latest comment if available
         latest_comment = device.latest_comments[0].content if device.latest_comments else ""
+
 
         # Prepare severity statistics for the current device
         severity_statistics = severity_stats_map.get(device.display_name, {})
